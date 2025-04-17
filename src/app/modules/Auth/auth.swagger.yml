@@ -1,0 +1,287 @@
+openapi: 3.0.0
+info:
+  title: Authentication API
+  version: 1.0.0
+  description: API for user authentication, including login, password change, and password reset functionalities.
+
+servers:
+  - url: https://api.example.com/v1
+
+tags:
+  - name: Authentication
+    description: User authentication endpoints
+
+paths:
+  /auth/login:
+    post:
+      summary: User Login
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /auth/change-password:
+    post:
+      summary: Change User Password
+      tags:
+        - Authentication
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Password changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /auth/forget-password:
+    post:
+      summary: Request Password Reset
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgetPasswordRequest'
+      responses:
+        '200':
+          description: Reset link generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForgetPasswordResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /auth/reset-password:
+    post:
+      summary: Reset Password
+      tags:
+        - Authentication
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - name
+        - password
+      properties:
+        name:
+          type: string
+          example: "john_doe"
+        password:
+          type: string
+          format: password
+          example: "securePassword123"
+
+    LoginResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Login successfully!"
+        data:
+          type: object
+          properties:
+            accessToken:
+              type: string
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            refreshToken:
+              type: string
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            user:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                  example: "5f8d0f1b9d3e7a1b3c5d7e9f"
+                name:
+                  type: string
+                  example: "John Doe"
+                role:
+                  type: string
+                  example: "user"
+                token:
+                  type: string
+                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    ChangePasswordRequest:
+      type: object
+      required:
+        - oldPassword
+        - newPassword
+      properties:
+        oldPassword:
+          type: string
+          format: password
+          example: "oldSecurePassword123"
+        newPassword:
+          type: string
+          format: password
+          example: "newSecurePassword456"
+
+    ForgetPasswordRequest:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          example: "john.doe@example.com"
+
+    ForgetPasswordResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Reset link is generated successfully!"
+        data:
+          type: string
+          example: "http://localhost:5000/api/v1//reset-password?id=john.doe@example.com&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    ResetPasswordRequest:
+      type: object
+      required:
+        - id
+        - newPassword
+      properties:
+        id:
+          type: string
+          example: "john.doe@example.com"
+        newPassword:
+          type: string
+          format: password
+          example: "newSecurePassword789"
+
+    SuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+        data:
+          type: object
+
+    Error:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+        message:
+          type: string
+        error:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            statusCode: 400
+            message: "Invalid input"
+            error: "Bad Request"
+
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            statusCode: 403
+            message: "You do not have permission to perform this action"
+            error: "Forbidden"
+
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            statusCode: 404
+            message: "Resource not found"
+            error: "Not Found"

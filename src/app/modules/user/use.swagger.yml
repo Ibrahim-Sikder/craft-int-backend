@@ -1,0 +1,248 @@
+openapi: 3.0.0
+info:
+  title: User Management API
+  version: 1.0.0
+  description: API for managing users, including creation, retrieval, and deletion of user accounts.
+
+servers:
+  - url: https://api.example.com/v1
+
+tags:
+  - name: Users
+    description: User management endpoints
+
+paths:
+  /users:
+    post:
+      summary: Create a new user
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '200':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    
+    get:
+      summary: Get all users
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /users/{id}:
+    delete:
+      summary: Delete a user
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the user to delete
+      responses:
+        '200':
+          description: User deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteUserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    UserInput:
+      type: object
+      required:
+        - email
+        - password
+        - name
+      properties:
+        email:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+        password:
+          type: string
+          format: password
+          example: "securePassword123"
+        name:
+          type: string
+          example: "John Doe"
+        role:
+          type: string
+          enum: [user, admin]
+          default: user
+          example: "user"
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+          example: "5f8d0f1b9d3e7a1b3c5d7e9f"
+        email:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+        name:
+          type: string
+          example: "John Doe"
+        role:
+          type: string
+          example: "user"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UserResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "User is created successfully"
+        data:
+          $ref: '#/components/schemas/User'
+
+    UsersListResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Users are retrieved successfully"
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+
+    DeleteUserResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "User deleted successfully"
+        data:
+          type: object
+          properties:
+            deletedCount:
+              type: integer
+              example: 1
+
+    Error:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+        message:
+          type: string
+        error:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            statusCode: 400
+            message: "User is already exist!"
+            error: "Bad Request"
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            statusCode: 401
+            message: "You are not authorized to access this resource"
+            error: "Unauthorized"
+
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            statusCode: 403
+            message: "You do not have permission to perform this action"
+            error: "Forbidden"
+
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            statusCode: 404
+            message: "User not found"
+            error: "Not Found"
