@@ -5,6 +5,7 @@ import { userRoutes } from '../modules/user/user.route';
 import { classRoutes } from '../modules/class/class.route';
 import { subjectRoutes } from '../modules/subject/subject.route';
 import { studentRoutes } from '../modules/student/student.route';
+import { sessionRoutes } from '../modules/session/session.route';
 const router = Router();
 
 const moduleRoutes = [
@@ -27,6 +28,10 @@ const moduleRoutes = [
   {
     path: '/student',
     route: studentRoutes,
+  },
+  {
+    path: '/session',
+    route: sessionRoutes,
   },
 ];
 
