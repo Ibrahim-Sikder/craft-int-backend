@@ -1,0 +1,1 @@
+export const sectionSearchableFields = ['name', 'classId', 'teacherId', 'roomId', 'timeSlots'];

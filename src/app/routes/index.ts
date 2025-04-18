@@ -6,6 +6,9 @@ import { classRoutes } from '../modules/class/class.route';
 import { subjectRoutes } from '../modules/subject/subject.route';
 import { studentRoutes } from '../modules/student/student.route';
 import { sessionRoutes } from '../modules/session/session.route';
+import { sectionRoutes } from '../modules/section/section.route';
+import { timeSlotRoutes } from '../modules/timeslot/timeslot.route';
+import { roomRoutes } from '../modules/room/room.route';
 const router = Router();
 
 const moduleRoutes = [
@@ -32,6 +35,18 @@ const moduleRoutes = [
   {
     path: '/session',
     route: sessionRoutes,
+  },
+  {
+    path: '/section',
+    route: sectionRoutes,
+  },
+  {
+    path: '/timeslot',
+    route: timeSlotRoutes,
+  },
+  {
+    path: '/room',
+    route: roomRoutes,
   },
 ];
 
