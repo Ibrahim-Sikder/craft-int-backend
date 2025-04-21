@@ -9,7 +9,9 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import { User } from '../user/user.model';
 
 const loginUser = async (payload: TLoginUser) => {
-  const user = await User.isUserExistsByCustomId(payload.name);
+  console.log('payload', payload)
+  const user = await User.isUserExistsByCustomId(payload.email);
+  console.log(user)
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, 'Invalid user name or password');
   }
@@ -26,7 +28,7 @@ const loginUser = async (payload: TLoginUser) => {
   const JwtPayload = {
     userId: user?._id as unknown as string,
     role: user?.role,
-    name: user?.name,
+    email: user?.email,
   };
 
   const accessToken = createToken(
@@ -46,7 +48,7 @@ const loginUser = async (payload: TLoginUser) => {
     refreshToken,
     user: {
       userId: user._id,
-      name: user.name,
+      email: user.email,
       role: user.role,
       token: accessToken,
     },

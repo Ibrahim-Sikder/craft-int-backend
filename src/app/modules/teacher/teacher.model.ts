@@ -39,6 +39,10 @@ const teacherSchema = new Schema<ITeacher>(
       type: String,
       required: true,
     },
+    email: {
+      type: String,
+      required: true,
+    },
     englishName: {
       type: String,
       required: true,

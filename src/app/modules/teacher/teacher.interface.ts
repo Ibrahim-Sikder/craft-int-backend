@@ -10,7 +10,7 @@ export interface ITeacher {
   bloodGroup?: string;
   image?: string;
   dateOfBirth?: string;
-
+email:string;
   permanentAddress: {
     address?: string;
     village?: string;
