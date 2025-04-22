@@ -77,9 +77,9 @@ const getAllStudents = async (query: Record<string, unknown>) => {
 
 const getSingleStudent = async (id: string): Promise<IStudent> => {
   const student = await Student.findById(id)
-    .populate('classId')
-    .populate('parentId')
-    .populate('guardianId');
+    // .populate('classId')
+    // .populate('parentId')
+    // .populate('guardianId');
 
   if (!student) {
     throw new AppError(httpStatus.NOT_FOUND, 'Student not found');
@@ -92,6 +92,7 @@ const updateStudent = async (
   id: string,
   payload: Partial<IStudent>,
 ): Promise<IStudent> => {
+  console.log(payload)
   const student = await Student.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,

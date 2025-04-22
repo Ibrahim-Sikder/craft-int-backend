@@ -9,9 +9,7 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import { User } from '../user/user.model';
 
 const loginUser = async (payload: TLoginUser) => {
-  console.log('payload', payload)
   const user = await User.isUserExistsByCustomId(payload.email);
-  console.log(user)
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, 'Invalid user name or password');
   }
@@ -19,7 +17,6 @@ const loginUser = async (payload: TLoginUser) => {
   if (isDeleted) {
     throw new AppError(httpStatus.FORBIDDEN, 'This account has been deleted!');
   }
-
 
   if (!(await User.isPasswordMatched(payload?.password, user?.password))) {
     throw new AppError(httpStatus.FORBIDDEN, 'Invalid user name or password');
@@ -55,12 +52,10 @@ const loginUser = async (payload: TLoginUser) => {
   };
 };
 
-
 const changePassword = async (
   userData: JwtPayload,
   payload: { oldPassword: string; newPassword: string },
 ) => {
-  
   const user = await User.isUserExistsByCustomId(userData.userId);
 
   if (!user) {
@@ -71,7 +66,6 @@ const changePassword = async (
   if (isDeleted) {
     throw new AppError(httpStatus.NOT_FOUND, 'This user is deleted!');
   }
-
 
   if (!(await User.isPasswordMatched(payload?.oldPassword, user?.password))) {
     throw new AppError(httpStatus.FORBIDDEN, 'Password do not matched');
@@ -97,11 +91,7 @@ const changePassword = async (
   return result;
 };
 
-
-
-
 export const AuthServices = {
   loginUser,
   changePassword,
-
 };

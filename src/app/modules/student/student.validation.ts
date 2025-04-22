@@ -2,9 +2,7 @@ import { z } from 'zod';
 import { Gender, StudentStatus, StudentType } from './student.utils';
 const createStudentValidation = z.object({
   body: z.object({
-    // studentId: z.string({
-    //   required_error: 'Student ID is required',
-    // }),
+
     smartIdCard: z.string().optional(),
     name: z.string({
       required_error: 'Name is required',
