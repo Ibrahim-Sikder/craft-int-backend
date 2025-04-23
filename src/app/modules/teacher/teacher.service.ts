@@ -87,6 +87,7 @@ const updateTeacher = async (
   id: string,
   payload: Partial<ITeacher>,
 ): Promise<ITeacher> => {
+  console.log(payload)
   const updatedTeacher = await Teacher.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,

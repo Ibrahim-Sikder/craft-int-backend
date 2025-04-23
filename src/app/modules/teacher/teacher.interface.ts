@@ -1,6 +1,6 @@
 export interface ITeacher {
   teacherId?: string;
-  teacherSerial: number;
+  teacherSerial: number | null;
   smartIdCard?: string;
   name: string;
   englishName: string;
@@ -30,7 +30,7 @@ email:string;
 
   professionalInfo: {
     designation?: string;
-    monthlySalary: number;
+    monthlySalary: number | null ;
     department?: string;
     staffType: 'Teacher' | 'Staff' | 'Other';
     joiningDate?: string;
