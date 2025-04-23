@@ -27,9 +27,16 @@ const createMealReportValidation = z.object({
       .array(
         z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
           message: 'Invalid student ID',
-        })
+        }),
       )
       .min(1, { message: 'At least one student is required' }),
+    teachers: z
+      .array(
+        z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
+          message: 'Invalid teacher ID',
+        }),
+      )
+      .min(1, { message: 'At least one teacher is required' }),
   }),
 });
 
@@ -48,7 +55,7 @@ const updateMealReportValidation = z.object({
       .array(
         z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
           message: 'Invalid student ID',
-        })
+        }),
       )
       .optional(),
   }),

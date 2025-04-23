@@ -13,6 +13,7 @@ export interface IMealReport extends Document {
   date: Date;
   mealType: MealType;
   students: Types.ObjectId[]; 
+  teachers: Types.ObjectId[]; 
   createdAt?: Date;
   updatedAt?: Date;
 }

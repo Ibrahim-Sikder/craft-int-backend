@@ -21,6 +21,13 @@ const mealReportSchema = new Schema<IMealReport>(
         required: true,
       },
     ],
+    teachers: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Student', 
+        required: true,
+      },
+    ],
   },
   {
     timestamps: true,
