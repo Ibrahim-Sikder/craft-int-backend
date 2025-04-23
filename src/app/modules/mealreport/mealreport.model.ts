@@ -1,6 +1,26 @@
-// models/mealReport.model.ts
-import { Schema, model,  } from 'mongoose';
-import { IMealReport, MealType } from './mealreport.interface';
+import { Schema, model } from "mongoose"
+import { type IMealReport, MealType } from "./mealreport.interface"
+
+// Schema for a person's meal selection
+const mealParticipantSchema = new Schema({
+  personId: {
+    type: Schema.Types.ObjectId,
+    required: true,
+  },
+  mealTypes: [
+    {
+      type: String,
+      enum: Object.values(MealType),
+      required: true,
+    },
+  ],
+  mealCount: {
+    type: Number,
+    required: true,
+    min: 1,
+    max: 3,
+  },
+})
 
 const mealReportSchema = new Schema<IMealReport>(
   {
@@ -9,30 +29,13 @@ const mealReportSchema = new Schema<IMealReport>(
       required: true,
       index: true,
     },
-    mealType: {
-      type: String,
-      enum: Object.values(MealType),
-      required: true,
-    },
-    students: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Student', 
-        required: true,
-      },
-    ],
-    teachers: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Student', 
-        required: true,
-      },
-    ],
+    students: [mealParticipantSchema],
+    teachers: [mealParticipantSchema],
   },
   {
     timestamps: true,
-  }
-);
+  },
+)
 
-const MealReport = model<IMealReport>('MealReport', mealReportSchema);
-export default MealReport;
+const MealReport = model<IMealReport>("MealReport", mealReportSchema)
+export default MealReport

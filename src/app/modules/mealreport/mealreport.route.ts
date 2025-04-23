@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.post(
   '/',
-  auth('admin', 'super_admin'),
+  // auth('admin', 'super_admin'),
   validateRequest(MealReportValidations.createMealReportValidation),
   mealReportControllers.createMealReport
 );

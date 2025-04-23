@@ -7,15 +7,16 @@ import MealReport from './mealreport.model';
 import { mealReportSearchableFields } from './mealreport.constant';
 
 const createMealReport = async (payload: IMealReport) => {
-  const { date, mealType } = payload;
+  const { date } = payload;
+  console.log(payload)
 
-  if (!date || !mealType) {
+  if (!date) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Date and meal type are required');
   }
 
   const existingReport = await MealReport.findOne({
     date,
-    mealType,
+   
   });
 
   if (existingReport) {
@@ -36,8 +37,16 @@ const getAllMealReports = async (query: Record<string, unknown>) => {
 
   const meta = await reportQuery.countTotal();
   const mealReports = await reportQuery.modelQuery
-    .populate('students') // optionally populate students
-    .exec();
+  .populate({
+    path: 'students.personId',
+    model: 'Student',
+  })
+  .populate({
+    path: 'teachers.personId',
+    model: 'Teacher', 
+  })
+  .exec();
+
 
   return {
     meta,
@@ -54,6 +63,7 @@ const getSingleMealReport = async (id: string) => {
 };
 
 const updateMealReport = async (id: string, payload: Partial<IMealReport>) => {
+  console.log(payload)
   const result = await MealReport.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,

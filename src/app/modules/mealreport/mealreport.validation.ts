@@ -1,41 +1,30 @@
 import { z } from 'zod';
 import mongoose from 'mongoose';
+import { MealType } from './mealreport.interface';
 
-// Enum for meal types
-export enum MealType {
-  BREAKFAST = 'BREAKFAST',
-  LUNCH = 'LUNCH',
-  DINNER = 'DINNER',
-}
+const mealParticipantSchema = z.object({
+  personId: z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
+    message: 'Invalid person ID',
+  }),
+  mealTypes: z
+    .array(z.nativeEnum(MealType))
+    .min(1, { message: 'At least one meal type is required' }),
+  mealCount: z
+    .number()
+    .min(1, { message: 'Minimum 1 meal is required' })
+    .max(3, { message: 'Maximum 3 meals allowed' }),
+});
 
-const createMealReportValidation = z.object({
+export const createMealReportValidation = z.object({
   body: z.object({
-    date: z
-      .string({
-        required_error: 'Date is required',
-      })
-      .refine((val) => !isNaN(Date.parse(val)), {
-        message: 'Invalid date format',
-      }),
-
-    mealType: z.nativeEnum(MealType, {
-      required_error: 'Meal type is required',
-      invalid_type_error: 'Invalid meal type',
+    date: z.string({
+      required_error: 'Date is required',
     }),
-
     students: z
-      .array(
-        z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
-          message: 'Invalid student ID',
-        }),
-      )
+      .array(mealParticipantSchema)
       .min(1, { message: 'At least one student is required' }),
     teachers: z
-      .array(
-        z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
-          message: 'Invalid teacher ID',
-        }),
-      )
+      .array(mealParticipantSchema)
       .min(1, { message: 'At least one teacher is required' }),
   }),
 });
