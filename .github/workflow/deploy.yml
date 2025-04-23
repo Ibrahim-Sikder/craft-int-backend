@@ -1,0 +1,70 @@
+name: Node.js Deployment with NGINX and SSL
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install SSH Client
+        run: sudo apt-get update && sudo apt-get install -y openssh-client
+
+      - name: Deploy to VPS using SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            echo "Starting deployment to VPS..."
+
+            # Navigate to the project directory
+            cd /var/www/html/craft-international/craft-int-backend || exit
+
+            # Ensure Git is available
+            if ! command -v git &> /dev/null; then
+              echo "Git is not installed. Please install Git."
+              exit 1
+            fi
+
+            echo "Fetching latest code from GitHub..."
+            git fetch --all
+            git reset --hard origin/main
+
+            echo "Setting up environment variables..."
+            if [ ! -f .env ]; then
+              echo ".env file not found. Copying from .env.example..."
+              cp .env.example .env
+            fi
+
+            echo "Installing dependencies..."
+            npm install
+
+            echo "Building Next.js application..."
+            npm run build
+
+            # Restart application using PM2
+            if command -v pm2 &> /dev/null; then
+              echo "Restarting application using PM2..."
+              pm2 restart  craft-int-backend || pm2 start npm --name "craft-int-backend" -- run start
+            else
+              echo "PM2 not found. Please install it using 'npm install -g pm2'."
+              exit 1
+            fi
+
+            # Restart NGINX to apply changes
+            if sudo systemctl restart nginx; then
+              echo "NGINX restarted successfully."
+            else
+              echo "Failed to restart NGINX. Check for issues using 'sudo systemctl status nginx'."
+              exit 1
+            fi
+
+            echo "Deployment completed successfully!"
