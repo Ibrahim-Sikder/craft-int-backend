@@ -29,7 +29,7 @@ const teacherSchema = new Schema<ITeacher>(
     },
     teacherSerial: {
       type: Number,
-      required: true,
+      // required: true,
     },
     smartIdCard: {
       type: String,
@@ -71,11 +71,11 @@ const teacherSchema = new Schema<ITeacher>(
     // Address Info
     permanentAddress: {
       type: addressSchema,
-      required: true,
+      // required: true,
     },
     currentAddress: {
       type: addressSchema,
-      required: true,
+      // required: true,
     },
 
     // Professional Info
