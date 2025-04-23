@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "PORT=5010 node dist/server.js",
+    "start": "PORT=3001 node dist/server.js",
     "dev": "npx ts-node-dev --respawn --transpile-only src/server.ts",
     "lint:fix": "npm run lint --fix",
     "prettier": "npx prettier --write src",
