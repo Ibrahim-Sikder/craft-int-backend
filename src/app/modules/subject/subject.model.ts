@@ -1,30 +1,50 @@
-import { model, Schema } from "mongoose";
-import { TSubject } from "./subject.interface";
+import { Schema, model } from 'mongoose';
 
-const subjectSchema = new Schema<TSubject>(
+const SubjectSchema = new Schema(
   {
-    subjectName: {
+    name: {
       type: String,
-      required: true,
+      required: [true, 'Subject name is required'],
       trim: true,
     },
-    subjectCode: {
+    code: {
       type: String,
-      required: true,
+      required: [true, 'Subject code is required'],
       unique: true,
-      uppercase: true,
+      trim: true,
     },
-    description: {
+    image: {
       type: String,
+      default: '',
     },
+    paper: {
+      type: String,
+      default: '',
+    },
+    lessons: [
+      {
+        lessonNo: {
+          type: Number,
+          required: true,
+        },
+        lessonName: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
     classId: {
       type: Schema.Types.ObjectId,
       ref: 'Class',
-      required: true,
+      required: [true, 'Class ID is required'],
     },
     teacherId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'Teacher',
+    },
+    isOptional: {
+      type: Boolean,
+      default: false,
     },
   },
   {
@@ -32,4 +52,4 @@ const subjectSchema = new Schema<TSubject>(
   }
 );
 
-export const Subject = model<TSubject>('Subject', subjectSchema);
+export const Subject = model('Subject', SubjectSchema);

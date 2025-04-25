@@ -57,7 +57,6 @@ console.log(payload)
   }
 };
 
-
 const getAllStudents = async (query: Record<string, unknown>) => {
   const studentQuery = new QueryBuilder(Student.find(), query)
     .search(studentSearchableFields)

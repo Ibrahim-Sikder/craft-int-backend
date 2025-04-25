@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { authRoutes } from '../modules/Auth/auth.route';
 import { userRoutes } from '../modules/user/user.route';
 import { classRoutes } from '../modules/class/class.route';
-import { subjectRoutes } from '../modules/subject/subject.route';
+import { subjectAssignRoute } from '../modules/subject-assign/subject-assign.route';
 import { studentRoutes } from '../modules/student/student.route';
 import { sessionRoutes } from '../modules/session/session.route';
 import { sectionRoutes } from '../modules/section/section.route';
@@ -14,6 +14,7 @@ import { todayLessonRoutes } from '../modules/todaylesson/todaylesson.route';
 import { classReportRoutes } from '../modules/classreport/classreport.route';
 import { mealReportRoutes } from '../modules/mealreport/mealreport.route';
 import { teacherRoutes } from '../modules/teacher/teacher.route';
+import { subjectRoutes } from '../modules/subject/subject.route';
 const router = Router();
 
 const moduleRoutes = [

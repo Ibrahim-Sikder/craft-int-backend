@@ -1,12 +1,14 @@
-import { Types } from 'mongoose';
-
-export interface TSubject {
-  _id?: Types.ObjectId;
-  subjectName: string;
-  subjectCode: string;
-  description?: string;
-  classId: Types.ObjectId;
-  teacherId?: Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export type TSubject = {
+    name: string;
+    code: string;
+    image?: string;
+    paper?: string;
+    lessons?: {
+      lessonNo: number;
+      lessonName: string;
+    }[];
+    classId: string;
+    teacherId?: string;
+    isOptional?: boolean;
+  };
+  

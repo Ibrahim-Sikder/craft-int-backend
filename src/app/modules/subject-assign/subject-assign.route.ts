@@ -1,15 +1,15 @@
 import express from 'express';
+import { subjectControllers } from './subject-assign.controller';
 import { validateRequest } from '../../middlewares/validateRequest';
 import { auth } from '../../middlewares/auth';
-import { subjectValidation } from './subject.validation';
-import { subjectControllers } from './subject.controller';
+import { SubjectValidations } from './subject-assign.validation';
 
 const router = express.Router();
 
 router.post(
   '/',
   auth('admin', 'super_admin'),
-  validateRequest(subjectValidation.createSubjectSchema),
+  validateRequest(SubjectValidations.createSubjectValidation),
   subjectControllers.createSubject
 );
 
@@ -20,7 +20,7 @@ router.get('/:id', subjectControllers.getSingleSubject);
 router.patch(
   '/:id',
   auth('admin', 'super_admin'),
-  validateRequest(subjectValidation.updateSubjectSchema),
+  validateRequest(SubjectValidations.updateSubjectValidation),
   subjectControllers.updateSubject
 );
 
@@ -30,4 +30,4 @@ router.delete(
   subjectControllers.deleteSubject
 );
 
-export const subjectRoutes = router;
+export const subjectAssignRoute = router;
