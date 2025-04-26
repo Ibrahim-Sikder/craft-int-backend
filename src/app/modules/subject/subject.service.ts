@@ -6,7 +6,9 @@ import { TSubject } from './subject.interface';
 import { subjectSearchableFields } from '../subject-assign/subject-assign.constant';
 
 const createSubject = async (payload: TSubject) => {
-  const { name, code } = payload;
+  console.log(payload);
+  const { name, code, classes, teachers } = payload;
+
   if (!name || !code) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -19,7 +21,16 @@ const createSubject = async (payload: TSubject) => {
     throw new AppError(httpStatus.CONFLICT, 'Subject already exists');
   }
 
-  const result = await Subject.create(payload);
+  // Clean classes and teachers fields
+  const cleanedClasses = classes?.filter((id) => id) || [];
+  const cleanedTeachers = teachers?.filter((id) => id) || [];
+
+  const result = await Subject.create({
+    ...payload,
+    classes: cleanedClasses,
+    teachers: cleanedTeachers,
+  });
+
   return result;
 };
 
@@ -32,7 +43,10 @@ const getAllSubjects = async (query: Record<string, unknown>) => {
     .fields();
 
   const meta = await subjectQuery.countTotal();
-  const subjects = await subjectQuery.modelQuery;
+
+  const subjects = await subjectQuery.modelQuery
+    .populate('classes')
+    .populate('teachers');
 
   return {
     meta,

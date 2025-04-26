@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose';
+import { TSubject } from './subject.interface';
 
-const SubjectSchema = new Schema(
+const SubjectSchema = new Schema<TSubject>(
   {
     name: {
       type: String,
@@ -10,8 +11,8 @@ const SubjectSchema = new Schema(
     code: {
       type: String,
       required: [true, 'Subject code is required'],
-      unique: true,
-      trim: true,
+      // unique: true,
+      // trim: true,
     },
     image: {
       type: String,
@@ -33,15 +34,18 @@ const SubjectSchema = new Schema(
         },
       },
     ],
-    classId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Class',
-      required: [true, 'Class ID is required'],
-    },
-    teacherId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Teacher',
-    },
+    classes: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Class',
+      },
+    ],
+    teachers: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Teacher',
+      },
+    ],
     isOptional: {
       type: Boolean,
       default: false,

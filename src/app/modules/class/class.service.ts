@@ -30,7 +30,7 @@ const getAllClasses = async (query: Record<string, unknown>) => {
     .fields();
 
   const meta = await classQuery.countTotal();
-  const classes = await classQuery.modelQuery;
+  const classes = await classQuery.modelQuery.populate('students').populate('teachers').populate('sections').populate('subjects');
 
   return {
     meta,
@@ -39,10 +39,13 @@ const getAllClasses = async (query: Record<string, unknown>) => {
 };
 
 const getSingleClass = async (id: string) => {
-  const result = await Class.findById(id);
+  const result = await Class.findById(id)
+    .populate([{ path: 'students' }, { path: 'teachers' }, { path: 'sections' }, { path: 'subjects' }]);
+
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'Class not found');
   }
+
   return result;
 };
 

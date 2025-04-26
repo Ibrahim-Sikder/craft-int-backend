@@ -23,9 +23,9 @@ const createStudentValidation = z.object({
     nidFatherMotherGuardian: z.string().optional(),
 
     // Address Information
-    permanentAddress: z.string({ required_error: 'Permanent address is required' }),
-    permanentDistrict: z.string({ required_error: 'Permanent district is required' }),
-    permanentThana: z.string({ required_error: 'Permanent thana is required' }),
+    permanentAddress: z.string({ required_error: 'Permanent address is required' }).optional(),
+    permanentDistrict: z.string({ required_error: 'Permanent district is required' }).optional(),
+    permanentThana: z.string({ required_error: 'Permanent thana is required' }).optional(),
     sameAsPermanent: z.boolean().default(false),
     presentAddress: z.string().optional(),
     presentDistrict: z.string().optional(),

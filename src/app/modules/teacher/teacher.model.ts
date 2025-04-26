@@ -25,7 +25,7 @@ const teacherSchema = new Schema<ITeacher>(
   {
     teacherId: {
       type: String,
-      unique: true,
+      // unique: true,
     },
     teacherSerial: {
       type: Number,
