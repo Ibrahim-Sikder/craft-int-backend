@@ -1,24 +1,16 @@
 import { z } from 'zod';
 import { Gender, StudentStatus, StudentType } from './student.utils';
+
 const createStudentValidation = z.object({
   body: z.object({
-    // studentId: z.string({
-    //   required_error: 'Student ID is required',
-    // }),
     smartIdCard: z.string().optional(),
-    name: z.string({
-      required_error: 'Name is required',
-    }),
-    birthDate: z.string({
-      required_error: 'Birth date is required',
-    }),
+    name: z.string({ required_error: 'Name is required' }),
+    birthDate: z.string({ required_error: 'Birth date is required' }),
     birthRegistrationNo: z.string().optional(),
     gender: z.enum([Gender.MALE, Gender.FEMALE, Gender.OTHER], {
       required_error: 'Gender is required',
     }),
-    mobile: z.string({
-      required_error: 'Mobile number is required',
-    }),
+    mobile: z.string({ required_error: 'Mobile number is required' }),
     bloodGroup: z.string().optional(),
     image: z.string().optional(),
 
@@ -31,45 +23,33 @@ const createStudentValidation = z.object({
     nidFatherMotherGuardian: z.string().optional(),
 
     // Address Information
-    permanentAddress: z.string({
-      required_error: 'Permanent address is required',
-    }),
-    permanentDistrict: z.string({
-      required_error: 'Permanent district is required',
-    }),
-    permanentThana: z.string({
-      required_error: 'Permanent thana is required',
-    }),
+    permanentAddress: z.string({ required_error: 'Permanent address is required' }).optional(),
+    permanentDistrict: z.string({ required_error: 'Permanent district is required' }).optional(),
+    permanentThana: z.string({ required_error: 'Permanent thana is required' }).optional(),
     sameAsPermanent: z.boolean().default(false),
     presentAddress: z.string().optional(),
     presentDistrict: z.string().optional(),
     presentThana: z.string().optional(),
 
     // Academic Information
-    className: z.string({
-      required_error: 'Class name is required',
-    }),
-    studentClassRoll: z.string({
-      required_error: 'Student class roll is required',
-    }),
+    className: z.string({ required_error: 'Class name is required' }),
+    studentClassRoll: z.string({ required_error: 'Student class roll is required' }),
     batch: z.string().optional(),
     section: z.string().optional(),
-    activeSession: z.string({
-      required_error: 'Active session is required',
-    }),
+    activeSession: z.string({ required_error: 'Active session is required' }),
     status: z.enum([StudentStatus.ACTIVE, StudentStatus.INACTIVE, StudentStatus.GRADUATED]).default(StudentStatus.ACTIVE),
     studentType: z.enum([StudentType.RESIDENTIAL, StudentType.DAY]).optional(),
     additionalNote: z.string().optional(),
 
-    // Fee Information
-    admissionFee: z.number().default(0),
-    monthlyFee: z.number().default(0),
-    previousDues: z.number().default(0),
-    sessionFee: z.number().default(0),
-    residenceFee: z.number().default(0),
-    otherFee: z.number().default(0),
-    transportFee: z.number().default(0),
-    boardingFee: z.number().default(0),
+    // Fee Information (accepts both string and number)
+    admissionFee: z.coerce.number().default(0),
+    monthlyFee: z.coerce.number().default(0),
+    previousDues: z.coerce.number().default(0),
+    sessionFee: z.coerce.number().default(0),
+    residenceFee: z.coerce.number().default(0),
+    otherFee: z.coerce.number().default(0),
+    transportFee: z.coerce.number().default(0),
+    boardingFee: z.coerce.number().default(0),
 
     // Settings
     sendAdmissionSMS: z.boolean().default(false),
@@ -117,15 +97,15 @@ const updateStudentValidation = z.object({
     studentType: z.enum([StudentType.RESIDENTIAL, StudentType.DAY]).optional(),
     additionalNote: z.string().optional(),
 
-    // Fee Information
-    admissionFee: z.number().optional(),
-    monthlyFee: z.number().optional(),
-    previousDues: z.number().optional(),
-    sessionFee: z.number().optional(),
-    residenceFee: z.number().optional(),
-    otherFee: z.number().optional(),
-    transportFee: z.number().optional(),
-    boardingFee: z.number().optional(),
+    // Fee Information (accepts both string and number)
+    admissionFee: z.coerce.number().optional(),
+    monthlyFee: z.coerce.number().optional(),
+    previousDues: z.coerce.number().optional(),
+    sessionFee: z.coerce.number().optional(),
+    residenceFee: z.coerce.number().optional(),
+    otherFee: z.coerce.number().optional(),
+    transportFee: z.coerce.number().optional(),
+    boardingFee: z.coerce.number().optional(),
 
     // Settings
     sendAdmissionSMS: z.boolean().optional(),

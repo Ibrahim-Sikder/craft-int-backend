@@ -16,7 +16,7 @@ const userSchema = new Schema<TUser, UserModel>(
     },
     password: {
       type: String,
-      required: true,
+      // required: true,
       select: 0,
     },
     passwordChangeAt: {
@@ -29,7 +29,7 @@ const userSchema = new Schema<TUser, UserModel>(
     },
     role: {
       type: String,
-      enum: ['super_admin', 'user', 'admin'],
+      enum: ['super_admin', 'user', 'admin', 'student', 'teacher', 'super_visor', 'class_teacher'],
       default: 'user',
     },
     status: {
@@ -61,8 +61,8 @@ userSchema.post('save', function (doc, next) {
   next();
 });
 
-userSchema.statics.isUserExistsByCustomId = async function (name: string) {
-  const isUserExists = await User.findOne({ name }).select('+password');
+userSchema.statics.isUserExistsByCustomId = async function (email: string) {
+  const isUserExists = await User.findOne({ email }).select('+password');
   return isUserExists;
 };
 

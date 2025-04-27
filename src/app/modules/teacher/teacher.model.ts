@@ -25,17 +25,21 @@ const teacherSchema = new Schema<ITeacher>(
   {
     teacherId: {
       type: String,
-      unique: true,
+      // unique: true,
     },
     teacherSerial: {
       type: Number,
-      required: true,
+      // required: true,
     },
     smartIdCard: {
       type: String,
       unique: true,
     },
     name: {
+      type: String,
+      required: true,
+    },
+    email: {
       type: String,
       required: true,
     },
@@ -48,7 +52,7 @@ const teacherSchema = new Schema<ITeacher>(
       enum: ['Male', 'Female', 'Other'],
       required: true,
     },
-    personalPhone: {
+    phone: {
       type: String,
     },
     teacherEmail: {
@@ -67,11 +71,11 @@ const teacherSchema = new Schema<ITeacher>(
     // Address Info
     permanentAddress: {
       type: addressSchema,
-      required: true,
+      // required: true,
     },
     currentAddress: {
       type: addressSchema,
-      required: true,
+      // required: true,
     },
 
     // Professional Info

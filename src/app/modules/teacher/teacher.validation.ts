@@ -17,9 +17,11 @@ const certificateSchema = z.object({
 const createTeacherValidation = z.object({
   body: z.object({
     teacherId: z.string().optional(),
-    teacherSerial: z.number({
-      required_error: 'Teacher serial is required',
-    }),
+    teacherSerial: z
+      .string({
+        required_error: 'Teacher serial is required',
+      })
+      .optional(),
     smartIdCard: z.string().optional(),
 
     name: z.string({ required_error: 'Name is required' }),
@@ -39,7 +41,7 @@ const createTeacherValidation = z.object({
 
     professionalInfo: z.object({
       designation: z.string().optional(),
-      monthlySalary: z.number().optional(),
+      monthlySalary: z.any().optional(),
       department: z.string().optional(),
       staffType: z.enum(['Teacher', 'Staff', 'Other']).optional(),
       joiningDate: z.coerce.date().optional(),
@@ -84,27 +86,33 @@ const updateTeacherValidation = z.object({
     permanentAddress: addressSchema.optional(),
     currentAddress: addressSchema.optional(),
 
-    professionalInfo: z.object({
-      designation: z.string().optional(),
-      monthlySalary: z.number().optional(),
-      department: z.string().optional(),
-      staffType: z.enum(['Teacher', 'Staff', 'Other']).optional(),
-      joiningDate: z.coerce.date().optional(),
-      residenceType: z.enum(['Residential', 'Non-residential']).optional(),
-    }).optional(),
+    professionalInfo: z
+      .object({
+        designation: z.string().optional(),
+        monthlySalary: z.number().optional(),
+        department: z.string().optional(),
+        staffType: z.enum(['Teacher', 'Staff', 'Other']).optional(),
+        joiningDate: z.coerce.date().optional(),
+        residenceType: z.enum(['Residential', 'Non-residential']).optional(),
+      })
+      .optional(),
 
-    additionalInfo: z.object({
-      guardianPhone: z.string().optional(),
-      youtubeChannel: z.string().optional(),
-      facebookProfile: z.string().optional(),
-      twitterProfile: z.string().optional(),
-      status: z.enum(['Active', 'Inactive']).optional(),
-      language: z.enum(['Bangla', 'English', 'Other']).optional(),
-    }).optional(),
+    additionalInfo: z
+      .object({
+        guardianPhone: z.string().optional(),
+        youtubeChannel: z.string().optional(),
+        facebookProfile: z.string().optional(),
+        twitterProfile: z.string().optional(),
+        status: z.enum(['Active', 'Inactive']).optional(),
+        language: z.enum(['Bangla', 'English', 'Other']).optional(),
+      })
+      .optional(),
 
-    sessionInfo: z.object({
-      activeSession: z.string().optional(),
-    }).optional(),
+    sessionInfo: z
+      .object({
+        activeSession: z.string().optional(),
+      })
+      .optional(),
 
     certificates: z.array(certificateSchema).optional(),
   }),

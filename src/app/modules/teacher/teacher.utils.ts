@@ -1,16 +1,16 @@
 import { Teacher } from "./teacher.model";
 
   const findLastTeacherNo = async () => {
-    const lastJobCard = await Teacher.findOne(
+    const lastTeacherNo = await Teacher.findOne(
       {},
       {
-        job_no: 1,
+        teacherId: 1,
       },
     )
       .sort({ createdAt: -1 })
       .lean();
   
-    return lastJobCard?.teacherId ? lastJobCard?.teacherId : undefined;
+    return lastTeacherNo?.teacherId ? lastTeacherNo?.teacherId : undefined;
   };
   
   export const generateTeacherId = async () => {

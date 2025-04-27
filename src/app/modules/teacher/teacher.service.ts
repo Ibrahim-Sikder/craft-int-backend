@@ -6,22 +6,54 @@ import { ITeacher } from './teacher.interface';
 
 import { generateTeacherId } from './teacher.utils';
 import { teacherSearchableFields } from './teacher.constant';
+import mongoose from 'mongoose';
+import { User } from '../user/user.model';
 
 const createTeacher = async (payload: Partial<ITeacher>): Promise<ITeacher> => {
-  const teacherId = await generateTeacherId();
-  if (!teacherId) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Teacher id is required');
-  }
-  const existingTeacher = await Teacher.findOne({ teacherId });
-  if (existingTeacher) {
-    throw new AppError(
-      httpStatus.CONFLICT,
-      'Teacher with this email already exists',
-    );
+  const { email, name } = payload;
+
+  if (!email || !name) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Required fields are missing');
   }
 
-  const result = await Teacher.create(payload);
-  return result;
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const teacherId = await generateTeacherId();
+
+    const existingTeacher = await Teacher.findOne({ teacherId });
+    if (existingTeacher) {
+      throw new AppError(
+        httpStatus.CONFLICT,
+        'Generated Teacher ID already exists. Try again.',
+      );
+    }
+
+    const teacher = await Teacher.create([{ ...payload, teacherId }], {
+      session,
+    });
+
+    await User.create(
+      [
+        {
+          email,
+          password: 'teacher123',
+          name,
+          role: 'teacher',
+        },
+      ],
+      { session },
+    );
+
+    await session.commitTransaction();
+    return teacher[0];
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
 };
 
 const getAllTeachers = async (query: Record<string, unknown>) => {
@@ -55,6 +87,7 @@ const updateTeacher = async (
   id: string,
   payload: Partial<ITeacher>,
 ): Promise<ITeacher> => {
+  console.log(payload)
   const updatedTeacher = await Teacher.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,

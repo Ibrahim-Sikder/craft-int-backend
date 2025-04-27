@@ -5,30 +5,56 @@ import QueryBuilder from '../../builder/QueryBuilder';
 import { IStudent } from './student.interface';
 import { studentSearchableFields } from './student.constant';
 import { generateStudentId } from './student.utils';
+import mongoose from 'mongoose';
+import { User } from '../user/user.model';
 
 const createStudent = async (payload: Partial<IStudent>): Promise<IStudent> => {
-  const { mobile } = payload;
-
-  if (!mobile) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Mobile number is required');
+  const {  name, email } = payload;
+console.log(payload)
+  // Check if mobile, name, and email are provided
+  if (!name || !email) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Required fields are missing');
   }
 
-  const studentId = await generateStudentId();
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  const exists = await Student.exists({ studentId });
-  if (exists) {
-    throw new AppError(
-      httpStatus.CONFLICT,
-      'Generated Student ID already exists. Try again.',
+  try {
+    const studentId = await generateStudentId();
+
+    const exists = await Student.exists({ studentId });
+    if (exists) {
+      throw new AppError(
+        httpStatus.CONFLICT,
+        'Generated Student ID already exists. Try again.',
+      );
+    }
+
+    const student = await Student.create([{ ...payload, studentId }], {
+      session,
+    });
+
+    await User.create(
+      [
+        {
+          email: email, 
+          password: 'student123',
+          name: name,
+          role: 'student',
+        },
+      ],
+      { session },
     );
+
+    // Commit the transaction
+    await session.commitTransaction();
+    return student[0];
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
   }
-
-  const result = await Student.create({
-    ...payload,
-    studentId,
-  });
-
-  return result;
 };
 
 const getAllStudents = async (query: Record<string, unknown>) => {
@@ -50,9 +76,9 @@ const getAllStudents = async (query: Record<string, unknown>) => {
 
 const getSingleStudent = async (id: string): Promise<IStudent> => {
   const student = await Student.findById(id)
-    .populate('classId')
-    .populate('parentId')
-    .populate('guardianId');
+    // .populate('classId')
+    // .populate('parentId')
+    // .populate('guardianId');
 
   if (!student) {
     throw new AppError(httpStatus.NOT_FOUND, 'Student not found');
@@ -65,6 +91,7 @@ const updateStudent = async (
   id: string,
   payload: Partial<IStudent>,
 ): Promise<IStudent> => {
+  console.log(payload)
   const student = await Student.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,

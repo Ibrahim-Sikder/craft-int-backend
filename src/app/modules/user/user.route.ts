@@ -5,11 +5,19 @@ import { auth } from '../../middlewares/auth';
 import { validateRequest } from '../../middlewares/validateRequest';
 const router = express.Router();
 
-router.get('/',  UserController.getAllUser);
+router.get('/', UserController.getAllUser);
 router.post(
   '/',
   validateRequest(userValidations.createUserValidation),
   UserController.createUser,
 );
-router.delete('/:id', auth('admin','super_admin'), UserController.deleteUser);
+router.get('/:id', UserController.getSingleUser);
+
+router.patch(
+  '/:id',
+  auth('admin', 'super_admin'),
+
+  UserController.updateUser,
+);
+router.delete('/:id', auth('admin', 'super_admin'), UserController.deleteUser);
 export const userRoutes = router;
