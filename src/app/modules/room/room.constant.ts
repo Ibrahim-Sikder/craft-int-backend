@@ -1,0 +1,1 @@
+export const roomSearchableFields = ['roomNumber', 'roomType', 'capacity', 'status'];

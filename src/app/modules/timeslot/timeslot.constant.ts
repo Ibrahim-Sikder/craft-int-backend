@@ -1,0 +1,1 @@
+export const timeSlotSearchableFields = ['startTime', 'endTime', 'status'];

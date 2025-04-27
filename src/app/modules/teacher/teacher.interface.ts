@@ -1,16 +1,16 @@
 export interface ITeacher {
   teacherId?: string;
-  teacherSerial: number;
+  teacherSerial: number | null;
   smartIdCard?: string;
   name: string;
   englishName: string;
   gender: 'Male' | 'Female' | 'Other';
-  personalPhone?: string;
+  phone?: string;
   teacherEmail?: string;
   bloodGroup?: string;
   image?: string;
   dateOfBirth?: string;
-
+email:string;
   permanentAddress: {
     address?: string;
     village?: string;
@@ -30,7 +30,7 @@ export interface ITeacher {
 
   professionalInfo: {
     designation?: string;
-    monthlySalary: number;
+    monthlySalary: number | null ;
     department?: string;
     staffType: 'Teacher' | 'Staff' | 'Other';
     joiningDate?: string;

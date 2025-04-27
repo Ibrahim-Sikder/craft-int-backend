@@ -9,6 +9,7 @@ import { createToken } from '../Auth/auth.utils';
 import config from '../../config';
 
 const createUser = async (payload: TUser) => {
+  console.log(payload)
   const userByEmail = await User.isUserExistsByCustomId(payload.email);
   if (userByEmail) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Email is already registered!');
@@ -57,15 +58,35 @@ const getAllUser = async () => {
   const result = await User.find();
   return result;
 };
+const getSingleUser = async (id: string) => {
+  const result = await User.findById(id)
+
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  return result;
+};
 const deleteUser = async (id: string) => {
   const result = await User.deleteOne({ _id: id });
 
   return result;
 };
-
+const updateUser = async (id: string, payload: Partial<TUser>) => {
+  const result = await User.findByIdAndUpdate(id, payload, {
+    new: true,
+    runValidators: true,
+  });
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Failed to update class');
+  }
+  return result;
+};
 
 export const UserServices = {
   createUser,
   getAllUser,
-  deleteUser
+  deleteUser,
+  updateUser,
+  getSingleUser
 };

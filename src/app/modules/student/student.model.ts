@@ -7,13 +7,17 @@ const studentSchema = new Schema<IStudent>(
     studentId: {
       type: String,
       required: true,
-      unique: true,
+      // unique: true,
     },
     smartIdCard: {
       type: String,
       unique: true,
     },
     name: {
+      type: String,
+      required: true,
+    },
+    email: {
       type: String,
       required: true,
     },
@@ -63,15 +67,15 @@ const studentSchema = new Schema<IStudent>(
     // Address Information
     permanentAddress: {
       type: String,
-      required: true,
+
     },
     permanentDistrict: {
       type: String,
-      required: true,
+
     },
     permanentThana: {
       type: String,
-      required: true,
+
     },
     sameAsPermanent: {
       type: Boolean,

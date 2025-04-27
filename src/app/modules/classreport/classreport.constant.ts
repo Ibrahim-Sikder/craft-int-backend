@@ -1,0 +1,1 @@
+export const classReportSearchableFields = ['teacherId', 'classId', 'subjectId'];

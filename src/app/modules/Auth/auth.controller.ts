@@ -27,7 +27,6 @@ const changePassword = catchAsync(async (req, res) => {
   });
 });
 
-
 export const AuthController = {
   loginUser,
   changePassword,

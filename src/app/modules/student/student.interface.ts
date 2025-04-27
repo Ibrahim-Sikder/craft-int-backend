@@ -1,10 +1,17 @@
 import { Document } from 'mongoose';
 import { Gender, StudentStatus, StudentType } from './student.utils';
 
+
+export enum Designation {
+  CHAIRMAN = 'Chairman',
+  TEACHER = 'Teacher',
+  COOK = 'Cook',
+}
 export interface IStudent extends Document {
   studentId: string;
   smartIdCard: string;
   name: string;
+  email: string;
   birthDate: Date;
   birthRegistrationNo: string;
   gender: Gender;

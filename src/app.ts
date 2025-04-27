@@ -20,7 +20,7 @@ app.use(helmet());
 
 // Define ARCHIVE_PATH
 const rootDir = process.cwd();
-const ARCHIVE_PATH = path.join(rootDir, 'public', 'sarabelanews.gzip');
+const ARCHIVE_PATH = path.join(rootDir, 'public', 'craftmanagement.gzip');
 
 // Logging middleware in development environment
 if (config.NODE_ENV === 'development') {
@@ -43,9 +43,7 @@ app.use(cookieParser());
 
 const allowedOrigins = [
   config.CROSS_ORIGIN_CLIENT,
-  config.CROSS_ORIGIN_ADMIN,
-  config.LOCALHOST_CLIENT,
-  config.LOCALHOST_ADMIN,
+  config.LOCALHOST_CLIENT, 
 ];
 
 

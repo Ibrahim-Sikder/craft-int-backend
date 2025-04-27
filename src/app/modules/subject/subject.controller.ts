@@ -1,7 +1,8 @@
 import httpStatus from 'http-status';
-import { subjectServices } from './subject.service';
+
 import sendResponse from '../../../utils/sendResponse';
 import { catchAsync } from '../../../utils/catchAsync';
+import { subjectServices } from './subject.service';
 
 const createSubject = catchAsync(async (req, res, next) => {
   try {

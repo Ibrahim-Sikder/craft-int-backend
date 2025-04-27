@@ -19,16 +19,16 @@ export enum Gender {
   
 
   const findLastStudentNo = async () => {
-    const lastJobCard = await Student.findOne(
+    const lastStudent = await Student.findOne(
       {},
       {
-        job_no: 1,
+        studentId: 1,
       },
     )
       .sort({ createdAt: -1 })
       .lean();
   
-    return lastJobCard?.studentId ? lastJobCard?.studentId : undefined;
+    return lastStudent?.studentId ? lastStudent?.studentId : undefined;
   };
   
   export const generateStudentId = async () => {
