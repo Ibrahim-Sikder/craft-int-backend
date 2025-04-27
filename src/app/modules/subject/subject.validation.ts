@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 export const createSubjectSchema = z.object({
   body: z.object({
-    name: z.string().min(1, 'Subject name is required'),
-    code: z.string().min(1, 'Subject code is required'),
+    name: z.string().min(1, 'Subject name is required').trim(),
+    code: z.string().min(1, 'Subject code is required').trim(),
     image: z.string().optional(),
     paper: z.string().optional(),
     lessons: z
@@ -13,20 +13,14 @@ export const createSubjectSchema = z.object({
             required_error: 'Lesson number is required',
           }),
           lessonName: z.string().min(1, 'Lesson name is required'),
-        }),
+        })
       )
       .optional(),
-      classes: z
-      .array(z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid class ID'))
-      .optional(),
-    
-    teachers: z
-      .array(z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid teacher ID'))
-      .optional(),
-    
+    classes: z.array(z.string()).optional(),
+    teachers: z.array(z.string()).optional(),
+    isOptional: z.boolean().optional(),
   }),
 });
-
 export const updateSubjectSchema = z.object({
   body: z.object({
     name: z.string().optional(),
@@ -41,14 +35,9 @@ export const updateSubjectSchema = z.object({
         }),
       )
       .optional(),
-      classes: z
-      .array(z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid class ID'))
-      .optional(),
-    
-    teachers: z
-      .array(z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid teacher ID'))
-      .optional(),
-    
+    classes: z.array(z.string()).optional(),
+
+    teachers: z.array(z.string()).optional(),
   }),
 });
 

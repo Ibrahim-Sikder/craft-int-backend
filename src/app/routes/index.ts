@@ -15,6 +15,7 @@ import { classReportRoutes } from '../modules/classreport/classreport.route';
 import { mealReportRoutes } from '../modules/mealreport/mealreport.route';
 import { teacherRoutes } from '../modules/teacher/teacher.route';
 import { subjectRoutes } from '../modules/subject/subject.route';
+import { todayTaskRoutes } from '../modules/todaytask/todaytask.route';
 const router = Router();
 
 const moduleRoutes = [
@@ -63,7 +64,7 @@ const moduleRoutes = [
     route: homeTaskRoutes,
   },
   {
-    path: '/todaylesson',
+    path: '/today-lesson',
     route: todayLessonRoutes,
   },
   {
@@ -73,6 +74,10 @@ const moduleRoutes = [
   {
     path: '/meal-report',
     route: mealReportRoutes,
+  },
+  {
+    path: '/today-task',
+    route: todayTaskRoutes,
   },
 ];
 

@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.post(
   '/',
-  auth('admin', 'super_admin'),
+  auth('admin', 'super_admin','teacher'),
   validateRequest(TodayLessonValidations.createTodayLessonValidation),
   todayLessonControllers.createTodayLesson
 );
@@ -19,14 +19,14 @@ router.get('/:id', todayLessonControllers.getSingleTodayLesson);
 
 router.patch(
   '/:id',
-  auth('admin', 'super_admin'),
+  auth('admin', 'super_admin','teacher'),
   validateRequest(TodayLessonValidations.updateTodayLessonValidation),
   todayLessonControllers.updateTodayLesson
 );
 
 router.delete(
   '/:id',
-  auth('admin', 'super_admin'),
+  auth('admin', 'super_admin','teacher'),
   todayLessonControllers.deleteTodayLesson
 );
 

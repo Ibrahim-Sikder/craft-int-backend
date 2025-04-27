@@ -36,17 +36,17 @@ const studentEvaluationSchema = new Schema<IStudentEvaluation>(
 
 const classReportSchema = new Schema<IClassReport>(
   {
-    teacherId: {
+    teachers: {
       type: Schema.Types.ObjectId,
       ref: 'Teacher',
       required: true,
     },
-    classId: {
+    classes: {
       type: Schema.Types.ObjectId,
       ref: 'Class',
       required: true,
     },
-    subjectId: {
+    subjects: {
       type: Schema.Types.ObjectId,
       ref: 'Subject',
       required: true,
@@ -76,6 +76,7 @@ const classReportSchema = new Schema<IClassReport>(
     timestamps: true,
   },
 );
+
 
 export const ClassReport = model<IClassReport>(
   'ClassReport',

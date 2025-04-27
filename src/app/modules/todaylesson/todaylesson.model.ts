@@ -1,20 +1,12 @@
-import { Schema, model } from 'mongoose';
-import { ITodayLesson } from './todaylesson.interface';
+import { Schema, model } from "mongoose";
+import { TTodayLesson } from "./todaylesson.interface";
 
-const todayLessonSchema = new Schema<ITodayLesson>(
+const TodayLessonSchema = new Schema<TTodayLesson>(
   {
-    title: {
+    lessonContent: {
       type: String,
-      required: true,
+      required: [true, "Lesson content is required"],
       trim: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
-    attachments: {
-      type: [String],
-      default: [],
     },
   },
   {
@@ -22,4 +14,4 @@ const todayLessonSchema = new Schema<ITodayLesson>(
   }
 );
 
-export const TodayLesson = model<ITodayLesson>('TodayLesson', todayLessonSchema);
+export const TodayLesson = model<TTodayLesson>("TodayLesson", TodayLessonSchema);

@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongoose';
+import { Types } from 'mongoose';
 
 export type TSubject = {
   name: string;
@@ -9,7 +9,7 @@ export type TSubject = {
     lessonNo: number;
     lessonName: string;
   }[];
-  classes: ObjectId[];
-  teachers: ObjectId[];
+  classes: Types.ObjectId[] | string[];
+  teachers: Types.ObjectId[] | string[];
   isOptional?: boolean;
 };

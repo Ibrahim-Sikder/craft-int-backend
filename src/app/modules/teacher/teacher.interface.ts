@@ -5,7 +5,7 @@ export interface ITeacher {
   name: string;
   englishName: string;
   gender: 'Male' | 'Female' | 'Other';
-  personalPhone?: string;
+  phone?: string;
   teacherEmail?: string;
   bloodGroup?: string;
   image?: string;

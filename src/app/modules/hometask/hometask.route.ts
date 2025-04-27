@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.post(
   '/',
-  auth('admin', 'admin'),
+  auth('admin', 'teacher'),
   validateRequest(HomeTaskValidations.createHomeTaskValidation),
   homeTaskControllers.createHomeTask
 );

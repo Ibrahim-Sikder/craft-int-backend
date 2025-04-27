@@ -7,12 +7,13 @@ const SubjectSchema = new Schema<TSubject>(
       type: String,
       required: [true, 'Subject name is required'],
       trim: true,
+      unique: true, 
     },
     code: {
       type: String,
       required: [true, 'Subject code is required'],
-      // unique: true,
-      // trim: true,
+      unique: true,
+      trim: true,
     },
     image: {
       type: String,

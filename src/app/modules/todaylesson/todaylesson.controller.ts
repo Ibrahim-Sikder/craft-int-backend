@@ -15,7 +15,7 @@ const createTodayLesson = catchAsync(async (req, res, next) => {
 });
 
 const getAllTodayLessons = catchAsync(async (req, res) => {
-  const result = await todayLessonServices.getAllTodayLessons();
+  const result = await todayLessonServices.getAllTodayLessons(req.query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

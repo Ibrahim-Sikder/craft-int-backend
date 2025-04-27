@@ -52,7 +52,7 @@ const teacherSchema = new Schema<ITeacher>(
       enum: ['Male', 'Female', 'Other'],
       required: true,
     },
-    personalPhone: {
+    phone: {
       type: String,
     },
     teacherEmail: {

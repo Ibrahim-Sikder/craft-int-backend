@@ -10,12 +10,12 @@ export interface IStudentEvaluation {
 }
 
 export interface IClassReport {
-  teacherId: Types.ObjectId;
-  classId: Types.ObjectId;
-  subjectId: Types.ObjectId;
+  teachers: Types.ObjectId;
+  classes: Types.ObjectId;
+  subjects: Types.ObjectId;
   hour: string;
   date: Date;
   studentEvaluations: IStudentEvaluation[];
-  todayLesson?: Types.ObjectId;
-  homeTask?: Types.ObjectId;
+  todayLesson?: Types.ObjectId[];
+  homeTask?: Types.ObjectId[];
 }
