@@ -12,12 +12,12 @@ export interface IStudent extends Document {
   smartIdCard: string;
   name: string;
   email: string;
-  birthDate: Date;
+  birthDate: string;
   birthRegistrationNo: string;
   gender: Gender;
   mobile: string;
   bloodGroup: string;
-  image: string;
+  studentPhoto: string;
 
   // Family Information
   fatherName: string;
@@ -55,6 +55,7 @@ export interface IStudent extends Document {
   otherFee: number;
   transportFee: number;
   boardingFee: number;
+  monthlySalary: number;
 
   // Settings
   sendAdmissionSMS: boolean;

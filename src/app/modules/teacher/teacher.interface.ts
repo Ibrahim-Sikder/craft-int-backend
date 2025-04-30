@@ -1,57 +1,75 @@
-export interface ITeacher {
-  teacherId?: string;
-  teacherSerial: number | null;
-  smartIdCard?: string;
+export interface IAddress {
+  address?: string;
+  village?: string;
+  postOffice?: string;
+  thana?: string;
+  district?: string;
+  state?: string;
+  country?: string;
+  zipCode?: string;
+}
+
+export interface IEducation {
+  degree: string;
+  institution: string;
+  year: string;
+  specialization?: string;
+}
+
+export interface ICertification {
   name: string;
-  englishName: string;
-  gender: 'Male' | 'Female' | 'Other';
-  phone?: string;
-  teacherEmail?: string;
+  issuedBy: string;
+  year: string;
+  description?: string;
+}
+
+export interface IExperience {
+  organization: string;
+  position: string;
+  from: string;
+  to: string;
+  description?: string;
+}
+
+export interface ITeacher {
+  // Basic Information
+  teacherId: string;
+  teacherSerial: number;
+  smartIdCard: string;
+  name: string;
+  phone: string;
+  email: string;
+  dateOfBirth?: Date;
   bloodGroup?: string;
-  image?: string;
-  dateOfBirth?: string;
-email:string;
-  permanentAddress: {
-    address?: string;
-    village?: string;
-    postOffice?: string;
-    thana?: string;
-    district?: string;
-  };
+  gender: 'Male' | 'Female' | 'Other';
+  nationality?: string;
+  religion?: string;
+  maritalStatus?: 'Single' | 'Married' | 'Divorced' | 'Widowed';
+  teacherPhoto?: string;
 
-  currentAddress: {
-    address?: string;
-    village?: string;
-    postOffice?: string;
-    thana?: string;
-    district?: string;
-    sameAsPermanent?: boolean;
-  };
+  // Address Information
+  permanentAddress: IAddress;
+  currentAddress?: IAddress;
+  sameAsPermanent?: boolean;
 
-  professionalInfo: {
-    designation?: string;
-    monthlySalary: number | null ;
-    department?: string;
-    staffType: 'Teacher' | 'Staff' | 'Other';
-    joiningDate?: string;
-    residenceType: 'Residential' | 'Non-residential';
-  };
+  // Professional Information
+  designation: string;
+  department: string;
+  joiningDate: Date;
+  monthlySalary: number;
+  staffType: 'Teacher' | 'Staff' | 'Other';
 
-  additionalInfo?: {
-    guardianPhone?: string;
-    youtubeChannel?: string;
-    facebookProfile?: string;
-    twitterProfile?: string;
-    status: 'Active' | 'Inactive';
-    language: 'Bangla' | 'English' | 'Other';
-  };
+  // Educational Information
+  educationalQualifications?: IEducation[];
+  certifications?: ICertification[];
+  workExperience?: IExperience[];
 
-  sessionInfo: {
-    activeSession: string;
-  };
+  // Additional Information
+  status: 'Active' | 'Inactive';
+  language?: 'Bangla' | 'English' | 'Other';
+  activeSession?: string;
 
-  certificates?: {
-    name: string;
-    image?: string;
-  }[];
+  // System fields
+  createdAt?: Date;
+  updatedAt?: Date;
 }

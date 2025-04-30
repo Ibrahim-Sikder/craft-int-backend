@@ -69,7 +69,7 @@ const classReportSchema = new Schema<IClassReport>(
     },
     homeTask: {
       type: Schema.Types.ObjectId,
-      ref: 'HomeTask',
+      ref: 'TodayTask',
     },
   },
   {
