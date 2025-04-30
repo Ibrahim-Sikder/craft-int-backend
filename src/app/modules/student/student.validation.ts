@@ -12,8 +12,7 @@ const createStudentValidation = z.object({
     }),
     mobile: z.string({ required_error: 'Mobile number is required' }),
     bloodGroup: z.string().optional(),
-    image: z.string().optional(),
-
+    studentPhoto: z.string({required_error:'Student photo is required!'}).optional(),
     // Family Information
     fatherName: z.string().optional(),
     motherName: z.string().optional(),
@@ -63,13 +62,12 @@ const updateStudentValidation = z.object({
     studentId: z.string().optional(),
     smartIdCard: z.string().optional(),
     name: z.string().optional(),
-    birthDate: z.date().optional(),
+    birthDate: z.string().optional(),
     birthRegistrationNo: z.string().optional(),
     gender: z.enum([Gender.MALE, Gender.FEMALE, Gender.OTHER]).optional(),
     mobile: z.string().optional(),
     bloodGroup: z.string().optional(),
-    image: z.string().optional(),
-
+    studentPhoto: z.string({required_error:'Student photo is required!'}).optional(),
     // Family Information
     fatherName: z.string().optional(),
     motherName: z.string().optional(),

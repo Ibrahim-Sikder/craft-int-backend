@@ -22,7 +22,7 @@ const studentSchema = new Schema<IStudent>(
       required: true,
     },
     birthDate: {
-      type: Date,
+      type: String,
       required: true,
     },
     birthRegistrationNo: {
@@ -40,8 +40,9 @@ const studentSchema = new Schema<IStudent>(
     bloodGroup: {
       type: String,
     },
-    image: {
+    studentPhoto: {
       type: String,
+      // required:true,
     },
 
     // Family Information
@@ -129,6 +130,10 @@ const studentSchema = new Schema<IStudent>(
       default: 0,
     },
     monthlyFee: {
+      type: Number,
+      default: 0,
+    },
+    monthlySalary: {
       type: Number,
       default: 0,
     },

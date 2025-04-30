@@ -41,6 +41,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 
+
 const allowedOrigins = [
   config.CROSS_ORIGIN_CLIENT,
   config.LOCALHOST_CLIENT, 

@@ -11,16 +11,16 @@ const sectionSchema = new Schema<ISection>(
     capacity: {
       type: Number,
     },
-    classId: {
+    classes: {
       type: Schema.Types.ObjectId,
       ref: 'Class',
       required: true,
     },
-    teacherId: {
+    teachers: {
       type: Schema.Types.ObjectId,
       ref: 'Teacher',
     },
-    roomId: {
+    rooms: {
       type: Schema.Types.ObjectId,
       ref: 'Room',
     },
@@ -34,10 +34,7 @@ const sectionSchema = new Schema<ISection>(
       type: String,
       required: true,
     },
-    color: {
-      type: String,
-      default: '#6366F1',
-    },
+
     description: {
       type: String,
     },

@@ -25,7 +25,7 @@ router.delete(
 
 router.patch(
   '/:id',
-  auth('admin', 'super_admin'),
+  // auth('admin', 'super_admin', 'teacher'),
   validateRequest(MealReportValidations.updateMealReportValidation),
   mealReportControllers.updateMealReport
 );

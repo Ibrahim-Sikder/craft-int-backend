@@ -11,7 +11,7 @@ import { User } from '../user/user.model';
 
 const createTeacher = async (payload: Partial<ITeacher>): Promise<ITeacher> => {
   const { email, name } = payload;
-
+  console.log(payload);
   if (!email || !name) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Required fields are missing');
   }
@@ -87,7 +87,7 @@ const updateTeacher = async (
   id: string,
   payload: Partial<ITeacher>,
 ): Promise<ITeacher> => {
-  console.log(payload)
+  console.log(payload);
   const updatedTeacher = await Teacher.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,
