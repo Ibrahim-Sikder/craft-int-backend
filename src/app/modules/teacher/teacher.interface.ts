@@ -17,7 +17,7 @@ export interface IEducation {
 }
 
 export interface ICertification {
-  name: string;
+  certificateName: string;
   issuedBy: string;
   year: string;
   description?: string;

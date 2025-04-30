@@ -30,7 +30,7 @@ const educationSchema = new Schema(
 // Certification schema
 const certificationSchema = new Schema(
   {
-    name: String,
+    certificateName: String,
     issuedBy: String,
     year: String,
     description: String

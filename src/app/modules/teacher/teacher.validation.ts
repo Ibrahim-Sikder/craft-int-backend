@@ -19,7 +19,7 @@ const educationSchema = z.object({
 });
 
 const certificationSchema = z.object({
-  name: z.string(),
+  certificateName: z.string(),
   issuedBy: z.string(),
   year: z.string(),
   description: z.string().optional()

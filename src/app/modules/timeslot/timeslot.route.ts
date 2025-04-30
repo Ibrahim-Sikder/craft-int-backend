@@ -19,7 +19,7 @@ router.get('/:id', timeSlotControllers.getSingleTimeSlot);
 
 router.delete(
   '/:id',
-  auth('admin', 'super_admin'),
+  // auth('admin', 'super_admin'),
   timeSlotControllers.deleteTimeSlot,
 );
 
