@@ -6,119 +6,142 @@ const addressSchema = z.object({
   postOffice: z.string().optional(),
   thana: z.string().optional(),
   district: z.string().optional(),
-  sameAsPermanent: z.boolean().optional(),
+  state: z.string().optional(),
+  country: z.string().optional(),
+  zipCode: z.string().optional()
 });
 
-const certificateSchema = z.object({
-  name: z.string().optional(),
-  image: z.string().optional(),
+const educationSchema = z.object({
+  degree: z.string(),
+  institution: z.string(),
+  year: z.string(),
+  specialization: z.string().optional()
+});
+
+const certificationSchema = z.object({
+  certificateName: z.string(),
+  issuedBy: z.string(),
+  year: z.string(),
+  description: z.string().optional()
+});
+
+const experienceSchema = z.object({
+  organization: z.string(),
+  position: z.string(),
+  from: z.string(),
+  to: z.string(),
+  description: z.string().optional()
 });
 
 const createTeacherValidation = z.object({
   body: z.object({
-    teacherId: z.string().optional(),
-    teacherSerial: z
-      .string({
-        required_error: 'Teacher serial is required',
-      })
-      .optional(),
-    smartIdCard: z.string().optional(),
-
-    name: z.string({ required_error: 'Name is required' }),
-    englishName: z.string({ required_error: 'English name is required' }),
-    gender: z.enum(['Male', 'Female', 'Other'], {
-      required_error: 'Gender is required',
+    // Basic Information
+    // teacherId: z.string({
+    //   required_error: 'Teacher ID is required'
+    // }),
+    teacherSerial: z.number({
+      required_error: 'Teacher serial is required'
     }),
-
-    personalPhone: z.string().optional(),
-    teacherEmail: z.string().email().optional(),
-    bloodGroup: z.string().optional(),
-    image: z.string().optional(),
+    smartIdCard: z.string({
+      required_error: 'Smart ID card is required'
+    }),
+    name: z.string({
+      required_error: 'Name is required'
+    }),
+    phone: z.string({
+      required_error: 'Phone number is required'
+    }),
+    email: z.string({
+      required_error: 'Email is required'
+    }).email('Invalid email format'),
     dateOfBirth: z.coerce.date().optional(),
+    bloodGroup: z.string().optional(),
+    gender: z.enum(['Male', 'Female', 'Other'], {
+      required_error: 'Gender is required'
+    }),
+    nationality: z.string().optional(),
+    religion: z.string().optional(),
+    maritalStatus: z.enum(['Single', 'Married', 'Divorced', 'Widowed']).optional(),
+    teacherPhoto: z.string().optional(),
 
+    // Address Information
     permanentAddress: addressSchema,
-    currentAddress: addressSchema,
+    currentAddress: addressSchema.optional(),
+    sameAsPermanent: z.boolean().optional(),
 
-    professionalInfo: z.object({
-      designation: z.string().optional(),
-      monthlySalary: z.any().optional(),
-      department: z.string().optional(),
-      staffType: z.enum(['Teacher', 'Staff', 'Other']).optional(),
-      joiningDate: z.coerce.date().optional(),
-      residenceType: z.enum(['Residential', 'Non-residential']).optional(),
+    // Professional Information
+    designation: z.string({
+      required_error: 'Designation is required'
+    }),
+    department: z.string({
+      required_error: 'Department is required'
+    }),
+    joiningDate: z.coerce.date({
+      required_error: 'Joining date is required'
+    }),
+    monthlySalary: z.number({
+      required_error: 'Monthly salary is required'
+    }),
+    staffType: z.enum(['Teacher', 'Staff', 'Other'], {
+      required_error: 'Staff type is required'
     }),
 
-    additionalInfo: z.object({
-      guardianPhone: z.string().optional(),
-      youtubeChannel: z.string().optional(),
-      facebookProfile: z.string().optional(),
-      twitterProfile: z.string().optional(),
-      status: z.enum(['Active', 'Inactive']).optional(),
-      language: z.enum(['Bangla', 'English', 'Other']).optional(),
-    }),
+    // Educational Information
+    educationalQualifications: z.array(educationSchema).optional(),
+    certifications: z.array(certificationSchema).optional(),
+    workExperience: z.array(experienceSchema).optional(),
 
-    sessionInfo: z.object({
-      activeSession: z.string({
-        required_error: 'Active session is required',
-      }),
-    }),
-
-    certificates: z.array(certificateSchema).optional(),
-  }),
+    // Additional Information
+    status: z.enum(['Active', 'Inactive'], {
+      required_error: 'Status is required'
+    }).default('Active'),
+    language: z.enum(['Bangla', 'English', 'Other']).optional(),
+    activeSession: z.string().optional()
+  })
 });
 
 const updateTeacherValidation = z.object({
   body: z.object({
+    // Basic Information
     teacherId: z.string().optional(),
     teacherSerial: z.number().optional(),
     smartIdCard: z.string().optional(),
-
     name: z.string().optional(),
-    englishName: z.string().optional(),
-    gender: z.enum(['Male', 'Female', 'Other']).optional(),
-
-    personalPhone: z.string().optional(),
-    teacherEmail: z.string().email().optional(),
-    bloodGroup: z.string().optional(),
-    image: z.string().optional(),
+    phone: z.string().optional(),
+    email: z.string().email('Invalid email format').optional(),
     dateOfBirth: z.coerce.date().optional(),
+    bloodGroup: z.string().optional(),
+    gender: z.enum(['Male', 'Female', 'Other']).optional(),
+    nationality: z.string().optional(),
+    religion: z.string().optional(),
+    maritalStatus: z.enum(['Single', 'Married', 'Divorced', 'Widowed']).optional(),
+    teacherPhoto: z.string().optional(),
 
+    // Address Information
     permanentAddress: addressSchema.optional(),
     currentAddress: addressSchema.optional(),
+    sameAsPermanent: z.boolean().optional(),
 
-    professionalInfo: z
-      .object({
-        designation: z.string().optional(),
-        monthlySalary: z.number().optional(),
-        department: z.string().optional(),
-        staffType: z.enum(['Teacher', 'Staff', 'Other']).optional(),
-        joiningDate: z.coerce.date().optional(),
-        residenceType: z.enum(['Residential', 'Non-residential']).optional(),
-      })
-      .optional(),
+    // Professional Information
+    designation: z.string().optional(),
+    department: z.string().optional(),
+    joiningDate: z.coerce.date().optional(),
+    monthlySalary: z.number().optional(),
+    staffType: z.enum(['Teacher', 'Staff', 'Other']).optional(),
 
-    additionalInfo: z
-      .object({
-        guardianPhone: z.string().optional(),
-        youtubeChannel: z.string().optional(),
-        facebookProfile: z.string().optional(),
-        twitterProfile: z.string().optional(),
-        status: z.enum(['Active', 'Inactive']).optional(),
-        language: z.enum(['Bangla', 'English', 'Other']).optional(),
-      })
-      .optional(),
+    // Educational Information
+    educationalQualifications: z.array(educationSchema).optional(),
+    certifications: z.array(certificationSchema).optional(),
+    workExperience: z.array(experienceSchema).optional(),
 
-    sessionInfo: z
-      .object({
-        activeSession: z.string().optional(),
-      })
-      .optional(),
-
-    certificates: z.array(certificateSchema).optional(),
-  }),
+    // Additional Information
+    status: z.enum(['Active', 'Inactive']).optional(),
+    language: z.enum(['Bangla', 'English', 'Other']).optional(),
+    activeSession: z.string().optional()
+  })
 });
 
 export const TeacherValidations = {
   createTeacherValidation,
-  updateTeacherValidation,
+  updateTeacherValidation
 };

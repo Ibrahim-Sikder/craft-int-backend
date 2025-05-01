@@ -6,21 +6,35 @@ const createSectionValidation = z.object({
     sectionType: z.enum(['morning', 'evening'], {
       required_error: 'Section type is required',
     }),
-    classId: z.string({ required_error: 'Class ID is required' }),
-    teacherId: z.string().optional(),
-    roomId: z.string().optional(),
-    timeSlots: z.array(z.string()).optional(),
+    rooms: z.array(z.string({ required_error: 'Room ID is required' })),
+    classes: z.array(z.string({ required_error: 'Class ID is required' })),
+    teachers: z.array(z.string({ required_error: 'Class ID is required' })),
+    timeSlots: z.array(
+      z.string({ required_error: 'Time Slot ID is required' }),
+    ),
   }),
 });
 
 const updateSectionValidation = z.object({
   body: z.object({
-    name: z.string().optional(),
-    sectionType: z.enum(['morning', 'evening']).optional(),
-    classId: z.string().optional(),
-    teacherId: z.string().optional(),
-    roomId: z.string().optional(),
-    timeSlots: z.array(z.string()).optional(),
+    name: z.string({ required_error: 'Section name is required' }).optional(),
+    sectionType: z
+      .enum(['morning', 'evening'], {
+        required_error: 'Section type is required',
+      })
+      .optional(),
+    rooms: z
+      .array(z.string({ required_error: 'Room ID is required' }))
+      .optional(),
+    classes: z
+      .array(z.string({ required_error: 'Class ID is required' }))
+      .optional(),
+    teachers: z
+      .array(z.string({ required_error: 'Class ID is required' }))
+      .optional(),
+    timeSlots: z
+      .array(z.string({ required_error: 'Time Slot ID is required' }))
+      .optional(),
   }),
 });
 

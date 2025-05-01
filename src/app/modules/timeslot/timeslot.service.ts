@@ -6,15 +6,26 @@ import QueryBuilder from '../../builder/QueryBuilder';
 import { ITimeSlot } from './timeslot.interface';
 import { TimeSlot } from './timeslot.model';
 import { timeSlotSearchableFields } from './timeslot.constant';
+import { format } from 'date-fns';
 
-const createTimeSlot = async (payload: ITimeSlot) => {
-  const { startTime, endTime, day } = payload;
+export const createTimeSlot = async (payload: ITimeSlot) => {
+  const { startTime, endTime, day, title } = payload;
 
   if (!startTime || !endTime || !day) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Required fields are missing');
+    throw new AppError(httpStatus.BAD_REQUEST, "Missing required fields");
   }
 
-  const result = await TimeSlot.create(payload);
+  const formattedStart = format(new Date(startTime), "hh:mm a");
+  const formattedEnd = format(new Date(endTime), "hh:mm a");
+
+  const result = await TimeSlot.create({
+    title,
+    day,
+    startTime: formattedStart,
+    endTime: formattedEnd,
+    isActive: payload.isActive ?? true,
+  });
+
   return result;
 };
 
@@ -57,7 +68,10 @@ const updateTimeSlot = async (id: string, payload: Partial<ITimeSlot>) => {
 const deleteTimeSlot = async (id: string) => {
   const result = await TimeSlot.findByIdAndDelete(id);
   if (!result) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Time slot not found or already deleted');
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      'Time slot not found or already deleted',
+    );
   }
   return result;
 };

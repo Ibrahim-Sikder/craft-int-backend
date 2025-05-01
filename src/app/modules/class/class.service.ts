@@ -50,6 +50,7 @@ const getSingleClass = async (id: string) => {
 };
 
 const updateClass = async (id: string, payload: Partial<TClass>) => {
+  console.log(payload)
   const result = await Class.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,

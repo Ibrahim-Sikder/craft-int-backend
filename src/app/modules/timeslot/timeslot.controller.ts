@@ -6,6 +6,7 @@ import { catchAsync } from '../../../utils/catchAsync';
 import { timeSlotServices } from './timeslot.service';
 
 const createTimeSlot = catchAsync(async (req, res, next) => {
+
   const result = await timeSlotServices.createTimeSlot(req.body);
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
