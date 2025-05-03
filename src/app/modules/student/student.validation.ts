@@ -31,15 +31,14 @@ const createStudentValidation = z.object({
     presentThana: z.string().optional(),
 
     // Academic Information
-    className: z.string({ required_error: 'Class name is required' }),
     studentClassRoll: z.string({ required_error: 'Student class roll is required' }),
     batch: z.string().optional(),
-    section: z.string().optional(),
-    activeSession: z.string({ required_error: 'Active session is required' }),
+    section: z.array(z.string(z.string({required_error:'Section is required!'}))),
+    className: z.array(z.string({ required_error: 'Class name is required' })),
+    activeSession: z.array(z.string({ required_error: 'Active session is required' })),
     status: z.enum([StudentStatus.ACTIVE, StudentStatus.INACTIVE, StudentStatus.GRADUATED]).default(StudentStatus.ACTIVE),
     studentType: z.enum([StudentType.RESIDENTIAL, StudentType.DAY]).optional(),
     additionalNote: z.string().optional(),
-
     // Fee Information (accepts both string and number)
     admissionFee: z.coerce.number().default(0),
     monthlyFee: z.coerce.number().default(0),
@@ -49,7 +48,6 @@ const createStudentValidation = z.object({
     otherFee: z.coerce.number().default(0),
     transportFee: z.coerce.number().default(0),
     boardingFee: z.coerce.number().default(0),
-
     // Settings
     sendAdmissionSMS: z.boolean().default(false),
     studentSerial: z.string().optional(),

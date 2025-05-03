@@ -3,76 +3,87 @@ import { z } from 'zod';
 const createClassReportValidation = z.object({
   body: z.object({
     teachers: z.string({ required_error: 'Teacher is  required!' }),
-    classes: z.array(
-      z.string({ required_error: 'Classes is  required!' }),
-    ),
-    subjects: z.array(
-      z.string({ required_error: 'Subject is  required!' }),
-    ),
-    hour: z.string({
-      required_error: 'Hour is required',
-    }).min(1, 'Hour must not be empty'),
-    date: z.string({
-      required_error: 'Date is required',
-    }).refine(val => !isNaN(Date.parse(val)), {
-      message: 'Invalid date format',
-    }),
-    studentEvaluations: z.array(
-      z.object({
-        studentId: z.string({
-          required_error: 'Student ID is required',
-        }),
-        lessonEvaluation: z.enum(['পড়া শিখেছে', 'আংশিক শিখেছে', 'পড়া শিখেনি'], {
-          required_error: 'Lesson evaluation is required',
-        }),
-        handwriting: z.enum(['লিখেছে', 'আংশিক লিখেছে', 'লিখেনি'], {
-          required_error: 'Handwriting evaluation is required',
-        }),
-        attendance: z.enum(['উপস্থিত', 'অনুপস্থিত', 'ছুটি'], {
-          required_error: 'Attendance status is required',
-        }),
-        parentSignature: z.boolean({
-          required_error: 'Parent signature is required',
-        }),
-        comments: z.string().optional(),
+    classes: z.string({ required_error: 'Classes is  required!' }),
+    subjects: z.string({ required_error: 'Subject is  required!' }),
+    hour: z
+      .string({
+        required_error: 'Hour is required',
       })
-    ).min(1, 'At least one student evaluation is required'),
+      .min(1, 'Hour must not be empty'),
+    date: z
+      .string({
+        required_error: 'Date is required',
+      })
+      .refine((val) => !isNaN(Date.parse(val)), {
+        message: 'Invalid date format',
+      }),
+    studentEvaluations: z
+      .array(
+        z.object({
+          studentId: z.string({
+            required_error: 'Student ID is required',
+          }),
+          lessonEvaluation: z.enum(
+            ['পড়া শিখেছে', 'আংশিক শিখেছে', 'পড়া শিখেনি'],
+            {
+              required_error: 'Lesson evaluation is required',
+            },
+          ),
+          handwriting: z.enum(['লিখেছে', 'আংশিক লিখেছে', 'লিখেনি'], {
+            required_error: 'Handwriting evaluation is required',
+          }),
+          attendance: z.enum(['উপস্থিত', 'অনুপস্থিত', 'ছুটি'], {
+            required_error: 'Attendance status is required',
+          }),
+          parentSignature: z.boolean({
+            required_error: 'Parent signature is required',
+          }),
+          comments: z.string().optional(),
+        }),
+      )
+      .min(1, 'At least one student evaluation is required'),
     todayLesson: z.string().optional(),
     homeTask: z.string().optional(),
   }),
 });
 
-
 const updateClassReportValidation = z.object({
   body: z.object({
     teachers: z.union([z.string(), z.array(z.string())]).optional(),
-    classes: z.union([z.string(), z.array(z.string())]).optional(),
-    subjects: z.union([z.string(), z.array(z.string())]).optional(),
+    classes: z.string({ required_error: 'Classes is  required!' }).optional(),
+    subjects: z.string({ required_error: 'Subject is  required!' }).optional(),
     hour: z.string().optional(),
-    date: z.string().refine(val => !isNaN(Date.parse(val)), {
-      message: 'Invalid date format',
-    }).optional(),
-    studentEvaluations: z.array(
-      z.object({
-        studentId: z.union([
-          z.string(),
-          z.object({
-            _id: z.string()
-          }).transform(val => val._id)
-        ]),
-        lessonEvaluation: z.enum(['পড়া শিখেছে', 'আংশিক শিখেছে', 'পড়া শিখেনি']).optional(),
-        handwriting: z.enum(['লিখেছে', 'আংশিক লিখেছে', 'লিখেনি']).optional(),
-        attendance: z.enum(['উপস্থিত', 'অনুপস্থিত', 'ছুটি']).optional(),
-        parentSignature: z.boolean().optional(),
-        comments: z.string().optional(),
+    date: z
+      .string()
+      .refine((val) => !isNaN(Date.parse(val)), {
+        message: 'Invalid date format',
       })
-    ).optional(),
+      .optional(),
+    studentEvaluations: z
+      .array(
+        z.object({
+          studentId: z.union([
+            z.string(),
+            z
+              .object({
+                _id: z.string(),
+              })
+              .transform((val) => val._id),
+          ]),
+          lessonEvaluation: z
+            .enum(['পড়া শিখেছে', 'আংশিক শিখেছে', 'পড়া শিখেনি'])
+            .optional(),
+          handwriting: z.enum(['লিখেছে', 'আংশিক লিখেছে', 'লিখেনি']).optional(),
+          attendance: z.enum(['উপস্থিত', 'অনুপস্থিত', 'ছুটি']).optional(),
+          parentSignature: z.boolean().optional(),
+          comments: z.string().optional(),
+        }),
+      )
+      .optional(),
     todayLesson: z.string().nullable().optional(),
     homeTask: z.string().nullable().optional(),
   }),
 });
-
-
 
 // const createClassReportValidation = z.object({
 //   body: z.object({

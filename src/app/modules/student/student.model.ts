@@ -94,7 +94,7 @@ const studentSchema = new Schema<IStudent>(
 
     // Academic Information
     className: {
-      type: String,
+      type: [String],
       required: true,
     },
     studentClassRoll: {
@@ -105,10 +105,10 @@ const studentSchema = new Schema<IStudent>(
       type: String,
     },
     section: {
-      type: String,
+      type: [String],
     },
     activeSession: {
-      type: String,
+      type: [String],
       required: true,
     },
     status: {
