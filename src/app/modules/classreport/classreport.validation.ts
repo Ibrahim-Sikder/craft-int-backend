@@ -42,8 +42,9 @@ const createClassReportValidation = z.object({
         }),
       )
       .min(1, 'At least one student evaluation is required'),
-    todayLesson: z.string().optional(),
-    homeTask: z.string().optional(),
+      todayLesson: z.string().nullable().optional(),
+      homeTask: z.string().nullable().optional(),
+      
   }),
 });
 

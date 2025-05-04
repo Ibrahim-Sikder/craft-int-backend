@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { model, Schema } from 'mongoose';
 import { IStudent } from './student.interface';
 import { Gender, StudentStatus, StudentType } from './student.utils';
@@ -6,8 +7,7 @@ const studentSchema = new Schema<IStudent>(
   {
     studentId: {
       type: String,
-      required: true,
-      // unique: true,
+      unique: true,
     },
     smartIdCard: {
       type: String,
@@ -19,7 +19,7 @@ const studentSchema = new Schema<IStudent>(
     },
     email: {
       type: String,
-      required: true,
+  
     },
     birthDate: {
       type: String,
@@ -35,17 +35,16 @@ const studentSchema = new Schema<IStudent>(
     },
     mobile: {
       type: String,
-      required: true,
+
     },
     bloodGroup: {
       type: String,
     },
     studentPhoto: {
       type: String,
-      // required:true,
     },
 
-    // Family Information
+
     fatherName: {
       type: String,
     },
@@ -64,8 +63,6 @@ const studentSchema = new Schema<IStudent>(
     nidFatherMotherGuardian: {
       type: String,
     },
-
-    // Address Information
     permanentAddress: {
       type: String,
 
@@ -92,14 +89,13 @@ const studentSchema = new Schema<IStudent>(
       type: String,
     },
 
-    // Academic Information
     className: {
       type: [String],
-      required: true,
+
     },
     studentClassRoll: {
       type: String,
-      required: true,
+
     },
     batch: {
       type: String,
@@ -109,12 +105,12 @@ const studentSchema = new Schema<IStudent>(
     },
     activeSession: {
       type: [String],
-      required: true,
+
     },
     status: {
       type: String,
-      enum: Object.values(StudentStatus),
-      default: StudentStatus.ACTIVE,
+      // enum: Object.values(StudentStatus),
+      // default: StudentStatus.ACTIVE,
     },
     studentType: {
       type: String,
@@ -124,7 +120,7 @@ const studentSchema = new Schema<IStudent>(
       type: String,
     },
 
-    // Fee Information
+
     admissionFee: {
       type: Number,
       default: 0,
@@ -162,7 +158,6 @@ const studentSchema = new Schema<IStudent>(
       default: 0,
     },
 
-    // Settings
     sendAdmissionSMS: {
       type: Boolean,
       default: false,

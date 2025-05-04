@@ -5,15 +5,15 @@ import { ITeacher } from './teacher.interface';
 const addressSchema = new Schema(
   {
     address: String,
-    village: String, 
+    village: String,
     postOffice: String,
     thana: String,
     district: String,
     state: String,
     country: String,
-    zipCode: String
+    zipCode: String,
   },
-  { _id: false }
+  { _id: false },
 );
 
 // Education qualification schema
@@ -22,9 +22,9 @@ const educationSchema = new Schema(
     degree: String,
     institution: String,
     year: String,
-    specialization: String
+    specialization: String,
   },
-  { _id: false }
+  { _id: false },
 );
 
 // Certification schema
@@ -33,9 +33,9 @@ const certificationSchema = new Schema(
     certificateName: String,
     issuedBy: String,
     year: String,
-    description: String
+    description: String,
   },
-  { _id: false }
+  { _id: false },
 );
 
 // Work experience schema
@@ -45,9 +45,9 @@ const experienceSchema = new Schema(
     position: String,
     from: String,
     to: String,
-    description: String
+    description: String,
   },
-  { _id: false }
+  { _id: false },
 );
 
 const teacherSchema = new Schema<ITeacher>(
@@ -55,99 +55,95 @@ const teacherSchema = new Schema<ITeacher>(
     // Basic Information (Step 1)
     teacherId: {
       type: String,
-  
     },
     teacherSerial: {
       type: Number,
-      required: true
     },
     smartIdCard: {
       type: String,
-      required: true,
-      unique: true
     },
     name: {
       type: String,
-      required: true
+      required: true,
     },
     phone: {
       type: String,
-      required: true
     },
     email: {
       type: String,
-      required: true
+      required: true,
     },
     dateOfBirth: {
-      type: Date
+      type: Date,
     },
     bloodGroup: {
-      type: String
+      type: String,
     },
     gender: {
       type: String,
       enum: ['Male', 'Female', 'Other'],
-      required: true
+      required: true,
+      default: 'Male',
     },
     nationality: {
-      type: String
+      type: String,
     },
     religion: {
-      type: String
+      type: String,
     },
     maritalStatus: {
       type: String,
-      enum: ['Single', 'Married', 'Divorced', 'Widowed']
+      enum: ['Single', 'Married', 'Divorced', 'Widowed'],
+      default: 'Single',
     },
     teacherPhoto: {
-      type: String // For storing image path/URL
+      type: String, 
     },
 
-    // Address Information (Step 2)
     permanentAddress: {
       type: addressSchema,
-      required: true
+      required: true,
     },
     currentAddress: {
-      type: addressSchema
+      type: addressSchema,
     },
     sameAsPermanent: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
-    // Professional Information (Step 3)
     designation: {
       type: String,
-      required: true
+
     },
     department: {
       type: String,
-      required: true
+
     },
     joiningDate: {
       type: Date,
-      required: true
+
     },
     monthlySalary: {
       type: Number,
-      required: true
+
     },
     staffType: {
       type: String,
-      enum: ['Teacher', 'Staff', 'Other'],
-      required: true
+      // enum: ['Teacher', 'Staff', 'Other'],
+      // default:'Teacher'
+
     },
 
     // Educational Information (Step 4)
     educationalQualifications: {
-      type: [educationSchema]
+      type: [educationSchema],
     },
     certifications: {
-      type: [certificationSchema]
+      type: [certificationSchema],
     },
     workExperience: {
-      type: [experienceSchema]
+      type: [experienceSchema],
     },
 
     // Additional Information (Step 5)
@@ -155,19 +151,19 @@ const teacherSchema = new Schema<ITeacher>(
       type: String,
       enum: ['Active', 'Inactive'],
       default: 'Active',
-      required: true
     },
     language: {
       type: String,
-      enum: ['Bangla', 'English', 'Other']
+      // enum: ['Bangla', 'English', 'Other'],
+      // default: 'Bangla',
     },
     activeSession: {
-      type: String
-    }
+      type: String,
+    },
   },
   {
-    timestamps: true
-  }
+    timestamps: true,
+  },
 );
 
 export const Teacher = model<ITeacher>('Teacher', teacherSchema);

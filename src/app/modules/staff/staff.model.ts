@@ -58,12 +58,10 @@ const staffSchema = new Schema<IStaff>(
     },
     staffSerial: {
       type: Number,
-      required: true,
+
     },
     smartIdCard: {
       type: String,
-      required: true,
-      unique: true,
     },
     name: {
       type: String,
@@ -71,14 +69,13 @@ const staffSchema = new Schema<IStaff>(
     },
     phone: {
       type: String,
-      required: true,
     },
     email: {
       type: String,
-      required: true,
     },
     dateOfBirth: {
       type: Date,
+      required:true
     },
     bloodGroup: {
       type: String,
@@ -86,7 +83,7 @@ const staffSchema = new Schema<IStaff>(
     gender: {
       type: String,
       enum: ['Male', 'Female', 'Other'],
-      required: true,
+      required:true
     },
     nationality: {
       type: String,
@@ -96,7 +93,6 @@ const staffSchema = new Schema<IStaff>(
     },
     maritalStatus: {
       type: String,
-      enum: ['Single', 'Married', 'Divorced', 'Widowed'],
     },
     staffPhoto: {
       type: String,
@@ -105,7 +101,6 @@ const staffSchema = new Schema<IStaff>(
     // Address
     permanentAddress: {
       type: addressSchema,
-      required: true,
     },
     currentAddress: {
       type: addressSchema,
@@ -118,24 +113,19 @@ const staffSchema = new Schema<IStaff>(
     // Professional Info
     designation: {
       type: String,
-      required: true,
     },
     department: {
       type: String,
-      required: true,
     },
     joiningDate: {
       type: Date,
-      required: true,
     },
     monthlySalary: {
       type: Number,
-      required: true,
     },
     staffType: {
       type: String,
-      enum: ['Teacher', 'Staff', 'Other'],
-      required: true,
+
     },
 
     // Educational Background
@@ -152,13 +142,11 @@ const staffSchema = new Schema<IStaff>(
     // Additional Info
     status: {
       type: String,
-      enum: ['Active', 'Inactive'],
-      default: 'Active',
-      required: true,
+
     },
     language: {
       type: String,
-      enum: ['Bangla', 'English', 'Other'],
+
     },
     activeSession: {
       type: String,

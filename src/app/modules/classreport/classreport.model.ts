@@ -23,6 +23,11 @@ const studentEvaluationSchema = new Schema<IStudentEvaluation>(
       enum: ['উপস্থিত', 'অনুপস্থিত', 'ছুটি'],
       required: true,
     },
+    lessonAssessmentAttendance: {
+      type: String,
+      enum: ['উপস্থিত', 'অনুপস্থিত'],
+      required: true,
+    },
     parentSignature: {
       type: Boolean,
       required: true,

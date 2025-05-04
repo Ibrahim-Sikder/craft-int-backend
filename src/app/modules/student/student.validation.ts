@@ -33,9 +33,9 @@ const createStudentValidation = z.object({
     // Academic Information
     studentClassRoll: z.string({ required_error: 'Student class roll is required' }),
     batch: z.string().optional(),
-    section: z.array(z.string(z.string({required_error:'Section is required!'}))),
-    className: z.array(z.string({ required_error: 'Class name is required' })),
-    activeSession: z.array(z.string({ required_error: 'Active session is required' })),
+    section: z.string({required_error:'Section is required!'}),
+    className: z.string({ required_error: 'Class name is required' }),
+    activeSession: z.string({ required_error: 'Active session is required' }),
     status: z.enum([StudentStatus.ACTIVE, StudentStatus.INACTIVE, StudentStatus.GRADUATED]).default(StudentStatus.ACTIVE),
     studentType: z.enum([StudentType.RESIDENTIAL, StudentType.DAY]).optional(),
     additionalNote: z.string().optional(),
