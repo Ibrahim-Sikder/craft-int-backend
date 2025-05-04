@@ -115,6 +115,7 @@ const studentSchema = new Schema<IStudent>(
     studentType: {
       type: String,
       enum: Object.values(StudentType),
+      required:true,
     },
     additionalNote: {
       type: String,
