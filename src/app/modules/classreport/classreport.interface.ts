@@ -2,10 +2,13 @@ import { Types } from 'mongoose';
 
 export interface IStudentEvaluation {
   studentId: Types.ObjectId;
-  lessonEvaluation: 'পড়া শিখেছে' | 'আংশিক শিখেছে' | 'পড়া শিখেনি';
+  lessonEvaluation:
+    | 'পড়া শিখেছে'
+    | 'আংশিক শিখেছে'
+    | 'পড়া শিখেনি'
+    | 'অনুপস্থিত';
   handwriting: 'লিখেছে' | 'আংশিক লিখেছে' | 'লিখেনি';
   attendance: 'উপস্থিত' | 'অনুপস্থিত' | 'ছুটি';
-  lessonAssessmentAttendance: 'উপস্থিত' | 'অনুপস্থিত';
   parentSignature: boolean;
   comments?: string;
 }

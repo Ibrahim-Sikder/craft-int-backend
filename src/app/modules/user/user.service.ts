@@ -7,9 +7,9 @@ import { TUser } from './user.interface';
 import { User } from './user.model';
 import { createToken } from '../Auth/auth.utils';
 import config from '../../config';
-
+import bcrypt from 'bcrypt';
 const createUser = async (payload: TUser) => {
-  console.log(payload)
+
   const userByEmail = await User.isUserExistsByCustomId(payload.email);
   if (userByEmail) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Email is already registered!');
@@ -73,16 +73,22 @@ const deleteUser = async (id: string) => {
   return result;
 };
 const updateUser = async (id: string, payload: Partial<TUser>) => {
+  if (payload.password) {
+    // Manually hash the new password
+    payload.password = await bcrypt.hash(payload.password, Number(config.bcrypt_salt_round));
+  }
+
   const result = await User.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,
   });
+
   if (!result) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Failed to update class');
+    throw new AppError(httpStatus.NOT_FOUND, 'Failed to update user');
   }
+
   return result;
 };
-
 export const UserServices = {
   createUser,
   getAllUser,

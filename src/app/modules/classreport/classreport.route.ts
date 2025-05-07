@@ -7,7 +7,7 @@ import { classReportControllers } from './classreport.controller';
 const router = express.Router();
 router.post(
   '/',
-  auth('admin', 'super_admin','teacher'),
+  auth('admin', 'super_admin','teacher', 'class_teacher'),
   validateRequest(ClassReportValidations.createClassReportValidation),
   classReportControllers.createClassReport,
 );
@@ -17,13 +17,13 @@ router.get('/:id', classReportControllers.getSingleClassReport);
 
 router.patch(
   '/:id',
-  auth('admin', 'super_admin','teacher'),
+  auth('admin', 'super_admin','teacher','class_teacher'),
   validateRequest(ClassReportValidations.updateClassReportValidation),
   classReportControllers.updateClassReport,
 );
 router.delete(
   '/:id',
-  auth('admin', 'super_admin','teacher'),
+  auth('admin', 'super_admin','teacher','class_teacher'),
   classReportControllers.deleteClassReport,
 );
 

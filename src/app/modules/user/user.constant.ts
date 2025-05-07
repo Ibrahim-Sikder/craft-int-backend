@@ -6,6 +6,7 @@ export const USER_ROLE = {
     user:'user',
     teacher:'teacher',
     student:'student',
+    class_teacher:'class_teacher'
 } as const
 
 

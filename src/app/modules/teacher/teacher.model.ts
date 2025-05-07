@@ -100,6 +100,7 @@ const teacherSchema = new Schema<ITeacher>(
       type: String, 
     },
 
+    
     permanentAddress: {
       type: addressSchema,
       required: true,
@@ -159,6 +160,30 @@ const teacherSchema = new Schema<ITeacher>(
     },
     activeSession: {
       type: String,
+    },
+    section: {
+      type: Schema.Types.ObjectId,
+      ref: 'Section',
+    },
+    class: {
+      type: Schema.Types.ObjectId,
+      ref: 'Class',
+    },
+    schedule: {
+      type: Schema.Types.ObjectId,
+      ref: 'Schedule',
+    },
+    assignment: {
+      type: Schema.Types.ObjectId,
+      ref: 'Assignment',
+    },
+    attendance: {
+      type: Schema.Types.ObjectId,
+      ref: 'Attendance',
+    },
+    room: {
+      type: Schema.Types.ObjectId,
+      ref: 'Room',
     },
   },
   {

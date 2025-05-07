@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { Gender, StudentStatus, StudentType } from './student.utils';
 
+
 const createStudentValidation = z.object({
   body: z.object({
     smartIdCard: z.string().optional(),

@@ -24,7 +24,7 @@ const createClassReportValidation = z.object({
             required_error: 'Student ID is required',
           }),
           lessonEvaluation: z.enum(
-            ['পড়া শিখেছে', 'আংশিক শিখেছে', 'পড়া শিখেনি'],
+            ['পড়া শিখেছে', 'আংশিক শিখেছে', 'পড়া শিখেনি','অনুপস্থিত'],
             {
               required_error: 'Lesson evaluation is required',
             },
@@ -72,7 +72,7 @@ const updateClassReportValidation = z.object({
               .transform((val) => val._id),
           ]),
           lessonEvaluation: z
-            .enum(['পড়া শিখেছে', 'আংশিক শিখেছে', 'পড়া শিখেনি'])
+            .enum(['পড়া শিখেছে', 'আংশিক শিখেছে', 'পড়া শিখেনি','অনুপস্থিত'])
             .optional(),
           handwriting: z.enum(['লিখেছে', 'আংশিক লিখেছে', 'লিখেনি']).optional(),
           attendance: z.enum(['উপস্থিত', 'অনুপস্থিত', 'ছুটি']).optional(),
