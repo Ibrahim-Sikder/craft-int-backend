@@ -2,7 +2,11 @@ import { Types } from 'mongoose';
 
 export interface IStudentEvaluation {
   studentId: Types.ObjectId;
-  lessonEvaluation: 'পড়া শিখেছে' | 'আংশিক শিখেছে' | 'পড়া শিখেনি';
+  lessonEvaluation:
+    | 'পড়া শিখেছে'
+    | 'আংশিক শিখেছে'
+    | 'পড়া শিখেনি'
+    | 'অনুপস্থিত';
   handwriting: 'লিখেছে' | 'আংশিক লিখেছে' | 'লিখেনি';
   attendance: 'উপস্থিত' | 'অনুপস্থিত' | 'ছুটি';
   parentSignature: boolean;
@@ -10,9 +14,9 @@ export interface IStudentEvaluation {
 }
 
 export interface IClassReport {
-  teachers: Types.ObjectId;
-  classes: Types.ObjectId;
-  subjects: Types.ObjectId;
+  teachers: string;
+  classes: string;
+  subjects: string;
   hour: string;
   date: Date;
   studentEvaluations: IStudentEvaluation[];

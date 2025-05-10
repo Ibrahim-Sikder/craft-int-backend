@@ -19,7 +19,7 @@ router.get('/:id', mealReportControllers.getSingleMealReport);
 
 router.delete(
   '/:id',
-  auth('admin', 'super_admin'),
+  // auth('admin', 'super_admin'),
   mealReportControllers.deleteMealReport
 );
 

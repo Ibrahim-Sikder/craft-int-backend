@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.post(
   '/',
-  auth('admin', 'super_admin'),
+  auth('admin', 'super_admin','class_teacher'),
   validateRequest(ClassValidations.createClassValidation),
   classControllers.createClass
 );
@@ -20,13 +20,13 @@ router.get('/:id', classControllers.getSingleClass);
 
 router.delete(
   '/:id',
-  auth('admin', 'super_admin'),
+  auth('admin', 'super_admin','class_teacher'),
   classControllers.deleteClass
 );
 
 router.patch(
   '/:id',
-  auth('admin', 'super_admin'),
+  auth('admin', 'super_admin','class_teacher'),
   validateRequest(ClassValidations.updateClassValidation),
   classControllers.updateClass
 );

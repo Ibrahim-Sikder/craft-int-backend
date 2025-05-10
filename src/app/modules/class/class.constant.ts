@@ -1,1 +1,1 @@
-export const classSearch = ['className', 'description'];
+export const classSearch = ['className', 'description','title'];

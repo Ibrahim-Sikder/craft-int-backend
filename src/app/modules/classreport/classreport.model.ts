@@ -10,7 +10,7 @@ const studentEvaluationSchema = new Schema<IStudentEvaluation>(
     },
     lessonEvaluation: {
       type: String,
-      enum: ['পড়া শিখেছে', 'আংশিক শিখেছে', 'পড়া শিখেনি'],
+      enum: ['পড়া শিখেছে', 'আংশিক শিখেছে', 'পড়া শিখেনি','অনুপস্থিত'],
       required: true,
     },
     handwriting: {
@@ -23,6 +23,7 @@ const studentEvaluationSchema = new Schema<IStudentEvaluation>(
       enum: ['উপস্থিত', 'অনুপস্থিত', 'ছুটি'],
       required: true,
     },
+ 
     parentSignature: {
       type: Boolean,
       required: true,
@@ -37,18 +38,15 @@ const studentEvaluationSchema = new Schema<IStudentEvaluation>(
 const classReportSchema = new Schema<IClassReport>(
   {
     teachers: {
-      type: Schema.Types.ObjectId,
-      ref: 'Teacher',
+      type: String,
       required: true,
     },
     classes: {
-      type: Schema.Types.ObjectId,
-      ref: 'Class',
+      type: String,
       required: true,
     },
     subjects: {
-      type: Schema.Types.ObjectId,
-      ref: 'Subject',
+     type:String,
       required: true,
     },
     hour: {

@@ -1,5 +1,3 @@
-import { Types } from 'mongoose';
-
 export interface IAddress {
   address?: string;
   village?: string;
@@ -33,10 +31,10 @@ export interface IExperience {
   description?: string;
 }
 
-export interface ITeacher {
+export interface IStaff {
   // Basic Information
-  teacherId: string;
-  teacherSerial: number;
+  staffId: string;
+  staffSerial: number;
   smartIdCard: string;
   name: string;
   phone: string;
@@ -47,7 +45,7 @@ export interface ITeacher {
   nationality?: string;
   religion?: string;
   maritalStatus?: 'Single' | 'Married' | 'Divorced' | 'Widowed';
-  teacherPhoto?: string;
+  staffPhoto?: string;
 
   // Address Information
   permanentAddress: IAddress;
@@ -70,12 +68,7 @@ export interface ITeacher {
   status: 'Active' | 'Inactive';
   language?: 'Bangla' | 'English' | 'Other';
   activeSession?: string;
-  section: Types.ObjectId;
-  class: Types.ObjectId;
-  schedule: Types.ObjectId;
-  assignment: Types.ObjectId;
-  attendance: Types.ObjectId;
-  room: Types.ObjectId;
+
   // System fields
   createdAt?: Date;
   updatedAt?: Date;

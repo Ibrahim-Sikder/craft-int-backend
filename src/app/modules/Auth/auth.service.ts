@@ -10,17 +10,21 @@ import { User } from '../user/user.model';
 
 const loginUser = async (payload: TLoginUser) => {
   const user = await User.isUserExistsByCustomId(payload.email);
+
   if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Invalid user name or password');
+    throw new AppError(httpStatus.NOT_FOUND, 'Email not found');
   }
-  const isDeleted = user?.isDeleted;
-  if (isDeleted) {
+
+  if (user.isDeleted) {
     throw new AppError(httpStatus.FORBIDDEN, 'This account has been deleted!');
   }
 
-  if (!(await User.isPasswordMatched(payload?.password, user?.password))) {
-    throw new AppError(httpStatus.FORBIDDEN, 'Invalid user name or password');
+  // Then check if password matches
+  const isPasswordValid = await User.isPasswordMatched(payload.password, user.password);
+  if (!isPasswordValid) {
+    throw new AppError(httpStatus.FORBIDDEN, 'Password does not match');
   }
+
 
   const JwtPayload = {
     userId: user?._id as unknown as string,
@@ -46,7 +50,7 @@ const loginUser = async (payload: TLoginUser) => {
     user: {
       userId: user._id,
       email: user.email,
-      name:user.name,
+      name: user.name,
       role: user.role,
       // token: accessToken,
     },

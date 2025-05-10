@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import express from 'express';
 import { teacherControllers } from './teacher.controller';
 import { validateRequest } from '../../middlewares/validateRequest';
@@ -8,8 +9,8 @@ const router = express.Router();
 
 router.post(
   '/',
-  auth('admin', 'super_admin','teacher','student'),
-  validateRequest(TeacherValidations.createTeacherValidation),
+  auth('admin', 'super_admin', 'teacher', 'student'),
+  // validateRequest(TeacherValidations.createTeacherValidation),
   teacherControllers.createTeacher,
 );
 
@@ -26,7 +27,7 @@ router.delete(
 router.patch(
   '/:id',
   // auth('admin', 'super_admin', 'teacher'),
-  validateRequest(TeacherValidations.updateTeacherValidation),
+  // validateRequest(TeacherValidations.updateTeacherValidation),
   teacherControllers.updateTeacher,
 );
 

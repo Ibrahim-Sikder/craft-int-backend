@@ -14,7 +14,8 @@ export enum Gender {
   
   export enum StudentType {
     RESIDENTIAL = 'Residential',
-    DAY = 'Day'
+    DAY = 'Non-residential',
+    '' = ''
   }
   
 

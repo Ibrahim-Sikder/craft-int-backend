@@ -37,11 +37,11 @@ export interface IStudent extends Document {
   presentThana: string;
 
   // Academic Information
-  className: string;
+  className: [string];
   studentClassRoll: string;
   batch: string;
-  section: string;
-  activeSession: string;
+  section: [string];
+  activeSession: [string];
   status: StudentStatus;
   studentType: StudentType;
   additionalNote: string;

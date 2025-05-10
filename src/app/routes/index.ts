@@ -16,6 +16,8 @@ import { mealReportRoutes } from '../modules/mealreport/mealreport.route';
 import { teacherRoutes } from '../modules/teacher/teacher.route';
 import { subjectRoutes } from '../modules/subject/subject.route';
 import { todayTaskRoutes } from '../modules/todaytask/todaytask.route';
+import { dailyClassReportRoutes } from '../modules/dailyclassreport/dailyClassReport.route';
+import { staffRoutes } from '../modules/staff/staff.route';
 const router = Router();
 
 const moduleRoutes = [
@@ -78,6 +80,14 @@ const moduleRoutes = [
   {
     path: '/today-task',
     route: todayTaskRoutes,
+  },
+  {
+    path: '/daily-class-report',
+    route: dailyClassReportRoutes,
+  },
+  {
+    path: '/staff',
+    route: staffRoutes,
   },
 ];
 
