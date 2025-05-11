@@ -5,18 +5,9 @@ import { AppError } from '../../error/AppError';
 import { Subject } from './subject.model';
 import { TSubject } from './subject.interface';
 import { subjectSearchableFields } from '../subject-assign/subject-assign.constant';
-import mongoose from 'mongoose';
-
-const cleanObjectIds = (ids: any[] = []) => {
-  return ids.filter((id) => id && mongoose.Types.ObjectId.isValid(id));
-};
-
-/**
- * Creates a new subject with proper validation
- */
 const createSubject = async (payload: TSubject) => {
-  console.log(payload)
-  const { name, code, classes, teachers, image, paper, lessons, isOptional } =
+ 
+  const { name, paper} =
     payload;
 
 
@@ -27,15 +18,7 @@ const createSubject = async (payload: TSubject) => {
     );
   }
 
-  if (!code || typeof code !== 'string') {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      'Subject code is required and must be a string',
-    );
-  }
-
-  const trimmedName = name.trim();
-  const trimmedCode = code.trim();
+  const trimmedName = name.trim()
 
 
   const existingSubjectByName = await Subject.findOne({ name: trimmedName });
@@ -44,28 +27,11 @@ const createSubject = async (payload: TSubject) => {
   }
 
 
-  const existingSubjectByCode = await Subject.findOne({ code: trimmedCode });
-  if (existingSubjectByCode) {
-    throw new AppError(
-      409,
-      `Subject with code "${trimmedCode}" already exists`,
-    );
-  }
-
-
-  const cleanedClasses = cleanObjectIds(classes);
-  const cleanedTeachers = cleanObjectIds(teachers);
 
 
   const subjectData = {
     name: trimmedName,
-    code: trimmedCode,
-    image: image || '',
     paper: paper || '',
-    lessons: lessons || [],
-    classes: cleanedClasses,
-    teachers: cleanedTeachers,
-    isOptional: !!isOptional,
   };
 
   // Create and return new subject
@@ -84,8 +50,6 @@ const getAllSubjects = async (query: Record<string, unknown>) => {
   const meta = await subjectQuery.countTotal();
 
   const subjects = await subjectQuery.modelQuery
-    .populate('classes')
-    .populate('teachers');
 
   return {
     meta,

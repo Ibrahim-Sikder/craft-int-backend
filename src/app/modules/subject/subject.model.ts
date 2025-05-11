@@ -9,48 +9,12 @@ const SubjectSchema = new Schema<TSubject>(
       trim: true,
       unique: true, 
     },
-    code: {
-      type: String,
-      required: [true, 'Subject code is required'],
-      unique: true,
-      trim: true,
-    },
-    image: {
-      type: String,
-      default: '',
-    },
+
     paper: {
       type: String,
       default: '',
-    },
-    lessons: [
-      {
-        lessonNo: {
-          type: Number,
-          required: true,
-        },
-        lessonName: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
-    classes: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Class',
-      },
-    ],
-    teachers: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Teacher',
-      },
-    ],
-    isOptional: {
-      type: Boolean,
-      default: false,
-    },
+    }
+   
   },
   {
     timestamps: true,

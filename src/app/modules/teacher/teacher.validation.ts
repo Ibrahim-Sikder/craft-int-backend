@@ -64,9 +64,7 @@ const createTeacherValidation = z.object({
       .email('Invalid email format'),
     dateOfBirth: z.coerce.date().optional(),
     bloodGroup: z.string().optional(),
-    gender: z.enum(['Male', 'Female', 'Other'], {
-      required_error: 'Gender is required',
-    }),
+    gender: z.enum(['Male', 'Female', 'Other','']).optional(),
     nationality: z.string().optional(),
     religion: z.string().optional(),
     maritalStatus: z

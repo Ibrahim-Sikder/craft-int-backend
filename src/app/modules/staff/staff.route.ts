@@ -13,11 +13,10 @@ router.post(
   // validateRequest(StaffValidations.createStaffValidation),
   staffControllers.createStaff,
 );
-router.get('/', auth('admin', 'super_admin'), staffControllers.getAllStaff);
+router.get('/', staffControllers.getAllStaff);
 
 router.get(
   '/:id',
-  auth('admin', 'super_admin'),
   staffControllers.getSingleStaff,
 );
 router.delete(

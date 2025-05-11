@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.post(
   '/',
-  auth('admin', 'super_admin', 'teacher', 'student'),
+  // auth('admin', 'super_admin', 'teacher', 'student'),
   // validateRequest(TeacherValidations.createTeacherValidation),
   teacherControllers.createTeacher,
 );
@@ -20,7 +20,7 @@ router.get('/:id', teacherControllers.getSingleTeacher);
 
 router.delete(
   '/:id',
-  auth('admin', 'super_admin'),
+  // auth('admin', 'super_admin'),
   teacherControllers.deleteTeacher,
 );
 

@@ -1,15 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import express from 'express';
 import { studentControllers } from './student.controller';
-import { validateRequest } from '../../middlewares/validateRequest';
-import { auth } from '../../middlewares/auth';
-import { StudentValidations } from './student.validation';
 
 const router = express.Router();
 
 router.post(
   '/',
-  auth('admin', 'super_admin','teacher'),
+  // auth('admin', 'super_admin','teacher'),
   // validateRequest(StudentValidations.createStudentValidation),
   studentControllers.createStudent,
 );
@@ -20,13 +17,13 @@ router.get('/:id', studentControllers.getSingleStudent);
 
 router.delete(
   '/:id',
-  auth('admin', 'super_admin', 'teacher'),
+  // auth('admin', 'super_admin', 'teacher'),
   studentControllers.deleteStudent,
 );
 
 router.patch(
   '/:id',
-  auth('admin', 'super_admin', 'teacher','student'),
+  // auth('admin', 'super_admin', 'teacher','student'),
   // validateRequest(StudentValidations.updateStudentValidation),
   studentControllers.updateStudent,
 );

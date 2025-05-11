@@ -23,7 +23,6 @@ const studentSchema = new Schema<IStudent>(
     },
     birthDate: {
       type: String,
-      required: true,
     },
     birthRegistrationNo: {
       type: String,
@@ -31,7 +30,6 @@ const studentSchema = new Schema<IStudent>(
     gender: {
       type: String,
       enum: Object.values(Gender),
-      required: true,
     },
     mobile: {
       type: String,
@@ -109,8 +107,6 @@ const studentSchema = new Schema<IStudent>(
     },
     status: {
       type: String,
-      // enum: Object.values(StudentStatus),
-      // default: StudentStatus.ACTIVE,
     },
     studentType: {
       type: String,

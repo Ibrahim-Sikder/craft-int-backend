@@ -6,13 +6,8 @@ import { sectionSearchableFields } from './section.constant';
 import { Section } from './section.model';
 
 const createSection = async (payload: ISection) => {
-  const { name, classes, sectionType } = payload;
-
-  if (!name || !classes || sectionType === undefined) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Required fields are missing');
-  }
-
-  const existingSection = await Section.findOne({ name, classes });
+  const { name } = payload;
+  const existingSection = await Section.findOne({ name });
   if (existingSection) {
     throw new AppError(httpStatus.CONFLICT, 'Section with this name already exists in this class');
   }
@@ -30,7 +25,7 @@ const getAllSections = async (query: Record<string, unknown>) => {
     .fields();
 
   const meta = await queryBuilder.countTotal();
-  const sections = await queryBuilder.modelQuery.populate(['classes', 'teachers', 'rooms', 'timeSlots']);
+  const sections = await queryBuilder.modelQuery;
 
   return {
     meta,
@@ -39,7 +34,7 @@ const getAllSections = async (query: Record<string, unknown>) => {
 };
 
 const getSingleSection = async (id: string) => {
-  const result = await Section.findById(id).populate(['classes', 'teachers', 'rooms', 'timeSlots']);
+  const result = await Section.findById(id);
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'Section not found');
   }

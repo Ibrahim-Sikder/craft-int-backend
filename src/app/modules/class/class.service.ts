@@ -8,9 +8,6 @@ import { classSearch } from './class.constant';
 
 const createClass = async (payload: TClass) => {
   const { className } = payload;
-  if (!className) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Class name is required');
-  }
 
   const existingClass = await Class.findOne({ className });
   if (existingClass) {
@@ -30,7 +27,7 @@ const getAllClasses = async (query: Record<string, unknown>) => {
     .fields();
 
   const meta = await classQuery.countTotal();
-  const classes = await classQuery.modelQuery.populate('students').populate('teachers').populate('sections').populate('subjects');
+  const classes = await classQuery.modelQuery
 
   return {
     meta,
