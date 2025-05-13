@@ -7,12 +7,14 @@ import { Section } from './section.model';
 
 const createSection = async (payload: ISection) => {
   const { name } = payload;
+
   const existingSection = await Section.findOne({ name });
   if (existingSection) {
     throw new AppError(httpStatus.CONFLICT, 'Section with this name already exists in this class');
   }
 
   const result = await Section.create(payload);
+ 
   return result;
 };
 
@@ -42,6 +44,7 @@ const getSingleSection = async (id: string) => {
 };
 
 const updateSection = async (id: string, payload: Partial<ISection>) => {
+    console.log('payload section data ', payload )
   const result = await Section.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,
@@ -49,6 +52,7 @@ const updateSection = async (id: string, payload: Partial<ISection>) => {
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'Failed to update section');
   }
+
   return result;
 };
 

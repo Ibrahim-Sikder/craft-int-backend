@@ -5,7 +5,6 @@ import { userRoutes } from '../modules/user/user.route';
 import { classRoutes } from '../modules/class/class.route';
 import { subjectAssignRoute } from '../modules/subject-assign/subject-assign.route';
 import { studentRoutes } from '../modules/student/student.route';
-import { sessionRoutes } from '../modules/session/session.route';
 import { sectionRoutes } from '../modules/section/section.route';
 import { timeSlotRoutes } from '../modules/timeslot/timeslot.route';
 import { roomRoutes } from '../modules/room/room.route';
@@ -41,10 +40,7 @@ const moduleRoutes = [
     path: '/student',
     route: studentRoutes,
   },
-  {
-    path: '/session',
-    route: sessionRoutes,
-  },
+
   {
     path: '/section',
     route: sectionRoutes,

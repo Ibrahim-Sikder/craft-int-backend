@@ -37,7 +37,7 @@ const getAllClasses = async (query: Record<string, unknown>) => {
 
 const getSingleClass = async (id: string) => {
   const result = await Class.findById(id)
-    .populate([{ path: 'students' }, { path: 'teachers' }, { path: 'sections' }, { path: 'subjects' }]);
+    .populate([{ path: 'sections' }]);
 
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'Class not found');
