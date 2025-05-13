@@ -7,10 +7,13 @@ const classSchema = new Schema<TClass>(
       type: String,
       required: true,
     },
-    sections: {
+    sections: [
+      {
         type: Schema.Types.ObjectId,
-    required: true,
-    },
+        ref: 'Section', 
+      },
+    ],
+    
   },
   {
     timestamps: true,

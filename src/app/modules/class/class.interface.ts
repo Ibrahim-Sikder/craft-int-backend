@@ -1,8 +1,8 @@
-import { Types } from "mongoose";
+import { ObjectId } from "mongoose";
 
 export type TClass = {
   className: string;
   createdAt: Date;
-  sections:Types.ObjectId;
+    sections: ObjectId[];
   updatedAt: Date;
 };
