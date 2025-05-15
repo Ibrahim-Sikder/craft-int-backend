@@ -43,12 +43,14 @@ export interface ITeacher {
   email: string;
   dateOfBirth?: Date;
   bloodGroup?: string;
-  gender: 'Male' | 'Female' | 'Other';
+  gender: string;
   nationality?: string;
   religion?: string;
-  maritalStatus?: 'Single' | 'Married' | 'Divorced' | 'Widowed';
+  maritalStatus?: string;
   teacherPhoto?: string;
-
+  resumeDoc: string;
+  certificateDoc: string;
+  nationalIdDoc: string;
   // Address Information
   permanentAddress: IAddress;
   currentAddress?: IAddress;

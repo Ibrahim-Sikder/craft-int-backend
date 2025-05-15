@@ -5,8 +5,7 @@ const sectionSchema = new Schema<ISection>(
   {
     name: {
       type: String,
-      required: true,
-      trim: true,
+
     }
   },
   {

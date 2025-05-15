@@ -7,19 +7,22 @@ import { Class } from './class.model';
 import { classSearch } from './class.constant';
 
 const createClass = async (payload: TClass) => {
-  const { className } = payload;
+  // const { className } = payload;
 
-  const existingClass = await Class.findOne({ className });
-  if (existingClass) {
-    throw new AppError(httpStatus.CONFLICT, 'Class already exists');
-  }
+  // const existingClass = await Class.findOne({ className });
+  // if (existingClass) {
+  //   throw new AppError(httpStatus.CONFLICT, 'Class already exists');
+  // }
 
   const result = await Class.create(payload);
   return result;
 };
 
 const getAllClasses = async (query: Record<string, unknown>) => {
-  const classQuery = new QueryBuilder(Class.find(), query)
+  const classQuery = new QueryBuilder(
+    Class.find().populate('sections'), 
+    query
+  )
     .search(classSearch)
     .filter()
     .sort()
@@ -27,13 +30,14 @@ const getAllClasses = async (query: Record<string, unknown>) => {
     .fields();
 
   const meta = await classQuery.countTotal();
-  const classes = await classQuery.modelQuery
+  const classes = await classQuery.modelQuery;
 
   return {
     meta,
     classes,
   };
 };
+
 
 const getSingleClass = async (id: string) => {
   const result = await Class.findById(id)

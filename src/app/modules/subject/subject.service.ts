@@ -59,8 +59,6 @@ const getAllSubjects = async (query: Record<string, unknown>) => {
 
 const getSingleSubject = async (id: string) => {
   const result = await Subject.findById(id)
-    .populate('classes')
-    .populate('teachers');
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'Subject not found');
   }

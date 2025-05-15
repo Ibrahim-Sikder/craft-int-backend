@@ -7,11 +7,9 @@ const studentSchema = new Schema<IStudent>(
   {
     studentId: {
       type: String,
-      unique: true,
     },
     smartIdCard: {
       type: String,
-      unique: true,
     },
     name: {
       type: String,

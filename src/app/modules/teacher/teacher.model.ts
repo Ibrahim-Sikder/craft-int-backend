@@ -81,9 +81,6 @@ const teacherSchema = new Schema<ITeacher>(
     },
     gender: {
       type: String,
-      enum: ['Male', 'Female', 'Other'],
-      required: true,
-      default: 'Male',
     },
     nationality: {
       type: String,
@@ -93,10 +90,17 @@ const teacherSchema = new Schema<ITeacher>(
     },
     maritalStatus: {
       type: String,
-      enum: ['Single', 'Married', 'Divorced', 'Widowed'],
-      default: 'Single',
     },
     teacherPhoto: {
+      type: String, 
+    },
+    resumeDoc: {
+      type: String, 
+    },
+    certificateDoc: {
+      type: String, 
+    },
+    nationalIdDoc: {
       type: String, 
     },
 

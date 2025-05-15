@@ -6,7 +6,7 @@ const createClassValidation = z.object({
     }),
 
    sections: z
-      .array(z.string({required_error:'Section is required'})),
+      .array(z.string()).optional(),
   }),
 });
 

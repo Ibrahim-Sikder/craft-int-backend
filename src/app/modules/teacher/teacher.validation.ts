@@ -64,12 +64,21 @@ const createTeacherValidation = z.object({
       .email('Invalid email format'),
     dateOfBirth: z.coerce.date().optional(),
     bloodGroup: z.string().optional(),
-    gender: z.enum(['Male', 'Female', 'Other','']).optional(),
+    gender: z
+      .union([z.enum(['Male', 'Female', 'Other']), z.literal(''), z.null()])
+      .optional(),
+
+    maritalStatus: z
+      .union([
+        z.enum(['Single', 'Married', 'Divorced', 'Widowed']),
+        z.literal(''),
+        z.null(),
+      ])
+      .optional(),
+
     nationality: z.string().optional(),
     religion: z.string().optional(),
-    maritalStatus: z
-      .enum(['Single', 'Married', 'Divorced', 'Widowed'])
-      .optional(),
+
     teacherPhoto: z.string().optional(),
 
     // Address Information
@@ -127,14 +136,19 @@ const updateTeacherValidation = z.object({
     email: z.string().email('Invalid email format').optional(),
     dateOfBirth: z.coerce.date().optional(),
     bloodGroup: z.string().optional(),
-    gender: z.enum(['Male', 'Female', 'Other']).optional(),
     nationality: z.string().optional(),
     religion: z.string().optional(),
-    maritalStatus: z
-      .enum(['Single', 'Married', 'Divorced', 'Widowed'])
-      .optional(),
     teacherPhoto: z.string().optional(),
-
+    gender: z
+      .union([z.enum(['Male', 'Female', 'Other']), z.literal(''), z.null()])
+      .optional(),
+    maritalStatus: z
+      .union([
+        z.enum(['Single', 'Married', 'Divorced', 'Widowed']),
+        z.literal(''),
+        z.null(),
+      ])
+      .optional(),
     // Address Information
     permanentAddress: addressSchema.optional(),
     currentAddress: addressSchema.optional(),
