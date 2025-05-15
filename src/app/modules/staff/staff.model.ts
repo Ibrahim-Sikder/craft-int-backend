@@ -82,8 +82,6 @@ const staffSchema = new Schema<IStaff>(
     },
     gender: {
       type: String,
-      enum: ['Male', 'Female', 'Other'],
-      required:true
     },
     nationality: {
       type: String,

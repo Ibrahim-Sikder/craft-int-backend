@@ -27,7 +27,6 @@ const studentSchema = new Schema<IStudent>(
     },
     gender: {
       type: String,
-      enum: Object.values(Gender),
     },
     mobile: {
       type: String,
@@ -39,8 +38,6 @@ const studentSchema = new Schema<IStudent>(
     studentPhoto: {
       type: String,
     },
-
-
     fatherName: {
       type: String,
     },
@@ -69,7 +66,6 @@ const studentSchema = new Schema<IStudent>(
     },
     permanentThana: {
       type: String,
-
     },
     sameAsPermanent: {
       type: Boolean,
@@ -84,10 +80,8 @@ const studentSchema = new Schema<IStudent>(
     presentThana: {
       type: String,
     },
-
     className: {
       type: [String],
-
     },
     studentClassRoll: {
       type: String,
@@ -108,14 +102,10 @@ const studentSchema = new Schema<IStudent>(
     },
     studentType: {
       type: String,
-      enum: Object.values(StudentType),
-      required:true,
     },
     additionalNote: {
       type: String,
     },
-
-
     admissionFee: {
       type: Number,
       default: 0,
@@ -152,7 +142,6 @@ const studentSchema = new Schema<IStudent>(
       type: Number,
       default: 0,
     },
-
     sendAdmissionSMS: {
       type: Boolean,
       default: false,

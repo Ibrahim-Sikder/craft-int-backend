@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
 const objectIdOrArrayOrNull = z.union([
-  z.string().min(1), // single ObjectId string
-  z.array(z.string().min(1)), // array of ObjectId strings
-  z.null(), // null
+  z.string().min(1), 
+  z.array(z.string().min(1)), 
+  z.null(),
 ]);
 
 const addressSchema = z.object({
@@ -41,27 +41,16 @@ const experienceSchema = z.object({
 
 const createTeacherValidation = z.object({
   body: z.object({
-    // Basic Information
-    // teacherId: z.string({
-    //   required_error: 'Teacher ID is required'
-    // }),
-    teacherSerial: z.number({
-      required_error: 'Teacher serial is required',
-    }),
-    smartIdCard: z.string({
-      required_error: 'Smart ID card is required',
-    }),
+
+    teacherSerial: z.number().optional(),
+    smartIdCard: z.string().optional(),
     name: z.string({
       required_error: 'Name is required',
     }),
-    phone: z.string({
-      required_error: 'Phone number is required',
-    }),
+    phone: z.string(),
     email: z
-      .string({
-        required_error: 'Email is required',
-      })
-      .email('Invalid email format'),
+      .string()
+      .email('Invalid email format').optional(),
     dateOfBirth: z.coerce.date().optional(),
     bloodGroup: z.string().optional(),
     gender: z

@@ -10,9 +10,9 @@ import mongoose from 'mongoose';
 import { User } from '../user/user.model';
 
 const createStaff = async (payload: Partial<IStaff>): Promise<IStaff> => {
-  const { email, name } = payload;
+  const { name } = payload;
 
-  if (!email || !name) {
+  if (!name) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Required fields are missing');
   }
 
@@ -35,7 +35,7 @@ const createStaff = async (payload: Partial<IStaff>): Promise<IStaff> => {
     await User.create(
       [
         {
-          email,
+          email: payload.email || 'staff@gmail.com',
           password: 'staff123',
           name,
         },

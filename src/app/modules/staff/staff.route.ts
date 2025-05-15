@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.post(
   '/',
-  auth('admin', 'super_admin'),
+  // auth('admin', 'super_admin'),
   // validateRequest(StaffValidations.createStaffValidation),
   staffControllers.createStaff,
 );
@@ -21,13 +21,13 @@ router.get(
 );
 router.delete(
   '/:id',
-  auth('admin', 'super_admin'),
+  // auth('admin', 'super_admin'),
   staffControllers.deleteStaff,
 );
 
 router.patch(
   '/:id',
-  auth('admin', 'super_admin'),
+  // auth('admin', 'super_admin'),
   // validateRequest(StaffValidations.updateStaffValidation),
   staffControllers.updateStaff,
 );
