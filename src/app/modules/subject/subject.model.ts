@@ -6,8 +6,6 @@ const SubjectSchema = new Schema<TSubject>(
     name: {
       type: String,
       required: [true, 'Subject name is required'],
-      trim: true,
-      unique: true, 
     },
 
     paper: {

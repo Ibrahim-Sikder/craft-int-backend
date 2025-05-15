@@ -20,13 +20,10 @@ const createSubject = async (payload: TSubject) => {
 
   const trimmedName = name.trim()
 
-
-  const existingSubjectByName = await Subject.findOne({ name: trimmedName });
-  if (existingSubjectByName) {
-    throw new AppError(409, `Subject "${trimmedName}" already exists`);
-  }
-
-
+  // const existingSubjectByName = await Subject.findOne({ name: trimmedName });
+  // if (existingSubjectByName) {
+  //   throw new AppError(409, `Subject "${trimmedName}" already exists`);
+  // }
 
 
   const subjectData = {
