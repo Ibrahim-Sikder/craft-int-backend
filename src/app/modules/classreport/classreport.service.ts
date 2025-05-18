@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import httpStatus from 'http-status';
-import QueryBuilder from '../../builder/QueryBuilder';
 import { AppError } from '../../error/AppError';
 import { IClassReport } from './classreport.interface';
 import { ClassReport } from './classreport.model';
-import { classReportSearchableFields } from './classreport.constant';
 import { Student } from '../student/student.model';
 import { Types } from 'mongoose';
 
@@ -19,75 +17,105 @@ const createClassReport = async (payload: IClassReport) => {
 };
 
 export const getAllClassReports = async (query: Record<string, any>) => {
-  const searchTerm = query.searchTerm;
+  const searchTerm = query.searchTerm
+  const matchConditions: any[] = []
 
-  const matchConditions: any[] = [];
+  console.log("Backend received query params:", query)
 
-  // If searchTerm is provided and is a string
-  if (searchTerm && typeof searchTerm === 'string') {
-    // First, find matching students by name
+  // Handle general search term
+  if (searchTerm && typeof searchTerm === "string") {
     const matchingStudents = await Student.find({
-      name: { $regex: searchTerm, $options: 'i' },
-    }).select('_id');
+      name: { $regex: searchTerm, $options: "i" },
+    }).select("_id")
 
-    const matchingStudentIds = matchingStudents.map((student) =>
-      new Types.ObjectId(student._id as string)
-    );
+    const matchingStudentIds = matchingStudents.map((student) => new Types.ObjectId(student._id as string))
 
     matchConditions.push({
       $or: [
-        { teachers: { $regex: searchTerm, $options: 'i' } },
-        { classes: { $regex: searchTerm, $options: 'i' } },
-        { subjects: { $regex: searchTerm, $options: 'i' } },
-        { hour: { $regex: searchTerm, $options: 'i' } },
+        { teachers: { $regex: searchTerm, $options: "i" } },
+        { classes: { $regex: searchTerm, $options: "i" } },
+        { subjects: { $regex: searchTerm, $options: "i" } },
+        { hour: { $regex: searchTerm, $options: "i" } },
+        { date: { $regex: searchTerm, $options: "i" } },
         {
-          'studentEvaluations.studentId': {
+          "studentEvaluations.studentId": {
             $in: matchingStudentIds,
           },
         },
       ],
-    });
+    })
   }
 
-  const pipeline: any[] = [];
 
-  // Apply search filters if any
+  const paramToFieldMap = {
+    className: "classes",
+    subject: "subjects",
+    teacher: "teachers",
+    hour: "hour",
+    date: "date",
+  }
+
+  // Handle specific field filters
+  for (const [param, field] of Object.entries(paramToFieldMap)) {
+    if (query[param]) {
+      if (field === "date") {
+        const startDate = new Date(query[param])
+        const endDate = new Date(query[param])
+        endDate.setDate(endDate.getDate() + 1)
+
+        matchConditions.push({
+          date: {
+            $gte: startDate,
+            $lt: endDate,
+          },
+        })
+      } else {
+
+        matchConditions.push({
+          [field]: query[param],
+        })
+      }
+    }
+  }
+
+  const pipeline: any[] = []
+
   if (matchConditions.length > 0) {
     pipeline.push({
       $match: {
         $and: matchConditions,
       },
-    });
+    })
   }
 
   // Populate studentEvaluations.studentId
   pipeline.push(
     {
       $lookup: {
-        from: 'students',
-        localField: 'studentEvaluations.studentId',
-        foreignField: '_id',
-        as: 'studentDetails',
+        from: "students",
+        localField: "studentEvaluations.studentId",
+        foreignField: "_id",
+        as: "studentDetails",
       },
     },
     {
       $addFields: {
         studentEvaluations: {
           $map: {
-            input: '$studentEvaluations',
-            as: 'evaluation',
+            input: "$studentEvaluations",
+            as: "evaluation",
             in: {
               $mergeObjects: [
-                '$$evaluation',
+                "$$evaluation",
                 {
                   studentId: {
                     $arrayElemAt: [
                       {
                         $filter: {
-                          input: '$studentDetails',
-                          as: 's',
+                          input: "$studentDetails",
+                          as: "s",
                           cond: {
-                            $eq: ['$$s._id', '$$evaluation.studentId'],
+                            $eq: ["$$s._id", "$$evaluation.studentId"],
                           },
                         },
                       },
@@ -103,62 +131,58 @@ export const getAllClassReports = async (query: Record<string, any>) => {
     },
     {
       $project: {
-        studentDetails: 0, // remove temp field
+        studentDetails: 0,
       },
-    }
-  );
+    },
+  )
 
-  // Populate todayLesson
   pipeline.push({
     $lookup: {
-      from: 'todaylessons',
-      localField: 'todayLesson',
-      foreignField: '_id',
-      as: 'todayLesson',
+      from: "todaylessons",
+      localField: "todayLesson",
+      foreignField: "_id",
+      as: "todayLesson",
     },
-  });
+  })
   pipeline.push({
     $unwind: {
-      path: '$todayLesson',
+      path: "$todayLesson",
       preserveNullAndEmptyArrays: true,
     },
-  });
+  })
 
-  // Populate homeTask
   pipeline.push({
     $lookup: {
-      from: 'todaytasks',
-      localField: 'homeTask',
-      foreignField: '_id',
-      as: 'homeTask',
+      from: "todaytasks",
+      localField: "homeTask",
+      foreignField: "_id",
+      as: "homeTask",
     },
-  });
+  })
   pipeline.push({
     $unwind: {
-      path: '$homeTask',
+      path: "$homeTask",
       preserveNullAndEmptyArrays: true,
     },
-  });
+  })
 
-  // Sort and paginate if needed
-  pipeline.push({ $sort: { createdAt: -1 } });
+  pipeline.push({ $sort: { createdAt: -1 } })
 
-  // Get data
-  const reports = await ClassReport.aggregate(pipeline);
-
-  // Meta
-  const meta = {
-    total: reports.length,
-  };
+  const reports = await ClassReport.aggregate(pipeline)
+  console.log(`Found ${reports.length} reports after filtering`)
 
   return {
-    meta,
+    meta: {
+      total: reports.length,
+    },
     reports,
-  };
-};
+  }
+}
 
 
-export default getAllClassReports;
+
+
+
 
 const getSingleClassReport = async (id: string) => {
   const result = await ClassReport.findById(id)
