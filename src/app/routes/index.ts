@@ -17,6 +17,7 @@ import { subjectRoutes } from '../modules/subject/subject.route';
 import { todayTaskRoutes } from '../modules/todaytask/todaytask.route';
 import { dailyClassReportRoutes } from '../modules/dailyclassreport/dailyClassReport.route';
 import { staffRoutes } from '../modules/staff/staff.route';
+import { metaroute } from '../modules/meta/meta.route';
 const router = Router();
 
 const moduleRoutes = [
@@ -84,6 +85,10 @@ const moduleRoutes = [
   {
     path: '/staff',
     route: staffRoutes,
+  },
+  {
+    path: '/meta',
+    route: metaroute,
   },
 ];
 
