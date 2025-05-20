@@ -24,12 +24,12 @@ const createClassReportValidation = z.object({
             required_error: 'Student ID is required',
           }),
           lessonEvaluation: z.enum(
-            ['পড়া শিখেছে', 'আংশিক শিখেছে', 'পড়া শিখেনি','অনুপস্থিত'],
+            ["পড়া শিখেছে", "আংশিক শিখেছে", "পড়া শিখেনি", "অনুপস্থিত", "পাঠ নেই"],
             {
               required_error: 'Lesson evaluation is required',
             },
           ),
-          handwriting: z.enum(['লিখেছে', 'আংশিক লিখেছে', 'লিখেনি'], {
+          handwriting: z.enum(["লিখেছে", "আংশিক লিখেছে", "লিখেনি", "কাজ নেই"], {
             required_error: 'Handwriting evaluation is required',
           }),
           attendance: z.enum(['উপস্থিত', 'অনুপস্থিত', 'ছুটি'], {

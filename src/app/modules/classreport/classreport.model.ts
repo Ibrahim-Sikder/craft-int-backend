@@ -6,27 +6,29 @@ const studentEvaluationSchema = new Schema<IStudentEvaluation>(
     studentId: {
       type: Schema.Types.ObjectId,
       ref: 'Student',
-      required: true,
+
     },
+
+
     lessonEvaluation: {
       type: String,
-      enum: ['পড়া শিখেছে', 'আংশিক শিখেছে', 'পড়া শিখেনি','অনুপস্থিত'],
-      required: true,
+      enum: ["পড়া শিখেছে", "আংশিক শিখেছে", "পড়া শিখেনি", "অনুপস্থিত", "পাঠ নেই"],
+    
     },
     handwriting: {
       type: String,
-      enum: ['লিখেছে', 'আংশিক লিখেছে', 'লিখেনি'],
-      required: true,
+      enum: ["লিখেছে", "আংশিক লিখেছে", "লিখেনি", "কাজ নেই"],
+ 
     },
     attendance: {
       type: String,
-      enum: ['উপস্থিত', 'অনুপস্থিত', 'ছুটি'],
-      required: true,
+      enum: ['উপস্থিত', 'অনুপস্থিত', 'ছুটি',],
+
     },
  
     parentSignature: {
       type: Boolean,
-      required: true,
+  
     },
     comments: {
       type: String,
@@ -68,6 +70,12 @@ const classReportSchema = new Schema<IClassReport>(
     homeTask: {
       type: Schema.Types.ObjectId,
       ref: 'TodayTask',
+    },
+    noTaskForClass: {
+       type: Boolean,
+    },
+    noHomeworkForClass: {
+       type: Boolean,
     },
   },
   {

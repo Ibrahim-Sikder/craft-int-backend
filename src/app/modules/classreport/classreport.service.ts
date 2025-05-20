@@ -46,13 +46,14 @@ export const getAllClassReports = async (query: Record<string, any>) => {
     })
   }
 
-
+  // Updated paramToFieldMap to include lessonEvaluation
   const paramToFieldMap = {
     className: "classes",
     subject: "subjects",
     teacher: "teachers",
     hour: "hour",
     date: "date",
+    lessonEvaluation: "studentEvaluations.lessonEvaluation", // Add this mapping
   }
 
   // Handle specific field filters
@@ -69,8 +70,12 @@ export const getAllClassReports = async (query: Record<string, any>) => {
             $lt: endDate,
           },
         })
+      } else if (field === "studentEvaluations.lessonEvaluation") {
+        // Special handling for nested field in array
+        matchConditions.push({
+          "studentEvaluations.lessonEvaluation": query[param],
+        })
       } else {
-
         matchConditions.push({
           [field]: query[param],
         })

@@ -22,4 +22,6 @@ export interface IClassReport {
   studentEvaluations: IStudentEvaluation[];
   todayLesson?: Types.ObjectId[];
   homeTask?: Types.ObjectId[];
+  noTaskForClass:boolean;
+  noHomeworkForClass:boolean;
 }
