@@ -74,7 +74,10 @@ const classReportSchema = new Schema<IClassReport>(
     noTaskForClass: {
        type: Boolean,
     },
-    noHomeworkForClass: {
+    lessonEvaluationTask: {
+       type: Boolean,
+    },
+    handwrittenTask: {
        type: Boolean,
     },
   },

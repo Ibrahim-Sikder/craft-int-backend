@@ -61,22 +61,26 @@ const updateClassReportValidation = z.object({
       })
       .optional(),
     studentEvaluations: z
-      .array(
+       .array(
         z.object({
-          studentId: z.union([
-            z.string(),
-            z
-              .object({
-                _id: z.string(),
-              })
-              .transform((val) => val._id),
-          ]),
-          lessonEvaluation: z
-            .enum(['পড়া শিখেছে', 'আংশিক শিখেছে', 'পড়া শিখেনি','অনুপস্থিত'])
-            .optional(),
-          handwriting: z.enum(['লিখেছে', 'আংশিক লিখেছে', 'লিখেনি']).optional(),
-          attendance: z.enum(['উপস্থিত', 'অনুপস্থিত', 'ছুটি']).optional(),
-          parentSignature: z.boolean().optional(),
+          studentId: z.string({
+            required_error: 'Student ID is required',
+          }),
+          lessonEvaluation: z.enum(
+            ["পড়া শিখেছে", "আংশিক শিখেছে", "পড়া শিখেনি", "অনুপস্থিত", "পাঠ নেই"],
+            {
+              required_error: 'Lesson evaluation is required',
+            },
+          ),
+          handwriting: z.enum(["লিখেছে", "আংশিক লিখেছে", "লিখেনি", "কাজ নেই"], {
+            required_error: 'Handwriting evaluation is required',
+          }),
+          attendance: z.enum(['উপস্থিত', 'অনুপস্থিত', 'ছুটি'], {
+            required_error: 'Attendance status is required',
+          }),
+          parentSignature: z.boolean({
+            required_error: 'Parent signature is required',
+          }),
           comments: z.string().optional(),
         }),
       )

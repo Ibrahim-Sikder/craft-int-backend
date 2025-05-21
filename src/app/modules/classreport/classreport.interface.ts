@@ -2,13 +2,12 @@ import { Types } from 'mongoose';
 
 export interface IStudentEvaluation {
   studentId: Types.ObjectId;
-  lessonEvaluation:
-    | 'পড়া শিখেছে'
+  lessonEvaluation: | 'পড়া শিখেছে'
     | 'আংশিক শিখেছে'
     | 'পড়া শিখেনি'
-    | 'অনুপস্থিত';
-  handwriting: 'লিখেছে' | 'আংশিক লিখেছে' | 'লিখেনি';
-  attendance: 'উপস্থিত' | 'অনুপস্থিত' | 'ছুটি';
+    | 'অনুপস্থিত' | 'পাঠ নেই';
+  handwriting: 'লিখেছে' | 'আংশিক লিখেছে' | 'লিখেনি' | 'কাজ নেই';
+  attendance: 'উপস্থিত' | 'অনুপস্থিত' | 'ছুটি',
   parentSignature: boolean;
   comments?: string;
 }
@@ -23,5 +22,6 @@ export interface IClassReport {
   todayLesson?: Types.ObjectId[];
   homeTask?: Types.ObjectId[];
   noTaskForClass:boolean;
-  noHomeworkForClass:boolean;
+  handwrittenTask:boolean;
+  lessonEvaluationTask:boolean;
 }

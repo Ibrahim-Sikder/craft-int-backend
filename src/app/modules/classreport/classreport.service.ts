@@ -19,11 +19,11 @@ const createClassReport = async (payload: IClassReport) => {
 export const getAllClassReports = async (query: Record<string, any>) => {
   const searchTerm = query.searchTerm
   const matchConditions: any[] = []
-
-  console.log("Backend received query params:", query)
-
-  // Handle general search term
+  let studentNameFilter: string | null = null
   if (searchTerm && typeof searchTerm === "string") {
+
+    studentNameFilter = searchTerm
+
     const matchingStudents = await Student.find({
       name: { $regex: searchTerm, $options: "i" },
     }).select("_id")
@@ -46,17 +46,32 @@ export const getAllClassReports = async (query: Record<string, any>) => {
     })
   }
 
-  // Updated paramToFieldMap to include lessonEvaluation
+  if (query.studentName && typeof query.studentName === "string") {
+    studentNameFilter = query.studentName
+    
+    const matchingStudents = await Student.find({
+      name: { $regex: query.studentName, $options: "i" },
+    }).select("_id")
+
+    const matchingStudentIds = matchingStudents.map((student) => new Types.ObjectId(student._id as string))
+
+    matchConditions.push({
+      "studentEvaluations.studentId": {
+        $in: matchingStudentIds,
+      },
+    })
+  }
+
   const paramToFieldMap = {
     className: "classes",
     subject: "subjects",
     teacher: "teachers",
     hour: "hour",
     date: "date",
-    lessonEvaluation: "studentEvaluations.lessonEvaluation", // Add this mapping
+    lessonEvaluation: "studentEvaluations.lessonEvaluation",
   }
 
-  // Handle specific field filters
+
   for (const [param, field] of Object.entries(paramToFieldMap)) {
     if (query[param]) {
       if (field === "date") {
@@ -71,7 +86,6 @@ export const getAllClassReports = async (query: Record<string, any>) => {
           },
         })
       } else if (field === "studentEvaluations.lessonEvaluation") {
-        // Special handling for nested field in array
         matchConditions.push({
           "studentEvaluations.lessonEvaluation": query[param],
         })
@@ -93,7 +107,6 @@ export const getAllClassReports = async (query: Record<string, any>) => {
     })
   }
 
-  // Populate studentEvaluations.studentId
   pipeline.push(
     {
       $lookup: {
@@ -176,14 +189,33 @@ export const getAllClassReports = async (query: Record<string, any>) => {
   const reports = await ClassReport.aggregate(pipeline)
   console.log(`Found ${reports.length} reports after filtering`)
 
+  let processedReports = reports
+
+  if (studentNameFilter) {
+    processedReports = reports.map(report => {
+
+      const filteredReport = { ...report }
+      
+      if (report.studentEvaluations && Array.isArray(report.studentEvaluations)) {
+        filteredReport.studentEvaluations = report.studentEvaluations.filter((evaluation: any) => {
+  
+          return evaluation.studentId && 
+                 evaluation.studentId.name && 
+                 evaluation.studentId.name.toLowerCase().includes(studentNameFilter!.toLowerCase());
+        });
+      }
+      
+      return filteredReport;
+    });
+  }
+
   return {
     meta: {
-      total: reports.length,
+      total: processedReports.length,
     },
-    reports,
+    reports: processedReports,
   }
 }
-
 
 
 
