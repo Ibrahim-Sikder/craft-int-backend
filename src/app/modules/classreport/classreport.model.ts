@@ -12,12 +12,12 @@ const studentEvaluationSchema = new Schema<IStudentEvaluation>(
 
     lessonEvaluation: {
       type: String,
-      enum: ["পড়া শিখেছে", "আংশিক শিখেছে", "পড়া শিখেনি", "অনুপস্থিত", "পাঠ নেই"],
+      enum: ["পড়া শিখেছে", "আংশিক শিখেছে", "পড়া শিখেনি", "অনুপস্থিত", "পাঠ নেই",],
     
     },
     handwriting: {
       type: String,
-      enum: ["লিখেছে", "আংশিক লিখেছে", "লিখেনি", "কাজ নেই"],
+      enum: ["লিখেছে", "আংশিক লিখেছে", "লিখেনি", "কাজ নেই", 'অনুপস্থিত'],
  
     },
     attendance: {

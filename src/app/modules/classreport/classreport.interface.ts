@@ -6,8 +6,8 @@ export interface IStudentEvaluation {
     | 'আংশিক শিখেছে'
     | 'পড়া শিখেনি'
     | 'অনুপস্থিত' | 'পাঠ নেই';
-  handwriting: 'লিখেছে' | 'আংশিক লিখেছে' | 'লিখেনি' | 'কাজ নেই';
-  attendance: 'উপস্থিত' | 'অনুপস্থিত' | 'ছুটি',
+  handwriting: 'লিখেছে' | 'আংশিক লিখেছে' | 'লিখেনি' | 'কাজ নেই' | 'অনুপস্থিত';
+  attendance: 'উপস্থিত' | 'অনুপস্থিত' | 'ছুটি' | 'অনুপস্থিত',
   parentSignature: boolean;
   comments?: string;
 }

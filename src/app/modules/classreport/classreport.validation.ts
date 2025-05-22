@@ -29,7 +29,7 @@ const createClassReportValidation = z.object({
               required_error: 'Lesson evaluation is required',
             },
           ),
-          handwriting: z.enum(["লিখেছে", "আংশিক লিখেছে", "লিখেনি", "কাজ নেই"], {
+          handwriting: z.enum(["লিখেছে", "আংশিক লিখেছে", "লিখেনি", "কাজ নেই",'অনুপস্থিত'], {
             required_error: 'Handwriting evaluation is required',
           }),
           attendance: z.enum(['উপস্থিত', 'অনুপস্থিত', 'ছুটি'], {
@@ -72,7 +72,7 @@ const updateClassReportValidation = z.object({
               required_error: 'Lesson evaluation is required',
             },
           ),
-          handwriting: z.enum(["লিখেছে", "আংশিক লিখেছে", "লিখেনি", "কাজ নেই"], {
+          handwriting: z.enum(["লিখেছে", "আংশিক লিখেছে", "লিখেনি", "কাজ নেই",'অনুপস্থিত'], {
             required_error: 'Handwriting evaluation is required',
           }),
           attendance: z.enum(['উপস্থিত', 'অনুপস্থিত', 'ছুটি'], {

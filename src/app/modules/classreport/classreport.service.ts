@@ -17,18 +17,19 @@ const createClassReport = async (payload: IClassReport) => {
 };
 
 export const getAllClassReports = async (query: Record<string, any>) => {
-  const searchTerm = query.searchTerm
-  const matchConditions: any[] = []
-  let studentNameFilter: string | null = null
+  const searchTerm = query.searchTerm;
+  const matchConditions: any[] = [];
+  let studentNameFilter: string | null = null;
+
   if (searchTerm && typeof searchTerm === "string") {
-
-    studentNameFilter = searchTerm
-
+    studentNameFilter = searchTerm;
     const matchingStudents = await Student.find({
       name: { $regex: searchTerm, $options: "i" },
-    }).select("_id")
+    }).select("_id");
 
-    const matchingStudentIds = matchingStudents.map((student) => new Types.ObjectId(student._id as string))
+    const matchingStudentIds = matchingStudents.map(
+      (student) => new Types.ObjectId(student._id as string)
+    );
 
     matchConditions.push({
       $or: [
@@ -43,68 +44,77 @@ export const getAllClassReports = async (query: Record<string, any>) => {
           },
         },
       ],
-    })
+    });
   }
 
   if (query.studentName && typeof query.studentName === "string") {
-    studentNameFilter = query.studentName
-    
+    studentNameFilter = query.studentName;
+
     const matchingStudents = await Student.find({
       name: { $regex: query.studentName, $options: "i" },
-    }).select("_id")
+    }).select("_id");
 
-    const matchingStudentIds = matchingStudents.map((student) => new Types.ObjectId(student._id as string))
+    const matchingStudentIds = matchingStudents.map(
+      (student) => new Types.ObjectId(student._id as string)
+    );
 
     matchConditions.push({
       "studentEvaluations.studentId": {
         $in: matchingStudentIds,
       },
-    })
+    });
   }
 
-  const paramToFieldMap = {
+  // Map your query parameters to the field names in the documents.
+  // Note: Handwriting filtering is added here.
+  const paramToFieldMap: Record<string, string> = {
     className: "classes",
     subject: "subjects",
     teacher: "teachers",
     hour: "hour",
     date: "date",
     lessonEvaluation: "studentEvaluations.lessonEvaluation",
-  }
-
+    handwriting: "studentEvaluations.handwriting",
+  };
 
   for (const [param, field] of Object.entries(paramToFieldMap)) {
     if (query[param]) {
       if (field === "date") {
-        const startDate = new Date(query[param])
-        const endDate = new Date(query[param])
-        endDate.setDate(endDate.getDate() + 1)
+        // If filtering by date, match within the day
+        const startDate = new Date(query[param]);
+        const endDate = new Date(query[param]);
+        endDate.setDate(endDate.getDate() + 1);
 
         matchConditions.push({
           date: {
             $gte: startDate,
             $lt: endDate,
           },
-        })
-      } else if (field === "studentEvaluations.lessonEvaluation") {
+        });
+      } else if (
+        field === "studentEvaluations.lessonEvaluation" ||
+        field === "studentEvaluations.handwriting"
+      ) {
+        // Direct match for lessonEvaluation and handwriting values
         matchConditions.push({
-          "studentEvaluations.lessonEvaluation": query[param],
-        })
+          [field]: query[param],
+        });
       } else {
         matchConditions.push({
           [field]: query[param],
-        })
+        });
       }
     }
   }
 
-  const pipeline: any[] = []
+  const pipeline: any[] = [];
 
   if (matchConditions.length > 0) {
     pipeline.push({
       $match: {
         $and: matchConditions,
       },
-    })
+    });
   }
 
   pipeline.push(
@@ -151,8 +161,8 @@ export const getAllClassReports = async (query: Record<string, any>) => {
       $project: {
         studentDetails: 0,
       },
-    },
-  )
+    }
+  );
 
   pipeline.push({
     $lookup: {
@@ -161,13 +171,13 @@ export const getAllClassReports = async (query: Record<string, any>) => {
       foreignField: "_id",
       as: "todayLesson",
     },
-  })
+  });
   pipeline.push({
     $unwind: {
       path: "$todayLesson",
       preserveNullAndEmptyArrays: true,
     },
-  })
+  });
 
   pipeline.push({
     $lookup: {
@@ -176,46 +186,110 @@ export const getAllClassReports = async (query: Record<string, any>) => {
       foreignField: "_id",
       as: "homeTask",
     },
-  })
+  });
   pipeline.push({
     $unwind: {
       path: "$homeTask",
       preserveNullAndEmptyArrays: true,
     },
-  })
+  });
 
-  pipeline.push({ $sort: { createdAt: -1 } })
+  pipeline.push({ $sort: { createdAt: -1 } });
 
-  const reports = await ClassReport.aggregate(pipeline)
-  console.log(`Found ${reports.length} reports after filtering`)
+  const reports = await ClassReport.aggregate(pipeline);
+  console.log(`Found ${reports.length} reports after filtering`);
 
-  let processedReports = reports
+let processedReports = reports;
 
-  if (studentNameFilter) {
-    processedReports = reports.map(report => {
+const {
+  handwriting,
+  lessonEvaluation,
+  studentName,
+  className,
+  subject,
+  teacher,
+  date,
+  hour,
+} = query;
 
-      const filteredReport = { ...report }
-      
-      if (report.studentEvaluations && Array.isArray(report.studentEvaluations)) {
-        filteredReport.studentEvaluations = report.studentEvaluations.filter((evaluation: any) => {
-  
-          return evaluation.studentId && 
-                 evaluation.studentId.name && 
-                 evaluation.studentId.name.toLowerCase().includes(studentNameFilter!.toLowerCase());
-        });
-      }
-      
-      return filteredReport;
-    });
-  }
+const studentNameFilterLower = studentNameFilter?.toLowerCase();
+
+if (
+  studentNameFilter ||
+  handwriting ||
+  lessonEvaluation ||
+  className ||
+  subject ||
+  teacher ||
+  date ||
+  hour
+) {
+  processedReports = reports.map((report) => {
+    const filteredReport = { ...report };
+
+    if (Array.isArray(report.studentEvaluations)) {
+      filteredReport.studentEvaluations = report.studentEvaluations.filter((evaluation: any) => {
+        const matchesStudentName = studentNameFilterLower
+          ? evaluation.studentId?.name?.toLowerCase().includes(studentNameFilterLower)
+          : true;
+
+        const matchesHandwriting = handwriting
+          ? evaluation.handwriting === handwriting
+          : true;
+
+        const matchesLessonEvaluation = lessonEvaluation
+          ? evaluation.lessonEvaluation === lessonEvaluation
+          : true;
+
+        const matchesClass = className ? report.classes === className : true;
+        const matchesSubject = subject ? report.subjects === subject : true;
+        const matchesTeacher = teacher ? report.teachers === teacher : true;
+        const matchesHour = hour ? report.hour === hour : true;
+
+        const matchesDate = date
+          ? (() => {
+              const queryDate = new Date(date);
+              const reportDate = new Date(report.date);
+              return (
+                queryDate.getFullYear() === reportDate.getFullYear() &&
+                queryDate.getMonth() === reportDate.getMonth() &&
+                queryDate.getDate() === reportDate.getDate()
+              );
+            })()
+          : true;
+
+        return (
+          matchesStudentName &&
+          matchesHandwriting &&
+          matchesLessonEvaluation &&
+          matchesClass &&
+          matchesSubject &&
+          matchesTeacher &&
+          matchesHour &&
+          matchesDate
+        );
+      });
+    }
+
+    return filteredReport;
+  });
+
+  // Remove entire reports where no student evaluations match
+  processedReports = processedReports.filter(
+    (report) => report.studentEvaluations && report.studentEvaluations.length > 0
+  );
+}
+
+
 
   return {
     meta: {
       total: processedReports.length,
     },
     reports: processedReports,
-  }
-}
+  };
+};
+
 
 
 
