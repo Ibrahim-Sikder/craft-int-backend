@@ -65,8 +65,6 @@ export const getAllClassReports = async (query: Record<string, any>) => {
     });
   }
 
-  // Map your query parameters to the field names in the documents.
-  // Note: Handwriting filtering is added here.
   const paramToFieldMap: Record<string, string> = {
     className: "classes",
     subject: "subjects",
@@ -80,7 +78,6 @@ export const getAllClassReports = async (query: Record<string, any>) => {
   for (const [param, field] of Object.entries(paramToFieldMap)) {
     if (query[param]) {
       if (field === "date") {
-        // If filtering by date, match within the day
         const startDate = new Date(query[param]);
         const endDate = new Date(query[param]);
         endDate.setDate(endDate.getDate() + 1);
@@ -90,14 +87,6 @@ export const getAllClassReports = async (query: Record<string, any>) => {
             $gte: startDate,
             $lt: endDate,
           },
-        });
-      } else if (
-        field === "studentEvaluations.lessonEvaluation" ||
-        field === "studentEvaluations.handwriting"
-      ) {
-        // Direct match for lessonEvaluation and handwriting values
-        matchConditions.push({
-          [field]: query[param],
         });
       } else {
         matchConditions.push({
@@ -172,6 +161,7 @@ export const getAllClassReports = async (query: Record<string, any>) => {
       as: "todayLesson",
     },
   });
+
   pipeline.push({
     $unwind: {
       path: "$todayLesson",
@@ -187,6 +177,7 @@ export const getAllClassReports = async (query: Record<string, any>) => {
       as: "homeTask",
     },
   });
+
   pipeline.push({
     $unwind: {
       path: "$homeTask",
@@ -199,94 +190,102 @@ export const getAllClassReports = async (query: Record<string, any>) => {
   const reports = await ClassReport.aggregate(pipeline);
   console.log(`Found ${reports.length} reports after filtering`);
 
-let processedReports = reports;
+  let processedReports = reports;
 
-const {
-  handwriting,
-  lessonEvaluation,
-  studentName,
-  className,
-  subject,
-  teacher,
-  date,
-  hour,
-} = query;
+  const {
+    handwriting,
+    lessonEvaluation,
+    studentName,
+    className,
+    subject,
+    teacher,
+    date,
+    hour,
+  } = query;
 
-const studentNameFilterLower = studentNameFilter?.toLowerCase();
+  const studentNameFilterLower = studentNameFilter?.toLowerCase();
 
-if (
-  studentNameFilter ||
-  handwriting ||
-  lessonEvaluation ||
-  className ||
-  subject ||
-  teacher ||
-  date ||
-  hour
-) {
-  processedReports = reports.map((report) => {
-    const filteredReport = { ...report };
+  if (
+    studentNameFilter ||
+    handwriting ||
+    lessonEvaluation ||
+    className ||
+    subject ||
+    teacher ||
+    date ||
+    hour
+  ) {
+    processedReports = reports.map((report) => {
+      const filteredReport = { ...report };
 
-    if (Array.isArray(report.studentEvaluations)) {
-      filteredReport.studentEvaluations = report.studentEvaluations.filter((evaluation: any) => {
-        const matchesStudentName = studentNameFilterLower
-          ? evaluation.studentId?.name?.toLowerCase().includes(studentNameFilterLower)
-          : true;
+      if (Array.isArray(report.studentEvaluations)) {
+        filteredReport.studentEvaluations = report.studentEvaluations.filter((evaluation: any) => {
+          const matchesStudentName = studentNameFilterLower
+            ? evaluation.studentId?.name?.toLowerCase().includes(studentNameFilterLower)
+            : true;
 
-        const matchesHandwriting = handwriting
-          ? evaluation.handwriting === handwriting
-          : true;
+          const matchesHandwriting = handwriting
+            ? evaluation.handwriting === handwriting
+            : true;
 
-        const matchesLessonEvaluation = lessonEvaluation
-          ? evaluation.lessonEvaluation === lessonEvaluation
-          : true;
+          const matchesLessonEvaluation = lessonEvaluation
+            ? evaluation.lessonEvaluation === lessonEvaluation
+            : true;
 
-        const matchesClass = className ? report.classes === className : true;
-        const matchesSubject = subject ? report.subjects === subject : true;
-        const matchesTeacher = teacher ? report.teachers === teacher : true;
-        const matchesHour = hour ? report.hour === hour : true;
+          const matchesClass = className ? report.classes === className : true;
+          const matchesSubject = subject ? report.subjects === subject : true;
+          const matchesTeacher = teacher ? report.teachers === teacher : true;
+          const matchesHour = hour ? report.hour === hour : true;
 
-        const matchesDate = date
-          ? (() => {
-              const queryDate = new Date(date);
-              const reportDate = new Date(report.date);
-              return (
-                queryDate.getFullYear() === reportDate.getFullYear() &&
-                queryDate.getMonth() === reportDate.getMonth() &&
-                queryDate.getDate() === reportDate.getDate()
-              );
-            })()
-          : true;
+          const matchesDate = date
+            ? (() => {
+                const queryDate = new Date(date);
+                const reportDate = new Date(report.date);
+                return (
+                  queryDate.getFullYear() === reportDate.getFullYear() &&
+                  queryDate.getMonth() === reportDate.getMonth() &&
+                  queryDate.getDate() === reportDate.getDate()
+                );
+              })()
+            : true;
 
-        return (
-          matchesStudentName &&
-          matchesHandwriting &&
-          matchesLessonEvaluation &&
-          matchesClass &&
-          matchesSubject &&
-          matchesTeacher &&
-          matchesHour &&
-          matchesDate
-        );
-      });
-    }
+          return (
+            matchesStudentName &&
+            matchesHandwriting &&
+            matchesLessonEvaluation &&
+            matchesClass &&
+            matchesSubject &&
+            matchesTeacher &&
+            matchesHour &&
+            matchesDate
+          );
+        });
+      }
 
-    return filteredReport;
-  });
+      return filteredReport;
+    });
 
-  // Remove entire reports where no student evaluations match
-  processedReports = processedReports.filter(
-    (report) => report.studentEvaluations && report.studentEvaluations.length > 0
-  );
-}
+    // Remove reports with no matching student evaluations
+    processedReports = processedReports.filter(
+      (report) => report.studentEvaluations && report.studentEvaluations.length > 0
+    );
+  }
 
+  // === PAGINATION ===
+  const page = parseInt(query.page as string) || 1;
+  const limit = parseInt(query.limit as string) || 10;
+  const skip = (page - 1) * limit;
 
+  const paginatedReports = processedReports.slice(skip, skip + limit);
 
   return {
     meta: {
       total: processedReports.length,
+      page,
+      limit,
+      totalPages: Math.ceil(processedReports.length / limit),
     },
-    reports: processedReports,
+    reports: paginatedReports,
   };
 };
 
