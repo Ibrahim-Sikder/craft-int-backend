@@ -5,7 +5,6 @@ import { mealReportServices } from './mealreport.service';
 
 const createMealReport = catchAsync(async (req, res, next) => {
   
-  console.log(req.body)
   try {
     const result = await mealReportServices.createMealReport(req.body);
 

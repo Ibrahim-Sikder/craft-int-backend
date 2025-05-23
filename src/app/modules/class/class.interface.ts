@@ -1,12 +1,8 @@
-import { ObjectId } from 'mongoose';
+import { ObjectId } from "mongoose";
 
 export type TClass = {
   className: string;
-  description: string;
-  students: ObjectId[];
-  teachers: ObjectId[];
-  sections: ObjectId[];
-  subjects: ObjectId[];
   createdAt: Date;
+    sections: ObjectId[];
   updatedAt: Date;
 };

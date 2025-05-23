@@ -7,22 +7,22 @@ import { Class } from './class.model';
 import { classSearch } from './class.constant';
 
 const createClass = async (payload: TClass) => {
-  const { className } = payload;
-  if (!className) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Class name is required');
-  }
+  // const { className } = payload;
 
-  const existingClass = await Class.findOne({ className });
-  if (existingClass) {
-    throw new AppError(httpStatus.CONFLICT, 'Class already exists');
-  }
+  // const existingClass = await Class.findOne({ className });
+  // if (existingClass) {
+  //   throw new AppError(httpStatus.CONFLICT, 'Class already exists');
+  // }
 
   const result = await Class.create(payload);
   return result;
 };
 
 const getAllClasses = async (query: Record<string, unknown>) => {
-  const classQuery = new QueryBuilder(Class.find(), query)
+  const classQuery = new QueryBuilder(
+    Class.find().populate('sections'), 
+    query
+  )
     .search(classSearch)
     .filter()
     .sort()
@@ -30,7 +30,7 @@ const getAllClasses = async (query: Record<string, unknown>) => {
     .fields();
 
   const meta = await classQuery.countTotal();
-  const classes = await classQuery.modelQuery.populate('students').populate('teachers').populate('sections').populate('subjects');
+  const classes = await classQuery.modelQuery;
 
   return {
     meta,
@@ -38,9 +38,10 @@ const getAllClasses = async (query: Record<string, unknown>) => {
   };
 };
 
+
 const getSingleClass = async (id: string) => {
   const result = await Class.findById(id)
-    .populate([{ path: 'students' }, { path: 'teachers' }, { path: 'sections' }, { path: 'subjects' }]);
+    .populate([{ path: 'sections' }]);
 
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'Class not found');

@@ -1,16 +1,15 @@
 import { z } from 'zod';
 import { Gender, StudentStatus, StudentType } from './student.utils';
 
+
 const createStudentValidation = z.object({
   body: z.object({
     smartIdCard: z.string().optional(),
-    name: z.string({ required_error: 'Name is required' }),
-    birthDate: z.string({ required_error: 'Birth date is required' }),
+    name: z.string().optional(),
+    birthDate: z.string().optional(),
     birthRegistrationNo: z.string().optional(),
-    gender: z.enum([Gender.MALE, Gender.FEMALE, Gender.OTHER], {
-      required_error: 'Gender is required',
-    }),
-    mobile: z.string({ required_error: 'Mobile number is required' }),
+    gender: z.enum([Gender.MALE, Gender.FEMALE, Gender.OTHER]).optional(),
+    mobile: z.string().optional(),
     bloodGroup: z.string().optional(),
     studentPhoto: z.string({required_error:'Student photo is required!'}).optional(),
     // Family Information
@@ -22,24 +21,23 @@ const createStudentValidation = z.object({
     nidFatherMotherGuardian: z.string().optional(),
 
     // Address Information
-    permanentAddress: z.string({ required_error: 'Permanent address is required' }).optional(),
-    permanentDistrict: z.string({ required_error: 'Permanent district is required' }).optional(),
-    permanentThana: z.string({ required_error: 'Permanent thana is required' }).optional(),
+    permanentAddress: z.string().optional(),
+    permanentDistrict: z.string().optional(),
+    permanentThana: z.string().optional(),
     sameAsPermanent: z.boolean().default(false),
     presentAddress: z.string().optional(),
     presentDistrict: z.string().optional(),
     presentThana: z.string().optional(),
 
     // Academic Information
-    className: z.string({ required_error: 'Class name is required' }),
-    studentClassRoll: z.string({ required_error: 'Student class roll is required' }),
+    studentClassRoll: z.string().optional(),
     batch: z.string().optional(),
     section: z.string().optional(),
-    activeSession: z.string({ required_error: 'Active session is required' }),
+    className: z.string().optional(),
+    activeSession: z.string().optional(),
     status: z.enum([StudentStatus.ACTIVE, StudentStatus.INACTIVE, StudentStatus.GRADUATED]).default(StudentStatus.ACTIVE),
     studentType: z.enum([StudentType.RESIDENTIAL, StudentType.DAY]).optional(),
     additionalNote: z.string().optional(),
-
     // Fee Information (accepts both string and number)
     admissionFee: z.coerce.number().default(0),
     monthlyFee: z.coerce.number().default(0),
@@ -50,7 +48,6 @@ const createStudentValidation = z.object({
     transportFee: z.coerce.number().default(0),
     boardingFee: z.coerce.number().default(0),
 
-    // Settings
     sendAdmissionSMS: z.boolean().default(false),
     studentSerial: z.string().optional(),
     sendAttendanceSMS: z.boolean().default(false),

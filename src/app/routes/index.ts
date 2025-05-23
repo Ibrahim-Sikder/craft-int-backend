@@ -5,7 +5,6 @@ import { userRoutes } from '../modules/user/user.route';
 import { classRoutes } from '../modules/class/class.route';
 import { subjectAssignRoute } from '../modules/subject-assign/subject-assign.route';
 import { studentRoutes } from '../modules/student/student.route';
-import { sessionRoutes } from '../modules/session/session.route';
 import { sectionRoutes } from '../modules/section/section.route';
 import { timeSlotRoutes } from '../modules/timeslot/timeslot.route';
 import { roomRoutes } from '../modules/room/room.route';
@@ -16,6 +15,9 @@ import { mealReportRoutes } from '../modules/mealreport/mealreport.route';
 import { teacherRoutes } from '../modules/teacher/teacher.route';
 import { subjectRoutes } from '../modules/subject/subject.route';
 import { todayTaskRoutes } from '../modules/todaytask/todaytask.route';
+import { dailyClassReportRoutes } from '../modules/dailyclassreport/dailyClassReport.route';
+import { staffRoutes } from '../modules/staff/staff.route';
+import { metaroute } from '../modules/meta/meta.route';
 const router = Router();
 
 const moduleRoutes = [
@@ -39,10 +41,7 @@ const moduleRoutes = [
     path: '/student',
     route: studentRoutes,
   },
-  {
-    path: '/session',
-    route: sessionRoutes,
-  },
+
   {
     path: '/section',
     route: sectionRoutes,
@@ -78,6 +77,18 @@ const moduleRoutes = [
   {
     path: '/today-task',
     route: todayTaskRoutes,
+  },
+  {
+    path: '/daily-class-report',
+    route: dailyClassReportRoutes,
+  },
+  {
+    path: '/staff',
+    route: staffRoutes,
+  },
+  {
+    path: '/meta',
+    route: metaroute,
   },
 ];
 

@@ -6,18 +6,15 @@ import { sectionSearchableFields } from './section.constant';
 import { Section } from './section.model';
 
 const createSection = async (payload: ISection) => {
-  const { name, classes, sectionType } = payload;
+  const { name } = payload;
 
-  if (!name || !classes || sectionType === undefined) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Required fields are missing');
-  }
-
-  const existingSection = await Section.findOne({ name, classes });
+  const existingSection = await Section.findOne({ name });
   if (existingSection) {
     throw new AppError(httpStatus.CONFLICT, 'Section with this name already exists in this class');
   }
 
   const result = await Section.create(payload);
+ 
   return result;
 };
 
@@ -30,7 +27,7 @@ const getAllSections = async (query: Record<string, unknown>) => {
     .fields();
 
   const meta = await queryBuilder.countTotal();
-  const sections = await queryBuilder.modelQuery.populate(['classes', 'teachers', 'rooms', 'timeSlots']);
+  const sections = await queryBuilder.modelQuery;
 
   return {
     meta,
@@ -39,7 +36,7 @@ const getAllSections = async (query: Record<string, unknown>) => {
 };
 
 const getSingleSection = async (id: string) => {
-  const result = await Section.findById(id).populate(['classes', 'teachers', 'rooms', 'timeSlots']);
+  const result = await Section.findById(id);
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'Section not found');
   }
@@ -47,6 +44,7 @@ const getSingleSection = async (id: string) => {
 };
 
 const updateSection = async (id: string, payload: Partial<ISection>) => {
+    console.log('payload section data ', payload )
   const result = await Section.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,
@@ -54,6 +52,7 @@ const updateSection = async (id: string, payload: Partial<ISection>) => {
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'Failed to update section');
   }
+
   return result;
 };
 

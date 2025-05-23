@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
-import { ITeacher } from './teacher.interface';
+import { IStaff } from './staff.interface';
 
-// Address schema structure that matches both permanent and present address forms
+// Address schema
 const addressSchema = new Schema(
   {
     address: String,
@@ -13,10 +13,10 @@ const addressSchema = new Schema(
     country: String,
     zipCode: String,
   },
-  { _id: false },
+  { _id: false }
 );
 
-// Education qualification schema
+// Education schema
 const educationSchema = new Schema(
   {
     degree: String,
@@ -24,7 +24,7 @@ const educationSchema = new Schema(
     year: String,
     specialization: String,
   },
-  { _id: false },
+  { _id: false }
 );
 
 // Certification schema
@@ -35,7 +35,7 @@ const certificationSchema = new Schema(
     year: String,
     description: String,
   },
-  { _id: false },
+  { _id: false }
 );
 
 // Work experience schema
@@ -47,17 +47,18 @@ const experienceSchema = new Schema(
     to: String,
     description: String,
   },
-  { _id: false },
+  { _id: false }
 );
 
-const teacherSchema = new Schema<ITeacher>(
+const staffSchema = new Schema<IStaff>(
   {
-    // Basic Information (Step 1)
-    teacherId: {
+    // Basic Information
+    staffId: {
       type: String,
     },
-    teacherSerial: {
+    staffSerial: {
       type: Number,
+
     },
     smartIdCard: {
       type: String,
@@ -71,10 +72,10 @@ const teacherSchema = new Schema<ITeacher>(
     },
     email: {
       type: String,
-      required: true,
     },
     dateOfBirth: {
       type: Date,
+      required:true
     },
     bloodGroup: {
       type: String,
@@ -91,23 +92,13 @@ const teacherSchema = new Schema<ITeacher>(
     maritalStatus: {
       type: String,
     },
-    teacherPhoto: {
-      type: String, 
-    },
-    resumeDoc: {
-      type: String, 
-    },
-    certificateDoc: {
-      type: String, 
-    },
-    nationalIdDoc: {
-      type: String, 
+    staffPhoto: {
+      type: String,
     },
 
-    
+    // Address
     permanentAddress: {
       type: addressSchema,
-      required: true,
     },
     currentAddress: {
       type: addressSchema,
@@ -117,30 +108,25 @@ const teacherSchema = new Schema<ITeacher>(
       default: false,
     },
 
+    // Professional Info
     designation: {
       type: String,
-
     },
     department: {
       type: String,
-
     },
     joiningDate: {
       type: Date,
-
     },
     monthlySalary: {
       type: Number,
-
     },
     staffType: {
       type: String,
-      // enum: ['Teacher', 'Staff', 'Other'],
-      // default:'Teacher'
 
     },
 
-    // Educational Information (Step 4)
+    // Educational Background
     educationalQualifications: {
       type: [educationSchema],
     },
@@ -151,48 +137,22 @@ const teacherSchema = new Schema<ITeacher>(
       type: [experienceSchema],
     },
 
-    // Additional Information (Step 5)
+    // Additional Info
     status: {
       type: String,
-      enum: ['Active', 'Inactive'],
-      default: 'Active',
+
     },
     language: {
       type: String,
-      // enum: ['Bangla', 'English', 'Other'],
-      // default: 'Bangla',
+
     },
     activeSession: {
       type: String,
     },
-    section: {
-      type: Schema.Types.ObjectId,
-      ref: 'Section',
-    },
-    class: {
-      type: Schema.Types.ObjectId,
-      ref: 'Class',
-    },
-    schedule: {
-      type: Schema.Types.ObjectId,
-      ref: 'Schedule',
-    },
-    assignment: {
-      type: Schema.Types.ObjectId,
-      ref: 'Assignment',
-    },
-    attendance: {
-      type: Schema.Types.ObjectId,
-      ref: 'Attendance',
-    },
-    room: {
-      type: Schema.Types.ObjectId,
-      ref: 'Room',
-    },
   },
   {
     timestamps: true,
-  },
+  }
 );
 
-export const Teacher = model<ITeacher>('Teacher', teacherSchema);
+export const Staff = model<IStaff>('Staff', staffSchema);

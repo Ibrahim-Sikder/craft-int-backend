@@ -9,10 +9,10 @@ import mongoose from 'mongoose';
 import { User } from '../user/user.model';
 
 const createStudent = async (payload: Partial<IStudent>): Promise<IStudent> => {
-  const {  name, email } = payload;
+  const {  name } = payload;
 console.log(payload)
   // Check if mobile, name, and email are provided
-  if (!name || !email) {
+  if (!name) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Required fields are missing');
   }
 
@@ -37,7 +37,7 @@ console.log(payload)
     await User.create(
       [
         {
-          email: email, 
+          email: payload.email || 'student@gmail.com', 
           password: 'student123',
           name: name,
           role: 'student',

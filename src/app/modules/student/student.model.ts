@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { model, Schema } from 'mongoose';
 import { IStudent } from './student.interface';
 import { Gender, StudentStatus, StudentType } from './student.utils';
@@ -6,12 +7,9 @@ const studentSchema = new Schema<IStudent>(
   {
     studentId: {
       type: String,
-      required: true,
-      // unique: true,
     },
     smartIdCard: {
       type: String,
-      unique: true,
     },
     name: {
       type: String,
@@ -19,33 +17,27 @@ const studentSchema = new Schema<IStudent>(
     },
     email: {
       type: String,
-      required: true,
+  
     },
     birthDate: {
       type: String,
-      required: true,
     },
     birthRegistrationNo: {
       type: String,
     },
     gender: {
       type: String,
-      enum: Object.values(Gender),
-      required: true,
     },
     mobile: {
       type: String,
-      required: true,
+
     },
     bloodGroup: {
       type: String,
     },
     studentPhoto: {
       type: String,
-      // required:true,
     },
-
-    // Family Information
     fatherName: {
       type: String,
     },
@@ -64,8 +56,6 @@ const studentSchema = new Schema<IStudent>(
     nidFatherMotherGuardian: {
       type: String,
     },
-
-    // Address Information
     permanentAddress: {
       type: String,
 
@@ -76,7 +66,6 @@ const studentSchema = new Schema<IStudent>(
     },
     permanentThana: {
       type: String,
-
     },
     sameAsPermanent: {
       type: Boolean,
@@ -91,40 +80,32 @@ const studentSchema = new Schema<IStudent>(
     presentThana: {
       type: String,
     },
-
-    // Academic Information
     className: {
-      type: String,
-      required: true,
+      type: [String],
     },
     studentClassRoll: {
       type: String,
-      required: true,
+
     },
     batch: {
       type: String,
     },
     section: {
-      type: String,
+      type: [String],
     },
     activeSession: {
-      type: String,
-      required: true,
+      type: [String],
+
     },
     status: {
       type: String,
-      enum: Object.values(StudentStatus),
-      default: StudentStatus.ACTIVE,
     },
     studentType: {
       type: String,
-      enum: Object.values(StudentType),
     },
     additionalNote: {
       type: String,
     },
-
-    // Fee Information
     admissionFee: {
       type: Number,
       default: 0,
@@ -161,8 +142,6 @@ const studentSchema = new Schema<IStudent>(
       type: Number,
       default: 0,
     },
-
-    // Settings
     sendAdmissionSMS: {
       type: Boolean,
       default: false,

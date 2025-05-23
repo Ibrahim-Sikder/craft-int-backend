@@ -1,2 +1,2 @@
 export const teacherSearchableFields = [
-  'name','email']
+  'name']
