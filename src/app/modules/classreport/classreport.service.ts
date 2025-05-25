@@ -78,19 +78,18 @@ export const getAllClassReports = async (query: Record<string, any>) => {
     }
   }
 
-  // Handle date range filtering
   if (query.startDate || query.endDate) {
     const dateFilter: any = {}
 
     if (query.startDate) {
       const startDate = new Date(query.startDate)
-      startDate.setHours(0, 0, 0, 0) // Start of day
+      startDate.setHours(0, 0, 0, 0)
       dateFilter.$gte = startDate
     }
 
     if (query.endDate) {
       const endDate = new Date(query.endDate)
-      endDate.setHours(23, 59, 59, 999) // End of day
+      endDate.setHours(23, 59, 59, 999) 
       dateFilter.$lte = endDate
     }
 
@@ -295,13 +294,11 @@ export const getAllClassReports = async (query: Record<string, any>) => {
       return filteredReport
     })
 
-    // Remove reports with no matching student evaluations
     processedReports = processedReports.filter(
       (report) => report.studentEvaluations && report.studentEvaluations.length > 0,
     )
   }
 
-  // === PAGINATION ===
   const page = Number.parseInt(query.page as string) || 1
   const limit = Number.parseInt(query.limit as string) || 10
   const skip = (page - 1) * limit
