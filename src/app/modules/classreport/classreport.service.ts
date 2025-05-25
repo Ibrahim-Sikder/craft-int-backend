@@ -17,19 +17,17 @@ const createClassReport = async (payload: IClassReport) => {
 };
 
 export const getAllClassReports = async (query: Record<string, any>) => {
-  const searchTerm = query.searchTerm;
-  const matchConditions: any[] = [];
-  let studentNameFilter: string | null = null;
+  const searchTerm = query.searchTerm
+  const matchConditions: any[] = []
+  let studentNameFilter: string | null = null
 
   if (searchTerm && typeof searchTerm === "string") {
-    studentNameFilter = searchTerm;
+    studentNameFilter = searchTerm
     const matchingStudents = await Student.find({
       name: { $regex: searchTerm, $options: "i" },
-    }).select("_id");
+    }).select("_id")
 
-    const matchingStudentIds = matchingStudents.map(
-      (student) => new Types.ObjectId(student._id as string)
-    );
+    const matchingStudentIds = matchingStudents.map((student) => new Types.ObjectId(student._id as string))
 
     matchConditions.push({
       $or: [
@@ -44,25 +42,23 @@ export const getAllClassReports = async (query: Record<string, any>) => {
           },
         },
       ],
-    });
+    })
   }
 
   if (query.studentName && typeof query.studentName === "string") {
-    studentNameFilter = query.studentName;
+    studentNameFilter = query.studentName
 
     const matchingStudents = await Student.find({
       name: { $regex: query.studentName, $options: "i" },
-    }).select("_id");
+    }).select("_id")
 
-    const matchingStudentIds = matchingStudents.map(
-      (student) => new Types.ObjectId(student._id as string)
-    );
+    const matchingStudentIds = matchingStudents.map((student) => new Types.ObjectId(student._id as string))
 
     matchConditions.push({
       "studentEvaluations.studentId": {
         $in: matchingStudentIds,
       },
-    });
+    })
   }
 
   const paramToFieldMap: Record<string, string> = {
@@ -70,40 +66,63 @@ export const getAllClassReports = async (query: Record<string, any>) => {
     subject: "subjects",
     teacher: "teachers",
     hour: "hour",
-    date: "date",
     lessonEvaluation: "studentEvaluations.lessonEvaluation",
     handwriting: "studentEvaluations.handwriting",
-  };
+  }
 
   for (const [param, field] of Object.entries(paramToFieldMap)) {
     if (query[param]) {
-      if (field === "date") {
-        const startDate = new Date(query[param]);
-        const endDate = new Date(query[param]);
-        endDate.setDate(endDate.getDate() + 1);
-
-        matchConditions.push({
-          date: {
-            $gte: startDate,
-            $lt: endDate,
-          },
-        });
-      } else {
-        matchConditions.push({
-          [field]: query[param],
-        });
-      }
+      matchConditions.push({
+        [field]: query[param],
+      })
     }
   }
 
-  const pipeline: any[] = [];
+  // Handle date range filtering
+  if (query.startDate || query.endDate) {
+    const dateFilter: any = {}
+
+    if (query.startDate) {
+      const startDate = new Date(query.startDate)
+      startDate.setHours(0, 0, 0, 0) // Start of day
+      dateFilter.$gte = startDate
+    }
+
+    if (query.endDate) {
+      const endDate = new Date(query.endDate)
+      endDate.setHours(23, 59, 59, 999) // End of day
+      dateFilter.$lte = endDate
+    }
+
+    if (Object.keys(dateFilter).length > 0) {
+      matchConditions.push({
+        date: dateFilter,
+      })
+    }
+  }
+
+  // Handle single date filter (for backward compatibility)
+  if (query.date && !query.startDate && !query.endDate) {
+    const startDate = new Date(query.date)
+    const endDate = new Date(query.date)
+    endDate.setDate(endDate.getDate() + 1)
+
+    matchConditions.push({
+      date: {
+        $gte: startDate,
+        $lt: endDate,
+      },
+    })
+  }
+
+  const pipeline: any[] = []
 
   if (matchConditions.length > 0) {
     pipeline.push({
       $match: {
         $and: matchConditions,
       },
-    });
+    })
   }
 
   pipeline.push(
@@ -150,8 +169,8 @@ export const getAllClassReports = async (query: Record<string, any>) => {
       $project: {
         studentDetails: 0,
       },
-    }
-  );
+    },
+  )
 
   pipeline.push({
     $lookup: {
@@ -160,14 +179,14 @@ export const getAllClassReports = async (query: Record<string, any>) => {
       foreignField: "_id",
       as: "todayLesson",
     },
-  });
+  })
 
   pipeline.push({
     $unwind: {
       path: "$todayLesson",
       preserveNullAndEmptyArrays: true,
     },
-  });
+  })
 
   pipeline.push({
     $lookup: {
@@ -176,34 +195,26 @@ export const getAllClassReports = async (query: Record<string, any>) => {
       foreignField: "_id",
       as: "homeTask",
     },
-  });
+  })
 
   pipeline.push({
     $unwind: {
       path: "$homeTask",
       preserveNullAndEmptyArrays: true,
     },
-  });
+  })
 
-  pipeline.push({ $sort: { createdAt: -1 } });
+  pipeline.push({ $sort: { createdAt: -1 } })
 
-  const reports = await ClassReport.aggregate(pipeline);
-  console.log(`Found ${reports.length} reports after filtering`);
+  const reports = await ClassReport.aggregate(pipeline)
+  console.log(`Found ${reports.length} reports after filtering`)
 
-  let processedReports = reports;
+  let processedReports = reports
 
-  const {
-    handwriting,
-    lessonEvaluation,
-    studentName,
-    className,
-    subject,
-    teacher,
-    date,
-    hour,
-  } = query;
+  const { handwriting, lessonEvaluation, studentName, className, subject, teacher, date, hour, startDate, endDate } =
+    query
 
-  const studentNameFilterLower = studentNameFilter?.toLowerCase();
+  const studentNameFilterLower = studentNameFilter?.toLowerCase()
 
   if (
     studentNameFilter ||
@@ -213,41 +224,60 @@ export const getAllClassReports = async (query: Record<string, any>) => {
     subject ||
     teacher ||
     date ||
-    hour
+    hour ||
+    startDate ||
+    endDate
   ) {
     processedReports = reports.map((report) => {
-      const filteredReport = { ...report };
+      const filteredReport = { ...report }
 
       if (Array.isArray(report.studentEvaluations)) {
         filteredReport.studentEvaluations = report.studentEvaluations.filter((evaluation: any) => {
           const matchesStudentName = studentNameFilterLower
             ? evaluation.studentId?.name?.toLowerCase().includes(studentNameFilterLower)
-            : true;
+            : true
 
-          const matchesHandwriting = handwriting
-            ? evaluation.handwriting === handwriting
-            : true;
+          const matchesHandwriting = handwriting ? evaluation.handwriting === handwriting : true
 
-          const matchesLessonEvaluation = lessonEvaluation
-            ? evaluation.lessonEvaluation === lessonEvaluation
-            : true;
+          const matchesLessonEvaluation = lessonEvaluation ? evaluation.lessonEvaluation === lessonEvaluation : true
 
-          const matchesClass = className ? report.classes === className : true;
-          const matchesSubject = subject ? report.subjects === subject : true;
-          const matchesTeacher = teacher ? report.teachers === teacher : true;
-          const matchesHour = hour ? report.hour === hour : true;
+          const matchesClass = className ? report.classes === className : true
+          const matchesSubject = subject ? report.subjects === subject : true
+          const matchesTeacher = teacher ? report.teachers === teacher : true
+          const matchesHour = hour ? report.hour === hour : true
 
-          const matchesDate = date
-            ? (() => {
-                const queryDate = new Date(date);
-                const reportDate = new Date(report.date);
-                return (
-                  queryDate.getFullYear() === reportDate.getFullYear() &&
-                  queryDate.getMonth() === reportDate.getMonth() &&
-                  queryDate.getDate() === reportDate.getDate()
-                );
-              })()
-            : true;
+          const matchesDate =
+            startDate || endDate
+              ? (() => {
+                  const reportDate = new Date(report.date)
+                  let matchesStart = true
+                  let matchesEnd = true
+
+                  if (startDate) {
+                    const startDateObj = new Date(startDate)
+                    startDateObj.setHours(0, 0, 0, 0)
+                    matchesStart = reportDate >= startDateObj
+                  }
+
+                  if (endDate) {
+                    const endDateObj = new Date(endDate)
+                    endDateObj.setHours(23, 59, 59, 999)
+                    matchesEnd = reportDate <= endDateObj
+                  }
+
+                  return matchesStart && matchesEnd
+                })()
+              : date
+                ? (() => {
+                    const queryDate = new Date(date)
+                    const reportDate = new Date(report.date)
+                    return (
+                      queryDate.getFullYear() === reportDate.getFullYear() &&
+                      queryDate.getMonth() === reportDate.getMonth() &&
+                      queryDate.getDate() === reportDate.getDate()
+                    )
+                  })()
+                : true
 
           return (
             matchesStudentName &&
@@ -258,25 +288,25 @@ export const getAllClassReports = async (query: Record<string, any>) => {
             matchesTeacher &&
             matchesHour &&
             matchesDate
-          );
-        });
+          )
+        })
       }
 
-      return filteredReport;
-    });
+      return filteredReport
+    })
 
     // Remove reports with no matching student evaluations
     processedReports = processedReports.filter(
-      (report) => report.studentEvaluations && report.studentEvaluations.length > 0
-    );
+      (report) => report.studentEvaluations && report.studentEvaluations.length > 0,
+    )
   }
 
   // === PAGINATION ===
-  const page = parseInt(query.page as string) || 1;
-  const limit = parseInt(query.limit as string) || 10;
-  const skip = (page - 1) * limit;
+  const page = Number.parseInt(query.page as string) || 1
+  const limit = Number.parseInt(query.limit as string) || 10
+  const skip = (page - 1) * limit
 
-  const paginatedReports = processedReports.slice(skip, skip + limit);
+  const paginatedReports = processedReports.slice(skip, skip + limit)
 
   return {
     meta: {
@@ -286,8 +316,8 @@ export const getAllClassReports = async (query: Record<string, any>) => {
       totalPages: Math.ceil(processedReports.length / limit),
     },
     reports: paginatedReports,
-  };
-};
+  }
+}
 
 
 
