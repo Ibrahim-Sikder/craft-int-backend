@@ -11,6 +11,8 @@ router.post(
   validateRequest(ClassReportValidations.createClassReportValidation),
   classReportControllers.createClassReport,
 );
+router.get('/classreport/:classreportid', classReportControllers.generateClassReportPdf);
+
 
 router.get('/', classReportControllers.getAllClassReports);
 router.get('/:id', classReportControllers.getSingleClassReport);
@@ -26,5 +28,6 @@ router.delete(
   auth('admin', 'super_admin','teacher','class_teacher'),
   classReportControllers.deleteClassReport,
 );
+
 
 export const classReportRoutes = router;

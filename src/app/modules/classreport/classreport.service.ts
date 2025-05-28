@@ -5,152 +5,196 @@ import { AppError } from '../../error/AppError';
 import { IClassReport } from './classreport.interface';
 import { ClassReport } from './classreport.model';
 import { Student } from '../student/student.model';
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
+import puppeteer from 'puppeteer';
+import { join } from 'path';
+import ejs from 'ejs';
+import { acquireLock, releaseLock } from '../../../utils/lockManager';
+
 
 const createClassReport = async (payload: IClassReport) => {
   if (!payload.teachers || !payload.classes || !payload.subjects) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Missing required fields');
   }
 
-  const result = await ClassReport.create(payload);
-  return result;
+  const key = `${payload.teachers}-${payload.classes}-${payload.subjects}-${payload.hour}-${payload.date.toISOString()}`;
+
+  // Acquire lock
+  const isLocked = acquireLock(key);
+  if (!isLocked) {
+    throw new AppError(httpStatus.TOO_MANY_REQUESTS, 'Another teacher is submitting this class report. Please try again later.');
+  }
+
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    // Optional: Prevent duplicates based on logic
+    const existing = await ClassReport.findOne({
+      teachers: payload.teachers,
+      classes: payload.classes,
+      subjects: payload.subjects,
+      hour: payload.hour,
+      date: payload.date,
+    }).session(session);
+
+    if (existing) {
+      throw new AppError(httpStatus.CONFLICT, 'Class report already exists for this time.');
+    }
+
+    const result = await ClassReport.create([payload], { session });
+
+    await session.commitTransaction();
+    return result[0];
+  } catch (err) {
+    await session.abortTransaction();
+    throw err;
+  } finally {
+    session.endSession();
+    releaseLock(key);
+  }
 };
 
 export const getAllClassReports = async (query: Record<string, any>) => {
-  const searchTerm = query.searchTerm
-  const matchConditions: any[] = []
-  let studentNameFilter: string | null = null
+  const searchTerm = query.searchTerm;
+  const matchConditions: any[] = [];
+  let studentNameFilter: string | null = null;
 
-  if (searchTerm && typeof searchTerm === "string") {
-    studentNameFilter = searchTerm
+  if (searchTerm && typeof searchTerm === 'string') {
+    studentNameFilter = searchTerm;
     const matchingStudents = await Student.find({
-      name: { $regex: searchTerm, $options: "i" },
-    }).select("_id")
+      name: { $regex: searchTerm, $options: 'i' },
+    }).select('_id');
 
-    const matchingStudentIds = matchingStudents.map((student) => new Types.ObjectId(student._id as string))
+    const matchingStudentIds = matchingStudents.map(
+      (student) => new Types.ObjectId(student._id as string),
+    );
 
     matchConditions.push({
       $or: [
-        { teachers: { $regex: searchTerm, $options: "i" } },
-        { classes: { $regex: searchTerm, $options: "i" } },
-        { subjects: { $regex: searchTerm, $options: "i" } },
-        { hour: { $regex: searchTerm, $options: "i" } },
-        { date: { $regex: searchTerm, $options: "i" } },
+        { teachers: { $regex: searchTerm, $options: 'i' } },
+        { classes: { $regex: searchTerm, $options: 'i' } },
+        { subjects: { $regex: searchTerm, $options: 'i' } },
+        { hour: { $regex: searchTerm, $options: 'i' } },
+        { date: { $regex: searchTerm, $options: 'i' } },
         {
-          "studentEvaluations.studentId": {
+          'studentEvaluations.studentId': {
             $in: matchingStudentIds,
           },
         },
       ],
-    })
+    });
   }
 
-  if (query.studentName && typeof query.studentName === "string") {
-    studentNameFilter = query.studentName
+  if (query.studentName && typeof query.studentName === 'string') {
+    studentNameFilter = query.studentName;
 
     const matchingStudents = await Student.find({
-      name: { $regex: query.studentName, $options: "i" },
-    }).select("_id")
+      name: { $regex: query.studentName, $options: 'i' },
+    }).select('_id');
 
-    const matchingStudentIds = matchingStudents.map((student) => new Types.ObjectId(student._id as string))
+    const matchingStudentIds = matchingStudents.map(
+      (student) => new Types.ObjectId(student._id as string),
+    );
 
     matchConditions.push({
-      "studentEvaluations.studentId": {
+      'studentEvaluations.studentId': {
         $in: matchingStudentIds,
       },
-    })
+    });
   }
 
   const paramToFieldMap: Record<string, string> = {
-    className: "classes",
-    subject: "subjects",
-    teacher: "teachers",
-    hour: "hour",
-    lessonEvaluation: "studentEvaluations.lessonEvaluation",
-    handwriting: "studentEvaluations.handwriting",
-  }
+    className: 'classes',
+    subject: 'subjects',
+    teacher: 'teachers',
+    hour: 'hour',
+    lessonEvaluation: 'studentEvaluations.lessonEvaluation',
+    handwriting: 'studentEvaluations.handwriting',
+  };
 
   for (const [param, field] of Object.entries(paramToFieldMap)) {
     if (query[param]) {
       matchConditions.push({
         [field]: query[param],
-      })
+      });
     }
   }
 
   if (query.startDate || query.endDate) {
-    const dateFilter: any = {}
+    const dateFilter: any = {};
 
     if (query.startDate) {
-      const startDate = new Date(query.startDate)
-      startDate.setHours(0, 0, 0, 0)
-      dateFilter.$gte = startDate
+      const startDate = new Date(query.startDate);
+      startDate.setHours(0, 0, 0, 0);
+      dateFilter.$gte = startDate;
     }
 
     if (query.endDate) {
-      const endDate = new Date(query.endDate)
-      endDate.setHours(23, 59, 59, 999) 
-      dateFilter.$lte = endDate
+      const endDate = new Date(query.endDate);
+      endDate.setHours(23, 59, 59, 999);
+      dateFilter.$lte = endDate;
     }
 
     if (Object.keys(dateFilter).length > 0) {
       matchConditions.push({
         date: dateFilter,
-      })
+      });
     }
   }
 
   // Handle single date filter (for backward compatibility)
   if (query.date && !query.startDate && !query.endDate) {
-    const startDate = new Date(query.date)
-    const endDate = new Date(query.date)
-    endDate.setDate(endDate.getDate() + 1)
+    const startDate = new Date(query.date);
+    const endDate = new Date(query.date);
+    endDate.setDate(endDate.getDate() + 1);
 
     matchConditions.push({
       date: {
         $gte: startDate,
         $lt: endDate,
       },
-    })
+    });
   }
 
-  const pipeline: any[] = []
+  const pipeline: any[] = [];
 
   if (matchConditions.length > 0) {
     pipeline.push({
       $match: {
         $and: matchConditions,
       },
-    })
+    });
   }
 
   pipeline.push(
     {
       $lookup: {
-        from: "students",
-        localField: "studentEvaluations.studentId",
-        foreignField: "_id",
-        as: "studentDetails",
+        from: 'students',
+        localField: 'studentEvaluations.studentId',
+        foreignField: '_id',
+        as: 'studentDetails',
       },
     },
     {
       $addFields: {
         studentEvaluations: {
           $map: {
-            input: "$studentEvaluations",
-            as: "evaluation",
+            input: '$studentEvaluations',
+            as: 'evaluation',
             in: {
               $mergeObjects: [
-                "$$evaluation",
+                '$$evaluation',
                 {
                   studentId: {
                     $arrayElemAt: [
                       {
                         $filter: {
-                          input: "$studentDetails",
-                          as: "s",
+                          input: '$studentDetails',
+                          as: 's',
                           cond: {
-                            $eq: ["$$s._id", "$$evaluation.studentId"],
+                            $eq: ['$$s._id', '$$evaluation.studentId'],
                           },
                         },
                       },
@@ -169,51 +213,61 @@ export const getAllClassReports = async (query: Record<string, any>) => {
         studentDetails: 0,
       },
     },
-  )
+  );
 
   pipeline.push({
     $lookup: {
-      from: "todaylessons",
-      localField: "todayLesson",
-      foreignField: "_id",
-      as: "todayLesson",
+      from: 'todaylessons',
+      localField: 'todayLesson',
+      foreignField: '_id',
+      as: 'todayLesson',
     },
-  })
+  });
 
   pipeline.push({
     $unwind: {
-      path: "$todayLesson",
+      path: '$todayLesson',
       preserveNullAndEmptyArrays: true,
     },
-  })
+  });
 
   pipeline.push({
     $lookup: {
-      from: "todaytasks",
-      localField: "homeTask",
-      foreignField: "_id",
-      as: "homeTask",
+      from: 'todaytasks',
+      localField: 'homeTask',
+      foreignField: '_id',
+      as: 'homeTask',
     },
-  })
+  });
 
   pipeline.push({
     $unwind: {
-      path: "$homeTask",
+      path: '$homeTask',
       preserveNullAndEmptyArrays: true,
     },
-  })
+  });
 
-  pipeline.push({ $sort: { createdAt: -1 } })
+  pipeline.push({ $sort: { createdAt: -1 } });
 
-  const reports = await ClassReport.aggregate(pipeline)
-  console.log(`Found ${reports.length} reports after filtering`)
+  const reports = await ClassReport.aggregate(pipeline);
+  console.log(`Found ${reports.length} reports after filtering`);
 
-  let processedReports = reports
+  let processedReports = reports;
 
-  const { handwriting, lessonEvaluation, studentName, className, subject, teacher, date, hour, startDate, endDate } =
-    query
+  const {
+    handwriting,
+    lessonEvaluation,
+    studentName,
+    className,
+    subject,
+    teacher,
+    date,
+    hour,
+    startDate,
+    endDate,
+  } = query;
 
-  const studentNameFilterLower = studentNameFilter?.toLowerCase()
+  const studentNameFilterLower = studentNameFilter?.toLowerCase();
 
   if (
     studentNameFilter ||
@@ -228,82 +282,93 @@ export const getAllClassReports = async (query: Record<string, any>) => {
     endDate
   ) {
     processedReports = reports.map((report) => {
-      const filteredReport = { ...report }
+      const filteredReport = { ...report };
 
       if (Array.isArray(report.studentEvaluations)) {
-        filteredReport.studentEvaluations = report.studentEvaluations.filter((evaluation: any) => {
-          const matchesStudentName = studentNameFilterLower
-            ? evaluation.studentId?.name?.toLowerCase().includes(studentNameFilterLower)
-            : true
+        filteredReport.studentEvaluations = report.studentEvaluations.filter(
+          (evaluation: any) => {
+            const matchesStudentName = studentNameFilterLower
+              ? evaluation.studentId?.name
+                  ?.toLowerCase()
+                  .includes(studentNameFilterLower)
+              : true;
 
-          const matchesHandwriting = handwriting ? evaluation.handwriting === handwriting : true
+            const matchesHandwriting = handwriting
+              ? evaluation.handwriting === handwriting
+              : true;
 
-          const matchesLessonEvaluation = lessonEvaluation ? evaluation.lessonEvaluation === lessonEvaluation : true
+            const matchesLessonEvaluation = lessonEvaluation
+              ? evaluation.lessonEvaluation === lessonEvaluation
+              : true;
 
-          const matchesClass = className ? report.classes === className : true
-          const matchesSubject = subject ? report.subjects === subject : true
-          const matchesTeacher = teacher ? report.teachers === teacher : true
-          const matchesHour = hour ? report.hour === hour : true
+            const matchesClass = className
+              ? report.classes === className
+              : true;
+            const matchesSubject = subject ? report.subjects === subject : true;
+            const matchesTeacher = teacher ? report.teachers === teacher : true;
+            const matchesHour = hour ? report.hour === hour : true;
 
-          const matchesDate =
-            startDate || endDate
-              ? (() => {
-                  const reportDate = new Date(report.date)
-                  let matchesStart = true
-                  let matchesEnd = true
-
-                  if (startDate) {
-                    const startDateObj = new Date(startDate)
-                    startDateObj.setHours(0, 0, 0, 0)
-                    matchesStart = reportDate >= startDateObj
-                  }
-
-                  if (endDate) {
-                    const endDateObj = new Date(endDate)
-                    endDateObj.setHours(23, 59, 59, 999)
-                    matchesEnd = reportDate <= endDateObj
-                  }
-
-                  return matchesStart && matchesEnd
-                })()
-              : date
+            const matchesDate =
+              startDate || endDate
                 ? (() => {
-                    const queryDate = new Date(date)
-                    const reportDate = new Date(report.date)
-                    return (
-                      queryDate.getFullYear() === reportDate.getFullYear() &&
-                      queryDate.getMonth() === reportDate.getMonth() &&
-                      queryDate.getDate() === reportDate.getDate()
-                    )
-                  })()
-                : true
+                    const reportDate = new Date(report.date);
+                    let matchesStart = true;
+                    let matchesEnd = true;
 
-          return (
-            matchesStudentName &&
-            matchesHandwriting &&
-            matchesLessonEvaluation &&
-            matchesClass &&
-            matchesSubject &&
-            matchesTeacher &&
-            matchesHour &&
-            matchesDate
-          )
-        })
+                    if (startDate) {
+                      const startDateObj = new Date(startDate);
+                      startDateObj.setHours(0, 0, 0, 0);
+                      matchesStart = reportDate >= startDateObj;
+                    }
+
+                    if (endDate) {
+                      const endDateObj = new Date(endDate);
+                      endDateObj.setHours(23, 59, 59, 999);
+                      matchesEnd = reportDate <= endDateObj;
+                    }
+
+                    return matchesStart && matchesEnd;
+                  })()
+                : date
+                  ? (() => {
+                      const queryDate = new Date(date);
+                      const reportDate = new Date(report.date);
+                      return (
+                        queryDate.getFullYear() === reportDate.getFullYear() &&
+                        queryDate.getMonth() === reportDate.getMonth() &&
+                        queryDate.getDate() === reportDate.getDate()
+                      );
+                    })()
+                  : true;
+
+            return (
+              matchesStudentName &&
+              matchesHandwriting &&
+              matchesLessonEvaluation &&
+              matchesClass &&
+              matchesSubject &&
+              matchesTeacher &&
+              matchesHour &&
+              matchesDate
+            );
+          },
+        );
       }
 
-      return filteredReport
-    })
+      return filteredReport;
+    });
 
     processedReports = processedReports.filter(
-      (report) => report.studentEvaluations && report.studentEvaluations.length > 0,
-    )
+      (report) =>
+        report.studentEvaluations && report.studentEvaluations.length > 0,
+    );
   }
 
-  const page = Number.parseInt(query.page as string) || 1
-  const limit = Number.parseInt(query.limit as string) || 10
-  const skip = (page - 1) * limit
+  const page = Number.parseInt(query.page as string) || 1;
+  const limit = Number.parseInt(query.limit as string) || 10;
+  const skip = (page - 1) * limit;
 
-  const paginatedReports = processedReports.slice(skip, skip + limit)
+  const paginatedReports = processedReports.slice(skip, skip + limit);
 
   return {
     meta: {
@@ -313,22 +378,17 @@ export const getAllClassReports = async (query: Record<string, any>) => {
       totalPages: Math.ceil(processedReports.length / limit),
     },
     reports: paginatedReports,
-  }
-}
-
-
-
-
-
+  };
+};
 
 const getSingleClassReport = async (id: string) => {
   const result = await ClassReport.findById(id)
-    .populate('subjects')          
-    .populate('teachers')    
-    .populate('todayLesson')   
-    .populate('classes')      
-    .populate('homeTask')      
-    .populate('studentEvaluations.studentId'); 
+    .populate('subjects')
+    .populate('teachers')
+    .populate('todayLesson')
+    .populate('classes')
+    .populate('homeTask')
+    .populate('studentEvaluations.studentId');
 
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'Class report not found');
@@ -362,10 +422,86 @@ const deleteClassReport = async (id: string) => {
   return result;
 };
 
+const generateClassReportPdf = async (
+  id: string,
+  imageUrl: string,
+): Promise<Buffer> => {
+  const classReport = await ClassReport.findById(id).populate(
+    'studentEvaluations.studentId',
+  );
+
+ console.log(JSON.stringify(classReport, null, 2));
+
+
+  if (!classReport) {
+    console.error(`ClassReport not found for id: ${id}`);
+    throw new Error('Class report not found');
+  }
+
+  let logoBase64 = '';
+  try {
+    const logoUrl = `${imageUrl}/images/logo.png`;
+    const logoResponse = await fetch(logoUrl);
+    const logoBuffer = await logoResponse.arrayBuffer();
+    logoBase64 = Buffer.from(logoBuffer).toString('base64');
+  } catch (error) {
+    console.warn('Failed to load logo:', error);
+  }
+
+  const filePath = join(__dirname, '../../templates/classreport.ejs');
+
+  const html = await new Promise<string>((resolve, reject) => {
+    ejs.renderFile(
+      filePath,
+      {
+        classReport,
+        imageUrl,
+        logoBase64,
+      },
+      (err, str) => {
+        if (err) return reject(err);
+        resolve(str);
+      },
+    );
+  });
+
+  try {
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      headless: true,
+    });
+
+    const page = await browser.newPage();
+
+    await page.setContent(html, {
+      waitUntil: ['networkidle0', 'load', 'domcontentloaded'],
+      timeout: 30000,
+    });
+
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: {
+        top: '20px',
+        right: '20px',
+        bottom: '20px',
+        left: '20px',
+      },
+    });
+
+    await browser.close();
+    return Buffer.from(pdfBuffer);
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    throw new Error('PDF generation failed');
+  }
+};
+
 export const classReportServices = {
   createClassReport,
   getAllClassReports,
   getSingleClassReport,
   updateClassReport,
   deleteClassReport,
+  generateClassReportPdf,
 };

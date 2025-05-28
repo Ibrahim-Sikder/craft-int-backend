@@ -26,12 +26,14 @@ const ARCHIVE_PATH = path.join(rootDir, 'public', 'craftmanagement.gzip');
 if (config.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+app.set('view engine', 'ejs');
+app.use(express.static(path.join('public')));
 
 // Rate limiting middleware
 app.use(
   rateLimit({
     max: 2000,
-    windowMs: 60 * 60 * 1000, // 1 hour
+    windowMs: 60 * 60 * 1000, 
     message: 'Too many requests sent by this IP, please try again in an hour!',
   }),
 );
@@ -130,7 +132,7 @@ app.post('/api/v1/restore', async (req: Request, res: Response) => {
   }
 });
 app.get('/api/v1/download-backup', (req: Request, res: Response) => {
-  res.download(ARCHIVE_PATH, 'sarabelanews.gzip');
+  res.download(ARCHIVE_PATH, 'craft-int.gzip');
 });
 app.get('/api/v1/backup-logs', (req: Request, res: Response) => {
   const logPath = path.join(process.cwd(), 'public', 'backup_logs.json');

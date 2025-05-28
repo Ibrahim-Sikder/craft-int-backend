@@ -31,7 +31,6 @@ const getAllSubjects = async (query: Record<string, unknown>) => {
 
   const meta = await subjectQuery.countTotal();
   const subjects = await subjectQuery.modelQuery;
-
   return {
     meta,
     subjects,
