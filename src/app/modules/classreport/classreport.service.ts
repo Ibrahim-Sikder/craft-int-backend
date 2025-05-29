@@ -10,18 +10,28 @@ import puppeteer from 'puppeteer';
 import { join } from 'path';
 import ejs from 'ejs';
 import { acquireLock, releaseLock } from '../../../utils/lockManager';
+import { classReportQueue } from '../../../queue/queue';
 
 const createClassReport = async (payload: IClassReport) => {
   if (!payload.teachers || !payload.classes || !payload.subjects || !payload.date || !payload.studentEvaluations) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Missing required fields');
   }
+
   const date = new Date(payload.date);
   if (isNaN(date.getTime())) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Invalid date format');
   }
-  const result = await ClassReport.create({ ...payload, date });
 
-  return result;
+  // Instead of direct DB insert, add to queue
+  await classReportQueue.add('create-class-report', {
+    ...payload,
+    date,
+  });
+
+  return {
+    success: true,
+    message: 'Report has been queued and will be processed shortly.',
+  };
 };
 
 

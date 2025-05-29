@@ -17,7 +17,7 @@ import { getAllLogsService } from './utils/logService';
 import { backupMongoDB, restoreMongoDB } from './utils/backupService';
 const app: Application = express();
 app.use(helmet());
-
+import './queue/classReport.worker';
 // Define ARCHIVE_PATH
 const rootDir = process.cwd();
 const ARCHIVE_PATH = path.join(rootDir, 'public', 'craftmanagement.gzip');
