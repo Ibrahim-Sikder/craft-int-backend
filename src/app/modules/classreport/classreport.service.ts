@@ -5,56 +5,25 @@ import { AppError } from '../../error/AppError';
 import { IClassReport } from './classreport.interface';
 import { ClassReport } from './classreport.model';
 import { Student } from '../student/student.model';
-import mongoose, { Types } from 'mongoose';
+import  { Types } from 'mongoose';
 import puppeteer from 'puppeteer';
 import { join } from 'path';
 import ejs from 'ejs';
 import { acquireLock, releaseLock } from '../../../utils/lockManager';
 
-
 const createClassReport = async (payload: IClassReport) => {
-  if (!payload.teachers || !payload.classes || !payload.subjects) {
+  if (!payload.teachers || !payload.classes || !payload.subjects || !payload.date || !payload.studentEvaluations) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Missing required fields');
   }
-
-  const key = `${payload.teachers}-${payload.classes}-${payload.subjects}-${payload.hour}-${payload.date.toISOString()}`;
-
-  // Acquire lock
-  const isLocked = acquireLock(key);
-  if (!isLocked) {
-    throw new AppError(httpStatus.TOO_MANY_REQUESTS, 'Another teacher is submitting this class report. Please try again later.');
+  const date = new Date(payload.date);
+  if (isNaN(date.getTime())) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid date format');
   }
+  const result = await ClassReport.create({ ...payload, date });
 
-  const session = await mongoose.startSession();
-
-  try {
-    session.startTransaction();
-
-    // Optional: Prevent duplicates based on logic
-    const existing = await ClassReport.findOne({
-      teachers: payload.teachers,
-      classes: payload.classes,
-      subjects: payload.subjects,
-      hour: payload.hour,
-      date: payload.date,
-    }).session(session);
-
-    if (existing) {
-      throw new AppError(httpStatus.CONFLICT, 'Class report already exists for this time.');
-    }
-
-    const result = await ClassReport.create([payload], { session });
-
-    await session.commitTransaction();
-    return result[0];
-  } catch (err) {
-    await session.abortTransaction();
-    throw err;
-  } finally {
-    session.endSession();
-    releaseLock(key);
-  }
+  return result;
 };
+
 
 export const getAllClassReports = async (query: Record<string, any>) => {
   const searchTerm = query.searchTerm;
@@ -430,8 +399,7 @@ const generateClassReportPdf = async (
     'studentEvaluations.studentId',
   );
 
- console.log(JSON.stringify(classReport, null, 2));
-
+  console.log(JSON.stringify(classReport, null, 2));
 
   if (!classReport) {
     console.error(`ClassReport not found for id: ${id}`);
