@@ -343,6 +343,7 @@ const updateClassReport = async (
 };
 
 const deleteClassReport = async (id: string) => {
+  console.log(id)
   const result = await ClassReport.findByIdAndDelete(id);
   if (!result) {
     throw new AppError(
