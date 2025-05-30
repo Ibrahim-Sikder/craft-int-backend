@@ -11,7 +11,8 @@ import { join } from 'path';
 import ejs from 'ejs';
 import { acquireLock, releaseLock } from '../../../utils/lockManager';
 import { classReportQueue } from '../../../queue/queue';
-
+import redisClient from '../../../utils/redisClient';
+import crypto from 'crypto';
 const createClassReport = async (payload: IClassReport) => {
   if (!payload.teachers || !payload.classes || !payload.subjects || !payload.date || !payload.studentEvaluations) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Missing required fields');
@@ -34,8 +35,17 @@ const createClassReport = async (payload: IClassReport) => {
   };
 };
 
-
 export const getAllClassReports = async (query: Record<string, any>) => {
+  const cacheKey = `classReports:${crypto.createHash('md5').update(JSON.stringify(query)).digest('hex')}`;
+
+  const cachedData = await redisClient.get(cacheKey);
+  if (cachedData) {
+    console.log('✅ Cache hit');
+    return JSON.parse(cachedData);
+  }
+
+  console.log('⏳ Cache miss, querying DB...');
+
   const searchTerm = query.searchTerm;
   const matchConditions: any[] = [];
   let studentNameFilter: string | null = null;
@@ -46,9 +56,7 @@ export const getAllClassReports = async (query: Record<string, any>) => {
       name: { $regex: searchTerm, $options: 'i' },
     }).select('_id');
 
-    const matchingStudentIds = matchingStudents.map(
-      (student) => new Types.ObjectId(student._id as string),
-    );
+    const matchingStudentIds = matchingStudents.map((student) => new Types.ObjectId(String(student._id)));
 
     matchConditions.push({
       $or: [
@@ -57,11 +65,7 @@ export const getAllClassReports = async (query: Record<string, any>) => {
         { subjects: { $regex: searchTerm, $options: 'i' } },
         { hour: { $regex: searchTerm, $options: 'i' } },
         { date: { $regex: searchTerm, $options: 'i' } },
-        {
-          'studentEvaluations.studentId': {
-            $in: matchingStudentIds,
-          },
-        },
+        { 'studentEvaluations.studentId': { $in: matchingStudentIds } },
       ],
     });
   }
@@ -73,14 +77,10 @@ export const getAllClassReports = async (query: Record<string, any>) => {
       name: { $regex: query.studentName, $options: 'i' },
     }).select('_id');
 
-    const matchingStudentIds = matchingStudents.map(
-      (student) => new Types.ObjectId(student._id as string),
-    );
+    const matchingStudentIds = matchingStudents.map((student) => new Types.ObjectId(String(student._id)));
 
     matchConditions.push({
-      'studentEvaluations.studentId': {
-        $in: matchingStudentIds,
-      },
+      'studentEvaluations.studentId': { $in: matchingStudentIds },
     });
   }
 
@@ -95,56 +95,38 @@ export const getAllClassReports = async (query: Record<string, any>) => {
 
   for (const [param, field] of Object.entries(paramToFieldMap)) {
     if (query[param]) {
-      matchConditions.push({
-        [field]: query[param],
-      });
+      matchConditions.push({ [field]: query[param] });
     }
   }
 
   if (query.startDate || query.endDate) {
     const dateFilter: any = {};
-
     if (query.startDate) {
       const startDate = new Date(query.startDate);
       startDate.setHours(0, 0, 0, 0);
       dateFilter.$gte = startDate;
     }
-
     if (query.endDate) {
       const endDate = new Date(query.endDate);
       endDate.setHours(23, 59, 59, 999);
       dateFilter.$lte = endDate;
     }
-
     if (Object.keys(dateFilter).length > 0) {
-      matchConditions.push({
-        date: dateFilter,
-      });
+      matchConditions.push({ date: dateFilter });
     }
   }
 
-  // Handle single date filter (for backward compatibility)
   if (query.date && !query.startDate && !query.endDate) {
     const startDate = new Date(query.date);
     const endDate = new Date(query.date);
     endDate.setDate(endDate.getDate() + 1);
-
-    matchConditions.push({
-      date: {
-        $gte: startDate,
-        $lt: endDate,
-      },
-    });
+    matchConditions.push({ date: { $gte: startDate, $lt: endDate } });
   }
 
   const pipeline: any[] = [];
 
   if (matchConditions.length > 0) {
-    pipeline.push({
-      $match: {
-        $and: matchConditions,
-      },
-    });
+    pipeline.push({ $match: { $and: matchConditions } });
   }
 
   pipeline.push(
@@ -172,9 +154,7 @@ export const getAllClassReports = async (query: Record<string, any>) => {
                         $filter: {
                           input: '$studentDetails',
                           as: 's',
-                          cond: {
-                            $eq: ['$$s._id', '$$evaluation.studentId'],
-                          },
+                          cond: { $eq: ['$$s._id', '$$evaluation.studentId'] },
                         },
                       },
                       0,
@@ -187,49 +167,29 @@ export const getAllClassReports = async (query: Record<string, any>) => {
         },
       },
     },
+    { $project: { studentDetails: 0 } },
     {
-      $project: {
-        studentDetails: 0,
+      $lookup: {
+        from: 'todaylessons',
+        localField: 'todayLesson',
+        foreignField: '_id',
+        as: 'todayLesson',
       },
     },
+    { $unwind: { path: '$todayLesson', preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: 'todaytasks',
+        localField: 'homeTask',
+        foreignField: '_id',
+        as: 'homeTask',
+      },
+    },
+    { $unwind: { path: '$homeTask', preserveNullAndEmptyArrays: true } },
+    { $sort: { createdAt: -1 } }
   );
 
-  pipeline.push({
-    $lookup: {
-      from: 'todaylessons',
-      localField: 'todayLesson',
-      foreignField: '_id',
-      as: 'todayLesson',
-    },
-  });
-
-  pipeline.push({
-    $unwind: {
-      path: '$todayLesson',
-      preserveNullAndEmptyArrays: true,
-    },
-  });
-
-  pipeline.push({
-    $lookup: {
-      from: 'todaytasks',
-      localField: 'homeTask',
-      foreignField: '_id',
-      as: 'homeTask',
-    },
-  });
-
-  pipeline.push({
-    $unwind: {
-      path: '$homeTask',
-      preserveNullAndEmptyArrays: true,
-    },
-  });
-
-  pipeline.push({ $sort: { createdAt: -1 } });
-
   const reports = await ClassReport.aggregate(pipeline);
-  console.log(`Found ${reports.length} reports after filtering`);
 
   let processedReports = reports;
 
@@ -262,94 +222,81 @@ export const getAllClassReports = async (query: Record<string, any>) => {
   ) {
     processedReports = reports.map((report) => {
       const filteredReport = { ...report };
-
       if (Array.isArray(report.studentEvaluations)) {
-        filteredReport.studentEvaluations = report.studentEvaluations.filter(
-          (evaluation: any) => {
-            const matchesStudentName = studentNameFilterLower
-              ? evaluation.studentId?.name
-                  ?.toLowerCase()
-                  .includes(studentNameFilterLower)
+        filteredReport.studentEvaluations = report.studentEvaluations.filter((evaluation: any) => {
+          const matchesStudentName = studentNameFilterLower
+            ? evaluation.studentId?.name?.toLowerCase().includes(studentNameFilterLower)
+            : true;
+          const matchesHandwriting = handwriting ? evaluation.handwriting === handwriting : true;
+          const matchesLessonEvaluation = lessonEvaluation
+            ? evaluation.lessonEvaluation === lessonEvaluation
+            : true;
+          const matchesClass = className ? report.classes === className : true;
+          const matchesSubject = subject ? report.subjects === subject : true;
+          const matchesTeacher = teacher ? report.teachers === teacher : true;
+          const matchesHour = hour ? report.hour === hour : true;
+
+          const matchesDate =
+            startDate || endDate
+              ? (() => {
+                  const reportDate = new Date(report.date);
+                  let matchesStart = true;
+                  let matchesEnd = true;
+
+                  if (startDate) {
+                    const startDateObj = new Date(startDate);
+                    startDateObj.setHours(0, 0, 0, 0);
+                    matchesStart = reportDate >= startDateObj;
+                  }
+
+                  if (endDate) {
+                    const endDateObj = new Date(endDate);
+                    endDateObj.setHours(23, 59, 59, 999);
+                    matchesEnd = reportDate <= endDateObj;
+                  }
+
+                  return matchesStart && matchesEnd;
+                })()
+              : date
+              ? (() => {
+                  const queryDate = new Date(date);
+                  const reportDate = new Date(report.date);
+                  return (
+                    queryDate.getFullYear() === reportDate.getFullYear() &&
+                    queryDate.getMonth() === reportDate.getMonth() &&
+                    queryDate.getDate() === reportDate.getDate()
+                  );
+                })()
               : true;
 
-            const matchesHandwriting = handwriting
-              ? evaluation.handwriting === handwriting
-              : true;
-
-            const matchesLessonEvaluation = lessonEvaluation
-              ? evaluation.lessonEvaluation === lessonEvaluation
-              : true;
-
-            const matchesClass = className
-              ? report.classes === className
-              : true;
-            const matchesSubject = subject ? report.subjects === subject : true;
-            const matchesTeacher = teacher ? report.teachers === teacher : true;
-            const matchesHour = hour ? report.hour === hour : true;
-
-            const matchesDate =
-              startDate || endDate
-                ? (() => {
-                    const reportDate = new Date(report.date);
-                    let matchesStart = true;
-                    let matchesEnd = true;
-
-                    if (startDate) {
-                      const startDateObj = new Date(startDate);
-                      startDateObj.setHours(0, 0, 0, 0);
-                      matchesStart = reportDate >= startDateObj;
-                    }
-
-                    if (endDate) {
-                      const endDateObj = new Date(endDate);
-                      endDateObj.setHours(23, 59, 59, 999);
-                      matchesEnd = reportDate <= endDateObj;
-                    }
-
-                    return matchesStart && matchesEnd;
-                  })()
-                : date
-                  ? (() => {
-                      const queryDate = new Date(date);
-                      const reportDate = new Date(report.date);
-                      return (
-                        queryDate.getFullYear() === reportDate.getFullYear() &&
-                        queryDate.getMonth() === reportDate.getMonth() &&
-                        queryDate.getDate() === reportDate.getDate()
-                      );
-                    })()
-                  : true;
-
-            return (
-              matchesStudentName &&
-              matchesHandwriting &&
-              matchesLessonEvaluation &&
-              matchesClass &&
-              matchesSubject &&
-              matchesTeacher &&
-              matchesHour &&
-              matchesDate
-            );
-          },
-        );
+          return (
+            matchesStudentName &&
+            matchesHandwriting &&
+            matchesLessonEvaluation &&
+            matchesClass &&
+            matchesSubject &&
+            matchesTeacher &&
+            matchesHour &&
+            matchesDate
+          );
+        });
       }
 
       return filteredReport;
     });
 
     processedReports = processedReports.filter(
-      (report) =>
-        report.studentEvaluations && report.studentEvaluations.length > 0,
+      (report) => report.studentEvaluations && report.studentEvaluations.length > 0
     );
   }
 
-  const page = Number.parseInt(query.page as string) || 1;
-  const limit = Number.parseInt(query.limit as string) || 10;
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 10;
   const skip = (page - 1) * limit;
 
   const paginatedReports = processedReports.slice(skip, skip + limit);
 
-  return {
+  const result = {
     meta: {
       total: processedReports.length,
       page,
@@ -358,7 +305,12 @@ export const getAllClassReports = async (query: Record<string, any>) => {
     },
     reports: paginatedReports,
   };
+
+  await redisClient.set(cacheKey, JSON.stringify(result), { EX: 300 });
+
+  return result;
 };
+
 
 const getSingleClassReport = async (id: string) => {
   const result = await ClassReport.findById(id)
