@@ -5,5 +5,6 @@ export const classReportSearchableFields = [
     'subjects',
     'teachers',
     'studentEvaluations.studentId.name', 
-    'hour'
+    'hour',
+    'name'
   ];
