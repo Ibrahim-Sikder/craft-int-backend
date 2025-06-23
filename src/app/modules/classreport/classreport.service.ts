@@ -317,7 +317,7 @@ const createClassReport = async (payload: IClassReport) => {
 //   return result;
 // };
 
-export const getAllClassReports = async (query: Record<string, any>) => {
+ const getAllClassReports = async (query: Record<string, any>) => {
   const searchTerm = query.searchTerm;
   const matchConditions: any[] = [];
   console.log('Backend received query params:', query);

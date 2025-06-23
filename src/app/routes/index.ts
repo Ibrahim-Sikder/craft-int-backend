@@ -18,6 +18,11 @@ import { todayTaskRoutes } from '../modules/todaytask/todaytask.route';
 import { dailyClassReportRoutes } from '../modules/dailyclassreport/dailyClassReport.route';
 import { staffRoutes } from '../modules/staff/staff.route';
 import { metaroute } from '../modules/meta/meta.route';
+import { admissionRoutes } from '../modules/admission/admission.route';
+import { announcementRoutes } from '../modules/announcement/announcement.route';
+import { notificationRoutes } from '../modules/notification/notification.route';
+import { complaintRoutes } from '../modules/complaint/complaint.route';
+import { feedbackRoutes } from '../modules/feedback/feedback.route';
 const router = Router();
 
 const moduleRoutes = [
@@ -83,8 +88,28 @@ const moduleRoutes = [
     route: dailyClassReportRoutes,
   },
   {
+    path: '/announcement',
+    route: announcementRoutes,
+  },
+  {
     path: '/staff',
     route: staffRoutes,
+  },
+  {
+    path: '/notification',
+    route: notificationRoutes,
+  },
+  {
+    path: '/admission',
+    route: admissionRoutes,
+  },
+  {
+    path: '/complaint',
+    route: complaintRoutes,
+  },
+  {
+    path: '/feedback',
+    route: feedbackRoutes,
   },
   {
     path: '/meta',
