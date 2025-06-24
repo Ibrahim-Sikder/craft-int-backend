@@ -9,10 +9,8 @@ import { Types } from 'mongoose';
 import puppeteer from 'puppeteer';
 import { join } from 'path';
 import ejs from 'ejs';
-import { acquireLock, releaseLock } from '../../../utils/lockManager';
 import { classReportQueue } from '../../../queue/queue';
-import redisClient from '../../../utils/redisClient';
-import crypto from 'crypto';
+
 const createClassReport = async (payload: IClassReport) => {
   if (
     !payload.teachers ||
