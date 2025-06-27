@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import httpStatus from 'http-status';
 import { AppError } from '../../error/AppError';
-import { IClassReport } from './classreport.interface';
+import { IClassReport, IClassReportQuery, ICommentsStats } from './classreport.interface';
 import { ClassReport } from './classreport.model';
 import { Student } from '../student/student.model';
 import { Types } from 'mongoose';
@@ -24,15 +24,15 @@ const createClassReport = async (payload: IClassReport) => {
   return result;
 };
 
-const getAllClassReports = async (query: any) => {
+const getAllClassReports = async (query: IClassReportQuery) => {
   const searchTerm = query.searchTerm
-  const page = Number.parseInt(query.page) || 1 // Keep 1-based for consistency
-  const limit = Number.parseInt(query.limit) || 5 // Default to 5 items per page
-  const skip = (page - 1) * limit // Convert to 0-based for database skip
+  const page = Number.parseInt(query.page?.toString() || "1") || 1
+  const limit = Number.parseInt(query.limit?.toString() || "5") || 5
+  const skip = (page - 1) * limit
 
   console.log(`Pagination: page=${page}, limit=${limit}, skip=${skip}`)
 
-  // Create cache key based on all query parameters
+  // Create cache key based on all query parameters including hasComments
   const cacheKey = `class_reports:${JSON.stringify({
     searchTerm,
     page,
@@ -46,6 +46,7 @@ const getAllClassReports = async (query: any) => {
     handwriting: query.handwriting,
     startDate: query.startDate,
     endDate: query.endDate,
+    hasComments: query.hasComments, // Include comments filter in cache key
   })}`
 
   try {
@@ -81,6 +82,10 @@ const getAllClassReports = async (query: any) => {
           "studentEvaluations.studentId": {
             $in: matchingStudentIds,
           },
+        },
+        // Add search in comments
+        {
+          "studentEvaluations.comments": { $regex: searchTerm, $options: "i" },
         },
       ],
     })
@@ -129,6 +134,18 @@ const getAllClassReports = async (query: any) => {
       "studentEvaluations.handwriting": query.handwriting,
     })
   }
+
+  // NEW: Comments filter - only show reports with comments
+  if (query.hasComments === true) {
+    matchConditions.push({
+      "studentEvaluations.comments": {
+        $exists: true,
+        $nin: ["", null],
+      },
+    })
+  }
+
+
 
   const pipeline: any[] = []
 
@@ -241,6 +258,9 @@ const getAllClassReports = async (query: any) => {
 
     console.log(`Query results: total=${total}, returned=${reports.length}, page=${page}, limit=${limit}`)
 
+    // Get comments statistics
+    const commentsStats = await getCommentsStatistics()
+
     // Meta information
     const meta = {
       total,
@@ -249,6 +269,7 @@ const getAllClassReports = async (query: any) => {
       totalPages: Math.ceil(total / limit),
       hasNextPage: page < Math.ceil(total / limit),
       hasPrevPage: page > 1,
+      commentsStats, // Add comments statistics to meta
     }
 
     const result = {
@@ -269,6 +290,63 @@ const getAllClassReports = async (query: any) => {
   } catch (error) {
     console.error("Database query error:", error)
     throw error
+  }
+}
+
+// NEW: Function to get comments statistics
+const getCommentsStatistics = async (): Promise<ICommentsStats> => {
+  try {
+    const pipeline = [
+      {
+        $unwind: "$studentEvaluations",
+      },
+      {
+        $match: {
+          "studentEvaluations.comments": {
+            $exists: true,
+            $nin: ["", null],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalComments: { $sum: 1 },
+          reportsWithComments: { $addToSet: "$_id" },
+          studentsWithComments: { $addToSet: "$studentEvaluations.studentId" },
+        },
+      },
+      {
+        $project: {
+          totalComments: 1,
+          reportsWithComments: { $size: "$reportsWithComments" },
+          studentsWithComments: { $size: "$studentsWithComments" },
+        },
+      },
+    ]
+
+    const result = await ClassReport.aggregate(pipeline)
+
+    if (result.length > 0) {
+      return {
+        totalComments: result[0].totalComments,
+        reportsWithComments: result[0].reportsWithComments,
+        studentsWithComments: result[0].studentsWithComments,
+      }
+    }
+
+    return {
+      totalComments: 0,
+      reportsWithComments: 0,
+      studentsWithComments: 0,
+    }
+  } catch (error) {
+    console.error("Error getting comments statistics:", error)
+    return {
+      totalComments: 0,
+      reportsWithComments: 0,
+      studentsWithComments: 0,
+    }
   }
 }
 
@@ -297,7 +375,6 @@ const clearClassReportsCachePattern = async (pattern: any) => {
     console.error("Error clearing class reports cache pattern:", error)
   }
 }
-
 
 const getSingleClassReport = async (id: string) => {
   const result = await ClassReport.findById(id)
