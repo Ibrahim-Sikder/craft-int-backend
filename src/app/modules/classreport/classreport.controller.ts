@@ -3,7 +3,6 @@ import httpStatus from 'http-status';
 import sendResponse from '../../../utils/sendResponse';
 import { catchAsync } from '../../../utils/catchAsync';
 import { classReportServices } from './classreport.service';
-import { RequestHandler } from 'express';
 
 const createClassReport = catchAsync(async (req, res) => {
   const result = await classReportServices.createClassReport(req.body);
@@ -105,35 +104,35 @@ const deleteClassReport = catchAsync(async (req, res, next) => {
   }
 });
 
-const generateClassReportPdf: RequestHandler = catchAsync(async (req, res) => {
-  const { classreportid } = req.params;
+// const generateClassReportPdf: RequestHandler = catchAsync(async (req, res) => {
+//   const { classreportid } = req.params;
 
-  const baseUrl = (
-    process.env.NEXT_PUBLIC_IMAGE_BASE_URL || 'http://localhost:5000'
-  ).replace(/\/$/, '');
+//   const baseUrl = (
+//     process.env.NEXT_PUBLIC_IMAGE_BASE_URL || 'http://localhost:5000'
+//   ).replace(/\/$/, '');
 
-  try {
-    const pdfBuffer = await classReportServices.generateClassReportPdf(
-      classreportid,
-      baseUrl,
-    );
+//   try {
+//     const pdfBuffer = await classReportServices.generateClassReportPdf(
+//       classreportid,
+//       baseUrl,
+//     );
 
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename=classreport-${classreportid}.pdf`,
-    );
+//     res.setHeader('Content-Type', 'application/pdf');
+//     res.setHeader(
+//       'Content-Disposition',
+//       `attachment; filename=classreport-${classreportid}.pdf`,
+//     );
 
-    res.send(pdfBuffer);
-  } catch (error: any) {
-    console.error('PDF Generation Error:', error);
-    res.status(500).json({
-      status: 'error',
-      message:
-        error.message || 'An error occurred while generating the class report.',
-    });
-  }
-});
+//     res.send(pdfBuffer);
+//   } catch (error: any) {
+//     console.error('PDF Generation Error:', error);
+//     res.status(500).json({
+//       status: 'error',
+//       message:
+//         error.message || 'An error occurred while generating the class report.',
+//     });
+//   }
+// });
 
 export const classReportControllers = {
   createClassReport,
@@ -141,5 +140,5 @@ export const classReportControllers = {
   getSingleClassReport,
   updateClassReport,
   deleteClassReport,
-  generateClassReportPdf,
+
 };
