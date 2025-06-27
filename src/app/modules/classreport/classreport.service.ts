@@ -6,412 +6,169 @@ import { IClassReport } from './classreport.interface';
 import { ClassReport } from './classreport.model';
 import { Student } from '../student/student.model';
 import { Types } from 'mongoose';
-import puppeteer from 'puppeteer';
-import { join } from 'path';
-import ejs from 'ejs';
-import { classReportQueue } from '../../../queue/queue';
+import Redis from "ioredis"
 
+// Initialize Redis client
+const redis = new Redis({
+  host: process.env.REDIS_HOST || "localhost",
+  port: process.env.REDIS_PORT ? Number(process.env.REDIS_PORT) : 6379,
+  password: process.env.REDIS_PASSWORD || undefined,
+  maxRetriesPerRequest: 3,
+})
 const createClassReport = async (payload: IClassReport) => {
-  if (
-    !payload.teachers ||
-    !payload.classes ||
-    !payload.subjects ||
-    !payload.date ||
-    !payload.studentEvaluations
-  ) {
+  if (!payload.teachers || !payload.classes || !payload.subjects) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Missing required fields');
   }
 
-  const date = new Date(payload.date);
-  if (isNaN(date.getTime())) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid date format');
-  }
-
-  // Instead of direct DB insert, add to queue
-  await classReportQueue.add('create-class-report', {
-    ...payload,
-    date,
-  });
-
-  return {
-    success: true,
-    message: 'Report has been queued and will be processed shortly.',
-  };
+  const result = await ClassReport.create(payload);
+  return result;
 };
 
-// export const getAllClassReports = async (query: Record<string, any>) => {
-//   const cacheKey = `classReports:${crypto.createHash('md5').update(JSON.stringify(query)).digest('hex')}`;
+const getAllClassReports = async (query: any) => {
+  const searchTerm = query.searchTerm
+  const page = Number.parseInt(query.page) || 1 // Keep 1-based for consistency
+  const limit = Number.parseInt(query.limit) || 5 // Default to 5 items per page
+  const skip = (page - 1) * limit // Convert to 0-based for database skip
 
-//   const cachedData = await redisClient.get(cacheKey);
-//   if (cachedData) {
-//     console.log('✅ Cache hit');
-//     return JSON.parse(cachedData);
-//   }
+  console.log(`Pagination: page=${page}, limit=${limit}, skip=${skip}`)
 
-//   console.log('⏳ Cache miss, querying DB...');
+  // Create cache key based on all query parameters
+  const cacheKey = `class_reports:${JSON.stringify({
+    searchTerm,
+    page,
+    limit,
+    className: query.className,
+    subject: query.subject,
+    teacher: query.teacher,
+    date: query.date,
+    hour: query.hour,
+    lessonEvaluation: query.lessonEvaluation,
+    handwriting: query.handwriting,
+    startDate: query.startDate,
+    endDate: query.endDate,
+  })}`
 
-//   const searchTerm = query.searchTerm;
-//   const matchConditions: any[] = [];
-//   let studentNameFilter: string | null = null;
+  try {
+    // Try to get cached result
+    const cachedResult = await redis.get(cacheKey)
+    if (cachedResult) {
+      console.log("Returning cached result for class reports")
+      return JSON.parse(cachedResult)
+    }
+  } catch (error) {
+    console.error("Redis cache read error:", error)
+    // Continue with database query if cache fails
+  }
 
-//   if (searchTerm && typeof searchTerm === 'string') {
-//     studentNameFilter = searchTerm;
-//     const matchingStudents = await Student.find({
-//       name: { $regex: searchTerm, $options: 'i' },
-//     }).select('_id');
+  const matchConditions = []
 
-//     const matchingStudentIds = matchingStudents.map((student) => new Types.ObjectId(String(student._id)));
-
-//     matchConditions.push({
-//       $or: [
-//         { teachers: { $regex: searchTerm, $options: 'i' } },
-//         { classes: { $regex: searchTerm, $options: 'i' } },
-//         { subjects: { $regex: searchTerm, $options: 'i' } },
-//         { hour: { $regex: searchTerm, $options: 'i' } },
-//         { date: { $regex: searchTerm, $options: 'i' } },
-//         { 'studentEvaluations.studentId': { $in: matchingStudentIds } },
-//       ],
-//     });
-//   }
-
-//   if (query.studentName && typeof query.studentName === 'string') {
-//     studentNameFilter = query.studentName;
-
-//     const matchingStudents = await Student.find({
-//       name: { $regex: query.studentName, $options: 'i' },
-//     }).select('_id');
-
-//     const matchingStudentIds = matchingStudents.map((student) => new Types.ObjectId(String(student._id)));
-
-//     matchConditions.push({
-//       'studentEvaluations.studentId': { $in: matchingStudentIds },
-//     });
-//   }
-
-//   const paramToFieldMap: Record<string, string> = {
-//     className: 'classes',
-//     subject: 'subjects',
-//     teacher: 'teachers',
-//     hour: 'hour',
-//     lessonEvaluation: 'studentEvaluations.lessonEvaluation',
-//     handwriting: 'studentEvaluations.handwriting',
-//   };
-
-//   for (const [param, field] of Object.entries(paramToFieldMap)) {
-//     if (query[param]) {
-//       matchConditions.push({ [field]: query[param] });
-//     }
-//   }
-
-//   if (query.startDate || query.endDate) {
-//     const dateFilter: any = {};
-//     if (query.startDate) {
-//       const startDate = new Date(query.startDate);
-//       startDate.setHours(0, 0, 0, 0);
-//       dateFilter.$gte = startDate;
-//     }
-//     if (query.endDate) {
-//       const endDate = new Date(query.endDate);
-//       endDate.setHours(23, 59, 59, 999);
-//       dateFilter.$lte = endDate;
-//     }
-//     if (Object.keys(dateFilter).length > 0) {
-//       matchConditions.push({ date: dateFilter });
-//     }
-//   }
-
-//   if (query.date && !query.startDate && !query.endDate) {
-//     const startDate = new Date(query.date);
-//     const endDate = new Date(query.date);
-//     endDate.setDate(endDate.getDate() + 1);
-//     matchConditions.push({ date: { $gte: startDate, $lt: endDate } });
-//   }
-
-//   const pipeline: any[] = [];
-
-//   if (matchConditions.length > 0) {
-//     pipeline.push({ $match: { $and: matchConditions } });
-//   }
-
-//   pipeline.push(
-//     {
-//       $lookup: {
-//         from: 'students',
-//         localField: 'studentEvaluations.studentId',
-//         foreignField: '_id',
-//         as: 'studentDetails',
-//       },
-//     },
-//     {
-//       $addFields: {
-//         studentEvaluations: {
-//           $map: {
-//             input: '$studentEvaluations',
-//             as: 'evaluation',
-//             in: {
-//               $mergeObjects: [
-//                 '$$evaluation',
-//                 {
-//                   studentId: {
-//                     $arrayElemAt: [
-//                       {
-//                         $filter: {
-//                           input: '$studentDetails',
-//                           as: 's',
-//                           cond: { $eq: ['$$s._id', '$$evaluation.studentId'] },
-//                         },
-//                       },
-//                       0,
-//                     ],
-//                   },
-//                 },
-//               ],
-//             },
-//           },
-//         },
-//       },
-//     },
-//     { $project: { studentDetails: 0 } },
-//     {
-//       $lookup: {
-//         from: 'todaylessons',
-//         localField: 'todayLesson',
-//         foreignField: '_id',
-//         as: 'todayLesson',
-//       },
-//     },
-//     { $unwind: { path: '$todayLesson', preserveNullAndEmptyArrays: true } },
-//     {
-//       $lookup: {
-//         from: 'todaytasks',
-//         localField: 'homeTask',
-//         foreignField: '_id',
-//         as: 'homeTask',
-//       },
-//     },
-//     { $unwind: { path: '$homeTask', preserveNullAndEmptyArrays: true } },
-//     { $sort: { createdAt: -1 } }
-//   );
-
-//   const reports = await ClassReport.aggregate(pipeline);
-
-//   let processedReports = reports;
-
-//   const {
-//     handwriting,
-//     lessonEvaluation,
-//     studentName,
-//     className,
-//     subject,
-//     teacher,
-//     date,
-//     hour,
-//     startDate,
-//     endDate,
-//   } = query;
-
-//   const studentNameFilterLower = studentNameFilter?.toLowerCase();
-
-//   if (
-//     studentNameFilter ||
-//     handwriting ||
-//     lessonEvaluation ||
-//     className ||
-//     subject ||
-//     teacher ||
-//     date ||
-//     hour ||
-//     startDate ||
-//     endDate
-//   ) {
-//     processedReports = reports.map((report) => {
-//       const filteredReport = { ...report };
-//       if (Array.isArray(report.studentEvaluations)) {
-//         filteredReport.studentEvaluations = report.studentEvaluations.filter((evaluation: any) => {
-//           const matchesStudentName = studentNameFilterLower
-//             ? evaluation.studentId?.name?.toLowerCase().includes(studentNameFilterLower)
-//             : true;
-//           const matchesHandwriting = handwriting ? evaluation.handwriting === handwriting : true;
-//           const matchesLessonEvaluation = lessonEvaluation
-//             ? evaluation.lessonEvaluation === lessonEvaluation
-//             : true;
-//           const matchesClass = className ? report.classes === className : true;
-//           const matchesSubject = subject ? report.subjects === subject : true;
-//           const matchesTeacher = teacher ? report.teachers === teacher : true;
-//           const matchesHour = hour ? report.hour === hour : true;
-
-//           const matchesDate =
-//             startDate || endDate
-//               ? (() => {
-//                   const reportDate = new Date(report.date);
-//                   let matchesStart = true;
-//                   let matchesEnd = true;
-
-//                   if (startDate) {
-//                     const startDateObj = new Date(startDate);
-//                     startDateObj.setHours(0, 0, 0, 0);
-//                     matchesStart = reportDate >= startDateObj;
-//                   }
-
-//                   if (endDate) {
-//                     const endDateObj = new Date(endDate);
-//                     endDateObj.setHours(23, 59, 59, 999);
-//                     matchesEnd = reportDate <= endDateObj;
-//                   }
-
-//                   return matchesStart && matchesEnd;
-//                 })()
-//               : date
-//               ? (() => {
-//                   const queryDate = new Date(date);
-//                   const reportDate = new Date(report.date);
-//                   return (
-//                     queryDate.getFullYear() === reportDate.getFullYear() &&
-//                     queryDate.getMonth() === reportDate.getMonth() &&
-//                     queryDate.getDate() === reportDate.getDate()
-//                   );
-//                 })()
-//               : true;
-
-//           return (
-//             matchesStudentName &&
-//             matchesHandwriting &&
-//             matchesLessonEvaluation &&
-//             matchesClass &&
-//             matchesSubject &&
-//             matchesTeacher &&
-//             matchesHour &&
-//             matchesDate
-//           );
-//         });
-//       }
-
-//       return filteredReport;
-//     });
-
-//     processedReports = processedReports.filter(
-//       (report) => report.studentEvaluations && report.studentEvaluations.length > 0
-//     );
-//   }
-
-//   const page = Number(query.page) || 1;
-//   const limit = Number(query.limit) || 10;
-//   const skip = (page - 1) * limit;
-
-//   const paginatedReports = processedReports.slice(skip, skip + limit);
-
-//   const result = {
-//     meta: {
-//       total: processedReports.length,
-//       page,
-//       limit,
-//       totalPages: Math.ceil(processedReports.length / limit),
-//     },
-//     reports: paginatedReports,
-//   };
-
-//   await redisClient.set(cacheKey, JSON.stringify(result), { EX: 300 });
-
-//   return result;
-// };
-
- const getAllClassReports = async (query: Record<string, any>) => {
-  const searchTerm = query.searchTerm;
-  const matchConditions: any[] = [];
-  console.log('Backend received query params:', query);
-  // Handle general search term
-  if (searchTerm && typeof searchTerm === 'string') {
+  // If searchTerm is provided and is a string
+  if (searchTerm && typeof searchTerm === "string") {
+    // First, find matching students by name
     const matchingStudents = await Student.find({
-      name: { $regex: searchTerm, $options: 'i' },
-    }).select('_id');
-    const matchingStudentIds = matchingStudents.map(
-      (student) => new Types.ObjectId(student._id as string),
-    );
+      name: { $regex: searchTerm, $options: "i" },
+    }).select("_id")
+
+    const matchingStudentIds = matchingStudents.map((student) => new Types.ObjectId(String(student._id)))
+
     matchConditions.push({
       $or: [
-        { teachers: { $regex: searchTerm, $options: 'i' } },
-        { classes: { $regex: searchTerm, $options: 'i' } },
-        { subjects: { $regex: searchTerm, $options: 'i' } },
-        { hour: { $regex: searchTerm, $options: 'i' } },
-        { date: { $regex: searchTerm, $options: 'i' } },
+        { teachers: { $regex: searchTerm, $options: "i" } },
+        { classes: { $regex: searchTerm, $options: "i" } },
+        { subjects: { $regex: searchTerm, $options: "i" } },
+        { hour: { $regex: searchTerm, $options: "i" } },
         {
-          'studentEvaluations.studentId': {
+          "studentEvaluations.studentId": {
             $in: matchingStudentIds,
           },
         },
       ],
-    });
+    })
   }
-  // Updated paramToFieldMap to include lessonEvaluation
-  const paramToFieldMap = {
-    className: 'classes',
-    subject: 'subjects',
-    teacher: 'teachers',
-    hour: 'hour',
-    date: 'date',
-    lessonEvaluation: 'studentEvaluations.lessonEvaluation', // Add this mapping
-  };
-  // Handle specific field filters
-  for (const [param, field] of Object.entries(paramToFieldMap)) {
-    if (query[param]) {
-      if (field === 'date') {
-        const startDate = new Date(query[param]);
-        const endDate = new Date(query[param]);
-        endDate.setDate(endDate.getDate() + 1);
-        matchConditions.push({
-          date: {
-            $gte: startDate,
-            $lt: endDate,
-          },
-        });
-      } else if (field === 'studentEvaluations.lessonEvaluation') {
-        // Special handling for nested field in array
-        matchConditions.push({
-          'studentEvaluations.lessonEvaluation': query[param],
-        });
-      } else {
-        matchConditions.push({
-          [field]: query[param],
-        });
-      }
-    }
+
+  // Add additional filter conditions
+  if (query.className) {
+    matchConditions.push({ classes: { $regex: query.className, $options: "i" } })
   }
-  const pipeline: any[] = [];
+
+  if (query.subject) {
+    matchConditions.push({ subjects: { $regex: query.subject, $options: "i" } })
+  }
+
+  if (query.teacher) {
+    matchConditions.push({ teachers: { $regex: query.teacher, $options: "i" } })
+  }
+
+  if (query.hour) {
+    matchConditions.push({ hour: query.hour })
+  }
+
+  if (query.date) {
+    matchConditions.push({ date: new Date(query.date) })
+  }
+
+  // Date range filter
+  if (query.startDate && query.endDate) {
+    matchConditions.push({
+      date: {
+        $gte: new Date(query.startDate),
+        $lte: new Date(query.endDate),
+      },
+    })
+  }
+
+  // Lesson evaluation and handwriting filters
+  if (query.lessonEvaluation) {
+    matchConditions.push({
+      "studentEvaluations.lessonEvaluation": query.lessonEvaluation,
+    })
+  }
+
+  if (query.handwriting) {
+    matchConditions.push({
+      "studentEvaluations.handwriting": query.handwriting,
+    })
+  }
+
+  const pipeline: any[] = []
+
+  // Apply search filters if any
   if (matchConditions.length > 0) {
     pipeline.push({
       $match: {
         $and: matchConditions,
       },
-    });
+    })
   }
+
   // Populate studentEvaluations.studentId
   pipeline.push(
     {
       $lookup: {
-        from: 'students',
-        localField: 'studentEvaluations.studentId',
-        foreignField: '_id',
-        as: 'studentDetails',
+        from: "students",
+        localField: "studentEvaluations.studentId",
+        foreignField: "_id",
+        as: "studentDetails",
       },
     },
     {
       $addFields: {
         studentEvaluations: {
           $map: {
-            input: '$studentEvaluations',
-            as: 'evaluation',
+            input: "$studentEvaluations",
+            as: "evaluation",
             in: {
               $mergeObjects: [
-                '$$evaluation',
+                "$$evaluation",
                 {
                   studentId: {
                     $arrayElemAt: [
                       {
                         $filter: {
-                          input: '$studentDetails',
-                          as: 's',
+                          input: "$studentDetails",
+                          as: "s",
                           cond: {
-                            $eq: ['$$s._id', '$$evaluation.studentId'],
+                            $eq: ["$$s._id", "$$evaluation.studentId"],
                           },
                         },
                       },
@@ -427,56 +184,129 @@ const createClassReport = async (payload: IClassReport) => {
     },
     {
       $project: {
-        studentDetails: 0,
+        studentDetails: 0, // remove temp field
       },
     },
-  );
+  )
+
+  // Populate todayLesson
   pipeline.push({
     $lookup: {
-      from: 'todaylessons',
-      localField: 'todayLesson',
-      foreignField: '_id',
-      as: 'todayLesson',
+      from: "todaylessons",
+      localField: "todayLesson",
+      foreignField: "_id",
+      as: "todayLesson",
     },
-  });
+  })
   pipeline.push({
     $unwind: {
-      path: '$todayLesson',
+      path: "$todayLesson",
       preserveNullAndEmptyArrays: true,
     },
-  });
+  })
+
+  // Populate homeTask
   pipeline.push({
     $lookup: {
-      from: 'todaytasks',
-      localField: 'homeTask',
-      foreignField: '_id',
-      as: 'homeTask',
+      from: "todaytasks",
+      localField: "homeTask",
+      foreignField: "_id",
+      as: "homeTask",
     },
-  });
+  })
   pipeline.push({
     $unwind: {
-      path: '$homeTask',
+      path: "$homeTask",
       preserveNullAndEmptyArrays: true,
     },
-  });
-  pipeline.push({ $sort: { createdAt: -1 } });
-  const reports = await ClassReport.aggregate(pipeline);
-  console.log(`Found ${reports.length} reports after filtering`);
-  return {
-    meta: {
-      total: reports.length,
-    },
-    reports,
-  };
-};
+  })
+
+  // Sort by creation date (newest first)
+  pipeline.push({ $sort: { createdAt: -1 } })
+
+  // Create a separate pipeline for counting total documents
+  const countPipeline: any[] = [...pipeline]
+
+  // Execute count pipeline first
+  const countResult = await ClassReport.aggregate([...countPipeline, { $count: "total" }])
+  const total = countResult.length > 0 ? countResult[0].total : 0
+
+  // Add pagination to main pipeline
+  pipeline.push({ $skip: skip })
+  pipeline.push({ $limit: limit })
+
+  try {
+    // Execute main pipeline
+    const reports = await ClassReport.aggregate(pipeline)
+
+    console.log(`Query results: total=${total}, returned=${reports.length}, page=${page}, limit=${limit}`)
+
+    // Meta information
+    const meta = {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page < Math.ceil(total / limit),
+      hasPrevPage: page > 1,
+    }
+
+    const result = {
+      meta,
+      reports,
+    }
+
+    // Cache the result for 5 minutes (300 seconds)
+    try {
+      await redis.setex(cacheKey, 300, JSON.stringify(result))
+      console.log("Cached class reports result")
+    } catch (error) {
+      console.error("Redis cache write error:", error)
+      // Continue without caching if Redis fails
+    }
+
+    return result
+  } catch (error) {
+    console.error("Database query error:", error)
+    throw error
+  }
+}
+
+// Helper function to clear cache when data is modified
+const clearClassReportsCache = async () => {
+  try {
+    const keys = await redis.keys("class_reports:*")
+    if (keys.length > 0) {
+      await redis.del(...keys)
+      console.log(`Cleared ${keys.length} class reports cache entries`)
+    }
+  } catch (error) {
+    console.error("Error clearing class reports cache:", error)
+  }
+}
+
+// Helper function to clear specific cache patterns
+const clearClassReportsCachePattern = async (pattern: any) => {
+  try {
+    const keys = await redis.keys(`class_reports:*${pattern}*`)
+    if (keys.length > 0) {
+      await redis.del(...keys)
+      console.log(`Cleared ${keys.length} class reports cache entries matching pattern: ${pattern}`)
+    }
+  } catch (error) {
+    console.error("Error clearing class reports cache pattern:", error)
+  }
+}
+
+
 const getSingleClassReport = async (id: string) => {
   const result = await ClassReport.findById(id)
-    .populate('subjects')
-    .populate('teachers')
-    .populate('todayLesson')
-    .populate('classes')
-    .populate('homeTask')
-    .populate('studentEvaluations.studentId');
+    .populate('subjects')          
+    .populate('teachers')    
+    .populate('todayLesson')   
+    .populate('classes')      
+    .populate('homeTask')      
+    .populate('studentEvaluations.studentId'); 
 
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'Class report not found');
@@ -500,7 +330,6 @@ const updateClassReport = async (
 };
 
 const deleteClassReport = async (id: string) => {
-  console.log(id);
   const result = await ClassReport.findByIdAndDelete(id);
   if (!result) {
     throw new AppError(
@@ -511,85 +340,10 @@ const deleteClassReport = async (id: string) => {
   return result;
 };
 
-const generateClassReportPdf = async (
-  id: string,
-  imageUrl: string,
-): Promise<Buffer> => {
-  const classReport = await ClassReport.findById(id).populate(
-    'studentEvaluations.studentId',
-  );
-
-  console.log(JSON.stringify(classReport, null, 2));
-
-  if (!classReport) {
-    console.error(`ClassReport not found for id: ${id}`);
-    throw new Error('Class report not found');
-  }
-
-  let logoBase64 = '';
-  try {
-    const logoUrl = `${imageUrl}/images/logo.png`;
-    const logoResponse = await fetch(logoUrl);
-    const logoBuffer = await logoResponse.arrayBuffer();
-    logoBase64 = Buffer.from(logoBuffer).toString('base64');
-  } catch (error) {
-    console.warn('Failed to load logo:', error);
-  }
-
-  const filePath = join(__dirname, '../../templates/classreport.ejs');
-
-  const html = await new Promise<string>((resolve, reject) => {
-    ejs.renderFile(
-      filePath,
-      {
-        classReport,
-        imageUrl,
-        logoBase64,
-      },
-      (err, str) => {
-        if (err) return reject(err);
-        resolve(str);
-      },
-    );
-  });
-
-  try {
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      headless: true,
-    });
-
-    const page = await browser.newPage();
-
-    await page.setContent(html, {
-      waitUntil: ['networkidle0', 'load', 'domcontentloaded'],
-      timeout: 30000,
-    });
-
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: {
-        top: '20px',
-        right: '20px',
-        bottom: '20px',
-        left: '20px',
-      },
-    });
-
-    await browser.close();
-    return Buffer.from(pdfBuffer);
-  } catch (error) {
-    console.error('Error generating PDF:', error);
-    throw new Error('PDF generation failed');
-  }
-};
-
 export const classReportServices = {
   createClassReport,
   getAllClassReports,
   getSingleClassReport,
   updateClassReport,
   deleteClassReport,
-  generateClassReportPdf,
 };

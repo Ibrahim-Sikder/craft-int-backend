@@ -7,5 +7,14 @@
     "backupStartTime": "2025-06-23T18:00:00.279Z",
     "backupEndTime": "2025-06-23T18:00:00.613Z",
     "archivePath": "D:\\projects\\craft-institute-management\\craft-institute-server\\public\\sarabelanews.gzip"
+  },
+  {
+    "status": "successful",
+    "error": null,
+    "code": null,
+    "signal": null,
+    "backupStartTime": "2025-06-24T18:00:00.814Z",
+    "backupEndTime": "2025-06-24T18:00:01.127Z",
+    "archivePath": "D:\\projects\\craft-institute-management\\craft-institute-server\\public\\sarabelanews.gzip"
   }
 ]

@@ -78,12 +78,9 @@ const classReportSchema = new Schema<IClassReport>(
   },
 );
 
-// Add compound indexes for better query performance
 classReportSchema.index({ teachers: 1, classes: 1, subjects: 1 })
 classReportSchema.index({ date: 1, hour: 1 })
 classReportSchema.index({ createdAt: -1 })
-
-// Add text index for better text search
 classReportSchema.index({
   teachers: "text",
   classes: "text",
