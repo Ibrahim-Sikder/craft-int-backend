@@ -3,12 +3,11 @@ import httpStatus from 'http-status';
 import sendResponse from '../../../utils/sendResponse';
 import { catchAsync } from '../../../utils/catchAsync';
 import { classReportServices } from './classreport.service';
-import { RequestHandler } from 'express';
+import { clearClassReportsCache } from './classreport.utils';
 
 const createClassReport = catchAsync(async (req, res) => {
   const result = await classReportServices.createClassReport(req.body);
-
-  console.log('body', req.body);
+     await clearClassReportsCache();
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
@@ -69,16 +68,12 @@ const updateClassReport = catchAsync(async (req, res, next) => {
       formattedData.subjects = formattedData.subjects[0];
     }
 
-    console.log(
-      'Received data for update:',
-      JSON.stringify(formattedData, null, 2),
-    );
-
     const result = await classReportServices.updateClassReport(
       id,
       formattedData,
     );
 
+       await clearClassReportsCache();
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
@@ -93,7 +88,7 @@ const deleteClassReport = catchAsync(async (req, res, next) => {
   try {
     const { id } = req.params;
     const result = await classReportServices.deleteClassReport(id);
-
+   await clearClassReportsCache();
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
@@ -105,35 +100,35 @@ const deleteClassReport = catchAsync(async (req, res, next) => {
   }
 });
 
-const generateClassReportPdf: RequestHandler = catchAsync(async (req, res) => {
-  const { classreportid } = req.params;
+// const generateClassReportPdf: RequestHandler = catchAsync(async (req, res) => {
+//   const { classreportid } = req.params;
 
-  const baseUrl = (
-    process.env.NEXT_PUBLIC_IMAGE_BASE_URL || 'http://localhost:5000'
-  ).replace(/\/$/, '');
+//   const baseUrl = (
+//     process.env.NEXT_PUBLIC_IMAGE_BASE_URL || 'http://localhost:5000'
+//   ).replace(/\/$/, '');
 
-  try {
-    const pdfBuffer = await classReportServices.ge(
-      classreportid,
-      baseUrl,
-    );
+//   try {
+//     const pdfBuffer = await classReportServices.ge(
+//       classreportid,
+//       baseUrl,
+//     );
 
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename=classreport-${classreportid}.pdf`,
-    );
+//     res.setHeader('Content-Type', 'application/pdf');
+//     res.setHeader(
+//       'Content-Disposition',
+//       `attachment; filename=classreport-${classreportid}.pdf`,
+//     );
 
-    res.send(pdfBuffer);
-  } catch (error: any) {
-    console.error('PDF Generation Error:', error);
-    res.status(500).json({
-      status: 'error',
-      message:
-        error.message || 'An error occurred while generating the class report.',
-    });
-  }
-});
+//     res.send(pdfBuffer);
+//   } catch (error: any) {
+//     console.error('PDF Generation Error:', error);
+//     res.status(500).json({
+//       status: 'error',
+//       message:
+//         error.message || 'An error occurred while generating the class report.',
+//     });
+//   }
+// });
 
 export const classReportControllers = {
   createClassReport,
@@ -141,5 +136,5 @@ export const classReportControllers = {
   getSingleClassReport,
   updateClassReport,
   deleteClassReport,
-  generateClassReportPdf,
+
 };

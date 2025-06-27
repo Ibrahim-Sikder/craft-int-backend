@@ -136,14 +136,14 @@ const getAllClassReports = async (query: IClassReportQuery) => {
   }
 
   // NEW: Comments filter - only show reports with comments
-  if (query.hasComments === true) {
-    matchConditions.push({
-      "studentEvaluations.comments": {
-        $exists: true,
-        $nin: ["", null],
-      },
-    })
-  }
+if (query.hasComments === 'true' || query.hasComments === true) {
+  matchConditions.push({
+    "studentEvaluations.comments": {
+      $exists: true,
+      $nin: ["", null],
+    },
+  })
+}
 
 
 
@@ -350,31 +350,6 @@ const getCommentsStatistics = async (): Promise<ICommentsStats> => {
   }
 }
 
-// Helper function to clear cache when data is modified
-const clearClassReportsCache = async () => {
-  try {
-    const keys = await redis.keys("class_reports:*")
-    if (keys.length > 0) {
-      await redis.del(...keys)
-      console.log(`Cleared ${keys.length} class reports cache entries`)
-    }
-  } catch (error) {
-    console.error("Error clearing class reports cache:", error)
-  }
-}
-
-// Helper function to clear specific cache patterns
-const clearClassReportsCachePattern = async (pattern: any) => {
-  try {
-    const keys = await redis.keys(`class_reports:*${pattern}*`)
-    if (keys.length > 0) {
-      await redis.del(...keys)
-      console.log(`Cleared ${keys.length} class reports cache entries matching pattern: ${pattern}`)
-    }
-  } catch (error) {
-    console.error("Error clearing class reports cache pattern:", error)
-  }
-}
 
 const getSingleClassReport = async (id: string) => {
   const result = await ClassReport.findById(id)

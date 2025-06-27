@@ -37,7 +37,7 @@ export interface IClassReportQuery {
   handwriting?: string
   startDate?: string
   endDate?: string
-  hasComments?: boolean // New field for comments filter
+  hasComments?: boolean | string // New field for comments filter
 }
 
 // Add interface for comments statistics
