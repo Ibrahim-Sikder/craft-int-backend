@@ -49,21 +49,15 @@ const getSingleClassReport = catchAsync(async (req, res, next) => {
 const updateClassReport = catchAsync(async (req, res, next) => {
   try {
     const { id } = req.params;
-
-    // Format the data if needed (especially studentEvaluations)
     const formattedData = { ...req.body };
-
-    // If teachers field is an array of strings, convert to proper format
     if (Array.isArray(formattedData.teachers)) {
       formattedData.teachers = formattedData.teachers[0];
     }
 
-    // If classes field is an array of strings, convert to proper format
     if (Array.isArray(formattedData.classes)) {
       formattedData.classes = formattedData.classes[0];
     }
 
-    // If subjects field is an array of strings, convert to proper format
     if (Array.isArray(formattedData.subjects)) {
       formattedData.subjects = formattedData.subjects[0];
     }

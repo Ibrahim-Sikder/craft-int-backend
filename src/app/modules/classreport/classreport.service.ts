@@ -8,7 +8,7 @@ import { Student } from '../student/student.model';
 import { Types } from 'mongoose';
 import Redis from "ioredis"
 
-// Initialize Redis client
+
 const redis = new Redis({
   host: process.env.REDIS_HOST || "localhost",
   port: process.env.REDIS_PORT ? Number(process.env.REDIS_PORT) : 6379,
