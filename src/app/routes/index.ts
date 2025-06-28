@@ -23,6 +23,8 @@ import { announcementRoutes } from '../modules/announcement/announcement.route';
 import { notificationRoutes } from '../modules/notification/notification.route';
 import { complaintRoutes } from '../modules/complaint/complaint.route';
 import { feedbackRoutes } from '../modules/feedback/feedback.route';
+import { expenseRoutes } from '../modules/expense/expense.route';
+import { incomeRoutes } from '../modules/income/income.route';
 const router = Router();
 
 const moduleRoutes = [
@@ -110,6 +112,14 @@ const moduleRoutes = [
   {
     path: '/feedback',
     route: feedbackRoutes,
+  },
+  {
+    path: '/expense',
+    route: expenseRoutes,
+  },
+  {
+    path: '/income',
+    route: incomeRoutes,
   },
   {
     path: '/meta',

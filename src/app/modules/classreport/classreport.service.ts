@@ -46,11 +46,10 @@ const getAllClassReports = async (query: IClassReportQuery) => {
     handwriting: query.handwriting,
     startDate: query.startDate,
     endDate: query.endDate,
-    hasComments: query.hasComments, // Include comments filter in cache key
+    hasComments: query.hasComments,
   })}`
 
   try {
-    // Try to get cached result
     const cachedResult = await redis.get(cacheKey)
     if (cachedResult) {
       console.log("Returning cached result for class reports")
@@ -58,14 +57,12 @@ const getAllClassReports = async (query: IClassReportQuery) => {
     }
   } catch (error) {
     console.error("Redis cache read error:", error)
-    // Continue with database query if cache fails
   }
 
   const matchConditions = []
 
-  // If searchTerm is provided and is a string
   if (searchTerm && typeof searchTerm === "string") {
-    // First, find matching students by name
+
     const matchingStudents = await Student.find({
       name: { $regex: searchTerm, $options: "i" },
     }).select("_id")
@@ -83,7 +80,7 @@ const getAllClassReports = async (query: IClassReportQuery) => {
             $in: matchingStudentIds,
           },
         },
-        // Add search in comments
+
         {
           "studentEvaluations.comments": { $regex: searchTerm, $options: "i" },
         },
@@ -91,7 +88,6 @@ const getAllClassReports = async (query: IClassReportQuery) => {
     })
   }
 
-  // Add additional filter conditions
   if (query.className) {
     matchConditions.push({ classes: { $regex: query.className, $options: "i" } })
   }
@@ -112,7 +108,6 @@ const getAllClassReports = async (query: IClassReportQuery) => {
     matchConditions.push({ date: new Date(query.date) })
   }
 
-  // Date range filter
   if (query.startDate && query.endDate) {
     matchConditions.push({
       date: {
