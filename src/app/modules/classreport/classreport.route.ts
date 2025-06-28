@@ -9,10 +9,10 @@ router.post(
   validateRequest(ClassReportValidations.createClassReportValidation),
   classReportControllers.createClassReport,
 );
-router.get(
-  '/classreport/:classreportid',
-  classReportControllers.generateClassReportPdf,
-);
+// router.get(
+//   '/classreport/:classreportid',
+//   classReportControllers.generateClassReportPdf,
+// );
 
 router.get('/', classReportControllers.getAllClassReports);
 router.get('/:id', classReportControllers.getSingleClassReport);
