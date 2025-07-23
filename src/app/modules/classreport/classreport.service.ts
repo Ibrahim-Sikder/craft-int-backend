@@ -8,11 +8,6 @@ import { Student } from '../student/student.model';
 import { Types } from 'mongoose';
 import Redis from "ioredis"
 
-<<<<<<< HEAD
-// Initialize Redis client
-=======
-
->>>>>>> cf2df89ec0061879ce01fdf5c2774a1dc8d85b03
 const redis = new Redis({
   host: process.env.REDIS_HOST || "localhost",
   port: process.env.REDIS_PORT ? Number(process.env.REDIS_PORT) : 6379,
@@ -28,17 +23,6 @@ const createClassReport = async (payload: IClassReport) => {
   return result;
 };
 
-<<<<<<< HEAD
-const getAllClassReports = async (query: any) => {
-  const searchTerm = query.searchTerm
-  const page = Number.parseInt(query.page) || 1 // Keep 1-based for consistency
-  const limit = Number.parseInt(query.limit) || 5 // Default to 5 items per page
-  const skip = (page - 1) * limit // Convert to 0-based for database skip
-
-  console.log(`Pagination: page=${page}, limit=${limit}, skip=${skip}`)
-
-  // Create cache key based on all query parameters
-=======
 const getAllClassReports = async (query: IClassReportQuery) => {
   const searchTerm = query.searchTerm
   const page = Number.parseInt(query.page?.toString() || "1") || 1
@@ -48,7 +32,6 @@ const getAllClassReports = async (query: IClassReportQuery) => {
   console.log(`Pagination: page=${page}, limit=${limit}, skip=${skip}`)
 
   // Create cache key based on all query parameters including hasComments
->>>>>>> cf2df89ec0061879ce01fdf5c2774a1dc8d85b03
   const cacheKey = `class_reports:${JSON.stringify({
     searchTerm,
     page,
@@ -62,17 +45,10 @@ const getAllClassReports = async (query: IClassReportQuery) => {
     handwriting: query.handwriting,
     startDate: query.startDate,
     endDate: query.endDate,
-<<<<<<< HEAD
-  })}`
-
-  try {
-    // Try to get cached result
-=======
     hasComments: query.hasComments,
   })}`
 
   try {
->>>>>>> cf2df89ec0061879ce01fdf5c2774a1dc8d85b03
     const cachedResult = await redis.get(cacheKey)
     if (cachedResult) {
       console.log("Returning cached result for class reports")
@@ -80,22 +56,12 @@ const getAllClassReports = async (query: IClassReportQuery) => {
     }
   } catch (error) {
     console.error("Redis cache read error:", error)
-<<<<<<< HEAD
-    // Continue with database query if cache fails
-=======
->>>>>>> cf2df89ec0061879ce01fdf5c2774a1dc8d85b03
   }
 
   const matchConditions = []
 
-<<<<<<< HEAD
-  // If searchTerm is provided and is a string
-  if (searchTerm && typeof searchTerm === "string") {
-    // First, find matching students by name
-=======
   if (searchTerm && typeof searchTerm === "string") {
 
->>>>>>> cf2df89ec0061879ce01fdf5c2774a1dc8d85b03
     const matchingStudents = await Student.find({
       name: { $regex: searchTerm, $options: "i" },
     }).select("_id")
@@ -121,10 +87,6 @@ const getAllClassReports = async (query: IClassReportQuery) => {
     })
   }
 
-<<<<<<< HEAD
-  // Add additional filter conditions
-=======
->>>>>>> cf2df89ec0061879ce01fdf5c2774a1dc8d85b03
   if (query.className) {
     matchConditions.push({ classes: { $regex: query.className, $options: "i" } })
   }
@@ -145,10 +107,6 @@ const getAllClassReports = async (query: IClassReportQuery) => {
     matchConditions.push({ date: new Date(query.date) })
   }
 
-<<<<<<< HEAD
-  // Date range filter
-=======
->>>>>>> cf2df89ec0061879ce01fdf5c2774a1dc8d85b03
   if (query.startDate && query.endDate) {
     matchConditions.push({
       date: {
@@ -171,8 +129,6 @@ const getAllClassReports = async (query: IClassReportQuery) => {
     })
   }
 
-<<<<<<< HEAD
-=======
   // NEW: Comments filter - only show reports with comments
 if (query.hasComments === 'true' || query.hasComments === true) {
   matchConditions.push({
@@ -185,7 +141,6 @@ if (query.hasComments === 'true' || query.hasComments === true) {
 
 
 
->>>>>>> cf2df89ec0061879ce01fdf5c2774a1dc8d85b03
   const pipeline: any[] = []
 
   // Apply search filters if any
@@ -297,12 +252,9 @@ if (query.hasComments === 'true' || query.hasComments === true) {
 
     console.log(`Query results: total=${total}, returned=${reports.length}, page=${page}, limit=${limit}`)
 
-<<<<<<< HEAD
-=======
     // Get comments statistics
     const commentsStats = await getCommentsStatistics()
 
->>>>>>> cf2df89ec0061879ce01fdf5c2774a1dc8d85b03
     // Meta information
     const meta = {
       total,
@@ -311,10 +263,7 @@ if (query.hasComments === 'true' || query.hasComments === true) {
       totalPages: Math.ceil(total / limit),
       hasNextPage: page < Math.ceil(total / limit),
       hasPrevPage: page > 1,
-<<<<<<< HEAD
-=======
       commentsStats, // Add comments statistics to meta
->>>>>>> cf2df89ec0061879ce01fdf5c2774a1dc8d85b03
     }
 
     const result = {
@@ -338,31 +287,6 @@ if (query.hasComments === 'true' || query.hasComments === true) {
   }
 }
 
-<<<<<<< HEAD
-// Helper function to clear cache when data is modified
-const clearClassReportsCache = async () => {
-  try {
-    const keys = await redis.keys("class_reports:*")
-    if (keys.length > 0) {
-      await redis.del(...keys)
-      console.log(`Cleared ${keys.length} class reports cache entries`)
-    }
-  } catch (error) {
-    console.error("Error clearing class reports cache:", error)
-  }
-}
-
-// Helper function to clear specific cache patterns
-const clearClassReportsCachePattern = async (pattern: any) => {
-  try {
-    const keys = await redis.keys(`class_reports:*${pattern}*`)
-    if (keys.length > 0) {
-      await redis.del(...keys)
-      console.log(`Cleared ${keys.length} class reports cache entries matching pattern: ${pattern}`)
-    }
-  } catch (error) {
-    console.error("Error clearing class reports cache pattern:", error)
-=======
 // NEW: Function to get comments statistics
 const getCommentsStatistics = async (): Promise<ICommentsStats> => {
   try {
@@ -417,7 +341,6 @@ const getCommentsStatistics = async (): Promise<ICommentsStats> => {
       reportsWithComments: 0,
       studentsWithComments: 0,
     }
->>>>>>> cf2df89ec0061879ce01fdf5c2774a1dc8d85b03
   }
 }
 
