@@ -23,12 +23,12 @@ const createClassReport = async (payload: IClassReport) => {
   return result;
 };
 
-const getAllClassReports = async (query: IClassReportQuery) => {
+export const getAllClassReports = async (query: IClassReportQuery) => {
   const searchTerm = query.searchTerm
+  console.log("this is search term", searchTerm)
   const page = Number.parseInt(query.page?.toString() || "1") || 1
   const limit = Number.parseInt(query.limit?.toString() || "5") || 5
   const skip = (page - 1) * limit
-
   console.log(`Pagination: page=${page}, limit=${limit}, skip=${skip}`)
 
   // Create cache key based on all query parameters including hasComments
@@ -41,8 +41,8 @@ const getAllClassReports = async (query: IClassReportQuery) => {
     teacher: query.teacher,
     date: query.date,
     hour: query.hour,
-    lessonEvaluation: query.lessonEvaluation,
-    handwriting: query.handwriting,
+    lessonEvaluation: query.lessonEvaluation, // Include in cache key
+    handwriting: query.handwriting, // Include in cache key
     startDate: query.startDate,
     endDate: query.endDate,
     hasComments: query.hasComments,
@@ -58,14 +58,13 @@ const getAllClassReports = async (query: IClassReportQuery) => {
     console.error("Redis cache read error:", error)
   }
 
-  const matchConditions = []
+  const matchConditions: any[] = []
 
+  // Handle searchTerm for top-level fields and student names/comments
   if (searchTerm && typeof searchTerm === "string") {
-
     const matchingStudents = await Student.find({
       name: { $regex: searchTerm, $options: "i" },
     }).select("_id")
-
     const matchingStudentIds = matchingStudents.map((student) => new Types.ObjectId(String(student._id)))
 
     matchConditions.push({
@@ -79,7 +78,6 @@ const getAllClassReports = async (query: IClassReportQuery) => {
             $in: matchingStudentIds,
           },
         },
-
         {
           "studentEvaluations.comments": { $regex: searchTerm, $options: "i" },
         },
@@ -87,26 +85,22 @@ const getAllClassReports = async (query: IClassReportQuery) => {
     })
   }
 
+  // Top-level filters
   if (query.className) {
     matchConditions.push({ classes: { $regex: query.className, $options: "i" } })
   }
-
   if (query.subject) {
     matchConditions.push({ subjects: { $regex: query.subject, $options: "i" } })
   }
-
   if (query.teacher) {
     matchConditions.push({ teachers: { $regex: query.teacher, $options: "i" } })
   }
-
   if (query.hour) {
     matchConditions.push({ hour: query.hour })
   }
-
   if (query.date) {
     matchConditions.push({ date: new Date(query.date) })
   }
-
   if (query.startDate && query.endDate) {
     matchConditions.push({
       date: {
@@ -116,34 +110,19 @@ const getAllClassReports = async (query: IClassReportQuery) => {
     })
   }
 
-  // Lesson evaluation and handwriting filters
-  if (query.lessonEvaluation) {
+  // Comments filter - only show reports with comments (report-level filter)
+  if (query.hasComments === "true" || query.hasComments === true) {
     matchConditions.push({
-      "studentEvaluations.lessonEvaluation": query.lessonEvaluation,
+      "studentEvaluations.comments": {
+        $exists: true,
+        $nin: ["", null],
+      },
     })
   }
-
-  if (query.handwriting) {
-    matchConditions.push({
-      "studentEvaluations.handwriting": query.handwriting,
-    })
-  }
-
-  // NEW: Comments filter - only show reports with comments
-if (query.hasComments === 'true' || query.hasComments === true) {
-  matchConditions.push({
-    "studentEvaluations.comments": {
-      $exists: true,
-      $nin: ["", null],
-    },
-  })
-}
-
-
 
   const pipeline: any[] = []
 
-  // Apply search filters if any
+  // Apply initial report-level match conditions
   if (matchConditions.length > 0) {
     pipeline.push({
       $match: {
@@ -156,7 +135,7 @@ if (query.hasComments === 'true' || query.hasComments === true) {
   pipeline.push(
     {
       $lookup: {
-        from: "students",
+        from: "students", // Collection name for students
         localField: "studentEvaluations.studentId",
         foreignField: "_id",
         as: "studentDetails",
@@ -195,15 +174,52 @@ if (query.hasComments === 'true' || query.hasComments === true) {
     },
     {
       $project: {
-        studentDetails: 0, // remove temp field
+        studentDetails: 0, // Remove temporary studentDetails array
       },
     },
   )
 
+  // NEW: Filter studentEvaluations array based on lessonEvaluation and handwriting
+  const studentEvaluationFilters: any[] = []
+  if (query.lessonEvaluation) {
+    studentEvaluationFilters.push({
+      $eq: ["$$evaluation.lessonEvaluation", query.lessonEvaluation],
+    })
+  }
+  if (query.handwriting) {
+    studentEvaluationFilters.push({
+      $eq: ["$$evaluation.handwriting", query.handwriting],
+    })
+  }
+
+  if (studentEvaluationFilters.length > 0) {
+    pipeline.push({
+      $addFields: {
+        studentEvaluations: {
+          $filter: {
+            input: "$studentEvaluations",
+            as: "evaluation",
+            cond: {
+              $and: studentEvaluationFilters,
+            },
+          },
+        },
+      },
+    })
+
+    // NEW: Match reports that still have student evaluations after filtering
+    // This ensures that reports with no matching student evaluations are excluded
+    pipeline.push({
+      $match: {
+        "studentEvaluations.0": { $exists: true }, // Check if the array is not empty
+      },
+    })
+  }
+
   // Populate todayLesson
   pipeline.push({
     $lookup: {
-      from: "todaylessons",
+      from: "todaylessons", // Collection name for todaylessons
       localField: "todayLesson",
       foreignField: "_id",
       as: "todayLesson",
@@ -219,7 +235,7 @@ if (query.hasComments === 'true' || query.hasComments === true) {
   // Populate homeTask
   pipeline.push({
     $lookup: {
-      from: "todaytasks",
+      from: "todaytasks", // Collection name for todaytasks
       localField: "homeTask",
       foreignField: "_id",
       as: "homeTask",
@@ -236,8 +252,9 @@ if (query.hasComments === 'true' || query.hasComments === true) {
   pipeline.push({ $sort: { createdAt: -1 } })
 
   // Create a separate pipeline for counting total documents
+  // This count should reflect the number of reports *after* all filtering,
+  // including the studentEvaluation filtering.
   const countPipeline: any[] = [...pipeline]
-
   // Execute count pipeline first
   const countResult = await ClassReport.aggregate([...countPipeline, { $count: "total" }])
   const total = countResult.length > 0 ? countResult[0].total : 0
@@ -249,10 +266,9 @@ if (query.hasComments === 'true' || query.hasComments === true) {
   try {
     // Execute main pipeline
     const reports = await ClassReport.aggregate(pipeline)
-
     console.log(`Query results: total=${total}, returned=${reports.length}, page=${page}, limit=${limit}`)
 
-    // Get comments statistics
+    // Get comments statistics (global, not filtered by current view)
     const commentsStats = await getCommentsStatistics()
 
     // Meta information
@@ -263,7 +279,7 @@ if (query.hasComments === 'true' || query.hasComments === true) {
       totalPages: Math.ceil(total / limit),
       hasNextPage: page < Math.ceil(total / limit),
       hasPrevPage: page > 1,
-      commentsStats, // Add comments statistics to meta
+      commentsStats,
     }
 
     const result = {
@@ -287,7 +303,7 @@ if (query.hasComments === 'true' || query.hasComments === true) {
   }
 }
 
-// NEW: Function to get comments statistics
+
 const getCommentsStatistics = async (): Promise<ICommentsStats> => {
   try {
     const pipeline = [
