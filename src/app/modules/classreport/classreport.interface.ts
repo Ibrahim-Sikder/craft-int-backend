@@ -21,6 +21,7 @@ export interface IClassReport {
   noTaskForClass: boolean
   handwrittenTask: boolean
   lessonEvaluationTask: boolean
+    hasComments?: boolean | string
 }
 
 // Add interface for query parameters
@@ -37,7 +38,7 @@ export interface IClassReportQuery {
   handwriting?: string
   startDate?: string
   endDate?: string
-  hasComments?: boolean | string // New field for comments filter
+  hasComments?: boolean | string
 }
 
 // Add interface for comments statistics

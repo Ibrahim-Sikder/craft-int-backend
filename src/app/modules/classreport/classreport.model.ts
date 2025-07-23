@@ -74,6 +74,10 @@ const classReportSchema = new Schema<IClassReport>(
     handwrittenTask: {
       type: Boolean,
     },
+    hasComments: {
+    type: Schema.Types.Mixed, 
+    default: false,          
+  },
   },
   {
     timestamps: true,
