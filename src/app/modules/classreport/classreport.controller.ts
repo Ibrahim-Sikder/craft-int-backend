@@ -124,11 +124,28 @@ const deleteClassReport = catchAsync(async (req, res, next) => {
 //   }
 // });
 
+
+const updateHasCommentsForAllReports = catchAsync(async (req, res, next) => {
+  try {
+    const result = await classReportServices.updateHasCommentsForAllReports();
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'All class reports updated successfully',
+      data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 export const classReportControllers = {
   createClassReport,
   getAllClassReports,
   getSingleClassReport,
   updateClassReport,
   deleteClassReport,
+  updateHasCommentsForAllReports
 
 };

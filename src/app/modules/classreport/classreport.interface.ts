@@ -7,6 +7,7 @@ export interface IStudentEvaluation {
   attendance: "উপস্থিত" | "অনুপস্থিত" | "ছুটি" | "অনুপস্থিত"
   parentSignature: boolean
   comments?: string
+  hasComments?: boolean | string
 }
 
 export interface IClassReport {
