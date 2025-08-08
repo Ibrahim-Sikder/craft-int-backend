@@ -1,0 +1,60 @@
+import httpStatus from 'http-status';
+import { AppError } from '../../error/AppError';
+import { I{{properCase name}} } from './{{camelCase name}}.interface';
+import QueryBuilder from '../../builder/QueryBuilder';
+import { {{camelCase name}}SearchableFields } from './{{camelCase name}}.constant';
+import { {{properCase name}} } from './{{camelCase name}}.model';
+
+const create{{properCase name}} = async (payload: I{{properCase name}}) => {
+  const result = await {{properCase name}}.create(payload);
+  return result;
+};
+
+const getAll{{properCase name}}s = async (query: Record<string, unknown>) => {
+  const queryBuilder = new QueryBuilder({{properCase name}}.find(), query)
+    .search({{camelCase name}}SearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const meta = await queryBuilder.countTotal();
+  const data = await queryBuilder.modelQuery;
+
+  return { meta, data };
+};
+
+const getSingle{{properCase name}} = async (id: string) => {
+  const result = await {{properCase name}}.findById(id);
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, '{{properCase name}} not found');
+  }
+  return result;
+};
+
+const update{{properCase name}} = async (id: string, payload: Partial<I{{properCase name}}>) => {
+  const result = await {{properCase name}}.findByIdAndUpdate(id, payload, {
+    new: true,
+    runValidators: true,
+  });
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Failed to update {{camelCase name}}');
+  }
+  return result;
+};
+
+const delete{{properCase name}} = async (id: string) => {
+  const result = await {{properCase name}}.findByIdAndDelete(id);
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, '{{properCase name}} not found or already deleted');
+  }
+  return result;
+};
+
+export const {{camelCase name}}Services = {
+  create{{properCase name}},
+  getAll{{properCase name}}s,
+  getSingle{{properCase name}},
+  update{{properCase name}},
+  delete{{properCase name}},
+};

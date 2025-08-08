@@ -1,8 +1,17 @@
+import { ObjectId } from "mongoose";
+
+export interface IncomeItem {
+  source: string;
+  description: string;
+  amount: string;
+}
+
 export interface IIncome {
-  source: "tuition" | "grant" | "donation" | "admission" | "event"
-  description: string
-  amount: number
-  date: Date
-  createdAt?: Date
-  updatedAt?: Date
+  category: ObjectId;
+  note: string;
+  incomeDate: Date;
+  paymentMethod: string;
+  status: string;
+  incomeItems: IncomeItem[];
+  totalAmount:number
 }

@@ -1,0 +1,62 @@
+import httpStatus from 'http-status';
+import { {{camelCase name}}Services } from './{{camelCase name}}.service';
+import sendResponse from '../../../utils/sendResponse';
+import { catchAsync } from '../../../utils/catchAsync';
+
+const create{{properCase name}} = catchAsync(async (req, res) => {
+  const result = await {{camelCase name}}Services.create{{properCase name}}(req.body);
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: '{{properCase name}} created successfully',
+    data: result,
+  });
+});
+
+const getAll{{properCase name}}s = catchAsync(async (req, res) => {
+  const result = await {{camelCase name}}Services.getAll{{properCase name}}s(req.query);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: '{{properCase name}}s retrieved successfully',
+    data: result,
+  });
+});
+
+const getSingle{{properCase name}} = catchAsync(async (req, res) => {
+  const result = await {{camelCase name}}Services.getSingle{{properCase name}}(req.params.id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: '{{properCase name}} retrieved successfully',
+    data: result,
+  });
+});
+
+const update{{properCase name}} = catchAsync(async (req, res) => {
+  const result = await {{camelCase name}}Services.update{{properCase name}}(req.params.id, req.body);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: '{{properCase name}} updated successfully',
+    data: result,
+  });
+});
+
+const delete{{properCase name}} = catchAsync(async (req, res) => {
+  const result = await {{camelCase name}}Services.delete{{properCase name}}(req.params.id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: '{{properCase name}} deleted successfully',
+    data: result,
+  });
+});
+
+export const {{camelCase name}}Controllers = {
+  create{{properCase name}},
+  getAll{{properCase name}}s,
+  getSingle{{properCase name}},
+  update{{properCase name}},
+  delete{{properCase name}},
+};

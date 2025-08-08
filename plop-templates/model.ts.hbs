@@ -1,0 +1,13 @@
+import { Schema, model } from 'mongoose';
+import { I{{properCase name}} } from './{{camelCase name}}.interface';
+
+const {{camelCase name}}Schema = new Schema<I{{properCase name}}>(
+  {
+    name: { type: String, required: true, trim: true },
+    description: { type: String },
+    isActive: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
+
+export const {{properCase name}} = model<I{{properCase name}}>('{{properCase name}}', {{camelCase name}}Schema);

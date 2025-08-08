@@ -25,6 +25,8 @@ import { complaintRoutes } from '../modules/complaint/complaint.route';
 import { feedbackRoutes } from '../modules/feedback/feedback.route';
 import { expenseRoutes } from '../modules/expense/expense.route';
 import { incomeRoutes } from '../modules/income/income.route';
+import { incomeCategoryRoutes } from '../modules/incomeCategory/route';
+import { expenseCategoryRoutes } from '../modules/expenseCategory/route';
 const router = Router();
 
 const moduleRoutes = [
@@ -120,6 +122,14 @@ const moduleRoutes = [
   {
     path: '/income',
     route: incomeRoutes,
+  },
+  {
+    path: '/income-category',
+    route: incomeCategoryRoutes,
+  },
+  {
+    path: '/expense-category',
+    route: expenseCategoryRoutes,
   },
   {
     path: '/meta',

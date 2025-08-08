@@ -2,13 +2,13 @@ import express from 'express';
 import { incomeControllers } from './income.controller';
 import { validateRequest } from '../../middlewares/validateRequest';
 import { auth } from '../../middlewares/auth';
-import { createIncomeValidation } from './income.validation';
+import { incomeSchema } from './income.validation';
 
 const router = express.Router();
 
 router.post(
   '/',
-  validateRequest(createIncomeValidation),
+  validateRequest(incomeSchema),
   incomeControllers.createIncome
 );
 
