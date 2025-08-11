@@ -2,13 +2,13 @@ import express from 'express'
 import { expenseControllers } from './expense.controller'
 import { validateRequest } from '../../middlewares/validateRequest'
 import { auth } from '../../middlewares/auth'
-import { ExpenseValidations } from './expense.validation'
+import { expenseSchema } from './expense.validation'
 
 const router = express.Router()
 
 router.post(
   '/',
-  validateRequest(ExpenseValidations.createExpenseValidationSchema),
+  validateRequest(expenseSchema),
   expenseControllers.createExpense
 )
 

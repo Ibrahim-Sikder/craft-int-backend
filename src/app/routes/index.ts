@@ -27,6 +27,7 @@ import { expenseRoutes } from '../modules/expense/expense.route';
 import { incomeRoutes } from '../modules/income/income.route';
 import { incomeCategoryRoutes } from '../modules/incomeCategory/route';
 import { expenseCategoryRoutes } from '../modules/expenseCategory/route';
+import { salaryRoutes } from '../modules/salary/salary.route';
 const router = Router();
 
 const moduleRoutes = [
@@ -130,6 +131,10 @@ const moduleRoutes = [
   {
     path: '/expense-category',
     route: expenseCategoryRoutes,
+  },
+  {
+    path: '/salary',
+    route: salaryRoutes,
   },
   {
     path: '/meta',

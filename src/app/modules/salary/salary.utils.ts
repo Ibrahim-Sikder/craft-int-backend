@@ -7,16 +7,17 @@ const redis = new Redis({
   maxRetriesPerRequest: 3,
 });
 
-export const clearExpenseCache = async () => {
+export const clearSalaryCache = async () => {
   try {
-    const keys = await redis.keys("expenses:*");
-    const singleKeys = await redis.keys("expense:*");
+    const keys = await redis.keys("salaries:*");
+    const singleKeys = await redis.keys("salary:*");
     const allKeys = [...keys, ...singleKeys];
+
     if (allKeys.length > 0) {
       await redis.del(...allKeys);
-      console.log(`🧹 Cleared ${allKeys.length} expense cache entries`);
+      console.log(`🧹 Cleared ${allKeys.length} salary cache entries`);
     }
   } catch (error) {
-    console.error("❌ Error clearing expense cache:", error);
+    console.error("❌ Error clearing salary cache:", error);
   }
 };

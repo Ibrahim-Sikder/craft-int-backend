@@ -1,45 +1,32 @@
-import { Schema, model } from 'mongoose'
-import { IExpense } from './expense.interface'
+import mongoose, { Schema } from "mongoose";
+import { IExpense } from "./expense.interface";
 
-const expenseSchema = new Schema<IExpense>(
+export interface IExpenseItem {
+  source: string;
+  description?: string;
+  amount: number;
+}
+
+const ExpenseItemSchema = new Schema<IExpenseItem>(
   {
-    category: {
-      type: String,
-      enum: ['utilities', 'salary', 'supplies', 'transport', 'maintenance'],
-      required: true,
-      index: true, // 🔍 Index for faster filter
-    },
-    description: {
-      type: String,
-      required: true,
-      trim: true,
-      text: true, // 🔍 Text index for search
-    },
-    amount: {
-      type: Number,
-      required: true,
-    },
-    date: {
-      type: Date,
-      default: Date.now,
-      index: true, // 🔍 for date range queries
-    },
-    paymentMethod: {
-      type: String,
-      enum: ['cash', 'bank', 'check', 'mobile'],
-      required: true,
-    },
-    status: {
-      type: String,
-      enum: ['Paid', 'Pending', 'Overdue'],
-      default: 'Paid',
-      index: true, // 🔍 for status filtering
-    },
+    source: { type: String, required: true },
+    description: { type: String },
+    amount: { type: Number, required: true },
+  },
+  { _id: false }
+);
+
+const ExpenseSchema = new Schema<IExpense>(
+  {
+    category: { type: Schema.Types.ObjectId, ref: 'ExpenseCategory' },
+    note: { type: String },
+    expenseDate: { type: Date },
+    paymentMethod: { type: String },
+    status: { type: String, default: 'Pending' },
+    expenseItems: { type: [ExpenseItemSchema] },
+    totalAmount: { type: Number },
   },
   { timestamps: true }
-)
+);
 
-// Compound index if you often filter by multiple fields
-expenseSchema.index({ category: 1, date: -1 })
-
-export const Expense = model<IExpense>('Expense', expenseSchema)
+export const Expense = mongoose.model<IExpense>("Expense", ExpenseSchema);
