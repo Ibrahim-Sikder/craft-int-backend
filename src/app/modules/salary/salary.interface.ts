@@ -1,9 +1,8 @@
 
-import { Types } from "mongoose";
 
 export interface ISalary {
-  employeeId: Types.ObjectId; 
-  effectiveDate: Date;
+  employee: string; 
+  effectiveDate: string;
   basicSalary: number;
   houseRent: number;
   medicalAllowance: number;

@@ -1,17 +1,17 @@
 // src/models/salary.model.ts
-
 import { Schema, model } from "mongoose";
 import { ISalary } from "./salary.interface";
 
 const SalarySchema = new Schema<ISalary>(
   {
-    employeeId: {
-      type: Schema.Types.ObjectId,
-      ref: "Employee",
+    employee: {
+      type: String,
       required: [true, "Employee ID is required"],
+      trim: true,
+      // ref: "Employee",
     },
     effectiveDate: {
-      type: Date,
+      type: String,
       required: [true, "Effective date is required"],
     },
     basicSalary: {
@@ -19,42 +19,64 @@ const SalarySchema = new Schema<ISalary>(
       required: [true, "Basic salary is required"],
       min: [0, "Basic salary cannot be negative"],
     },
-    houseRent: { type: Number, default: 0, min: 0 },
-    medicalAllowance: { type: Number, default: 0, min: 0 },
-    transportAllowance: { type: Number, default: 0, min: 0 },
-    foodAllowance: { type: Number, default: 0, min: 0 },
-    otherAllowances: { type: Number, default: 0, min: 0 },
-    incomeTax: { type: Number, default: 0, min: 0 },
-    providentFund: { type: Number, default: 0, min: 0 },
-    otherDeductions: { type: Number, default: 0, min: 0 },
-    notes: { type: String, trim: true },
+    houseRent: { 
+      type: Number, 
+      required: [true, "House rent is required"], 
+      min: [0, "House rent cannot be negative"] 
+    },
+    medicalAllowance: { 
+      type: Number, 
+      required: [true, "Medical allowance is required"], 
+      min: [0, "Medical allowance cannot be negative"] 
+    },
+    transportAllowance: { 
+      type: Number, 
+      required: [true, "Transport allowance is required"], 
+      min: [0, "Transport allowance cannot be negative"] 
+    },
+    foodAllowance: { 
+      type: Number, 
+      required: [true, "Food allowance is required"], 
+      min: [0, "Food allowance cannot be negative"] 
+    },
+    otherAllowances: { 
+      type: Number, 
+      required: [true, "Other allowances are required"], 
+      min: [0, "Other allowances cannot be negative"] 
+    },
+    incomeTax: { 
+      type: Number, 
+      required: [true, "Income tax is required"], 
+      min: [0, "Income tax cannot be negative"] 
+    },
+    providentFund: { 
+      type: Number, 
+      required: [true, "Provident fund is required"], 
+      min: [0, "Provident fund cannot be negative"] 
+    },
+    otherDeductions: { 
+      type: Number, 
+      required: [true, "Other deductions are required"], 
+      min: [0, "Other deductions cannot be negative"] 
+    },
+    notes: { 
+      type: String, 
+      trim: true, 
+      required: [true, "Notes are required"] 
+    },
 
-    grossSalary: { type: Number, required: true },
-    netSalary: { type: Number, required: true },
+    grossSalary: { 
+      type: Number, 
+      required: [true, "Gross salary is required"], 
+      min: [0, "Gross salary cannot be negative"] 
+    },
+    netSalary: { 
+      type: Number
+    },
   },
   {
     timestamps: true,
   }
 );
-
-// Pre-save hook to calculate gross & net salary
-SalarySchema.pre("save", function (next) {
-  const allowances =
-    (this.houseRent || 0) +
-    (this.medicalAllowance || 0) +
-    (this.transportAllowance || 0) +
-    (this.foodAllowance || 0) +
-    (this.otherAllowances || 0);
-
-  const deductions =
-    (this.incomeTax || 0) +
-    (this.providentFund || 0) +
-    (this.otherDeductions || 0);
-
-  this.grossSalary = (this.basicSalary || 0) + allowances;
-  this.netSalary = this.grossSalary - deductions;
-
-  next();
-});
 
 export const Salary = model<ISalary>("Salary", SalarySchema);

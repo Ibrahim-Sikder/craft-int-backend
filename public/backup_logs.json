@@ -4,26 +4,8 @@
     "error": null,
     "code": null,
     "signal": null,
-    "backupStartTime": "2025-07-24T18:00:00.441Z",
-    "backupEndTime": "2025-07-24T18:00:00.704Z",
-    "archivePath": "D:\\projects\\craft-institute-management\\craft-institute-server\\public\\sarabelanews.gzip"
-  },
-  {
-    "status": "successful",
-    "error": null,
-    "code": null,
-    "signal": null,
-    "backupStartTime": "2025-07-28T18:00:00.512Z",
-    "backupEndTime": "2025-07-28T18:00:00.778Z",
-    "archivePath": "D:\\projects\\craft-institute-management\\craft-institute-server\\public\\sarabelanews.gzip"
-  },
-  {
-    "status": "successful",
-    "error": null,
-    "code": null,
-    "signal": null,
-    "backupStartTime": "2025-07-30T18:00:00.163Z",
-    "backupEndTime": "2025-07-30T18:00:00.609Z",
+    "backupStartTime": "2025-08-12T18:00:00.749Z",
+    "backupEndTime": "2025-08-12T18:00:01.149Z",
     "archivePath": "D:\\projects\\craft-institute-management\\craft-institute-server\\public\\sarabelanews.gzip"
   }
 ]

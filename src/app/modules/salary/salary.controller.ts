@@ -1,17 +1,18 @@
 // src/modules/salary/salary.controller.ts
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import httpStatus from "http-status";
-import { salaryServices } from "./salary.service";
-import sendResponse from "../../../utils/sendResponse";
-import { catchAsync } from "../../../utils/catchAsync";
+import httpStatus from 'http-status';
+import { salaryServices } from './salary.service';
+import sendResponse from '../../../utils/sendResponse';
+import { catchAsync } from '../../../utils/catchAsync';
 
 const createSalary = catchAsync(async (req, res, next) => {
+  console.log('from body ', req.body);
   const result = await salaryServices.createSalary(req.body);
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
-    message: "Salary record created successfully",
+    message: 'Salary record created successfully',
     data: result,
   });
 });
@@ -21,7 +22,7 @@ const getAllSalaries = catchAsync(async (req, res, next) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Salaries retrieved successfully",
+    message: 'Salaries retrieved successfully',
     data: result,
   });
 });
@@ -32,7 +33,7 @@ const getSingleSalary = catchAsync(async (req, res, next) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Salary record retrieved successfully",
+    message: 'Salary record retrieved successfully',
     data: result,
   });
 });
@@ -43,7 +44,7 @@ const updateSalary = catchAsync(async (req, res, next) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Salary record updated successfully",
+    message: 'Salary record updated successfully',
     data: result,
   });
 });
@@ -54,7 +55,7 @@ const deleteSalary = catchAsync(async (req, res, next) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Salary record deleted successfully",
+    message: 'Salary record deleted successfully',
     data: result,
   });
 });

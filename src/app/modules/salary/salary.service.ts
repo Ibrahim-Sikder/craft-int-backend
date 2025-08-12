@@ -1,22 +1,23 @@
 // src/modules/salary/salary.service.ts
 
-import httpStatus from "http-status";
-import { AppError } from "../../error/AppError";
-import Redis from "ioredis";
-import { Salary } from "./salary.model";
-import { ISalary } from "./salary.interface";
-import QueryBuilder from "../../builder/QueryBuilder";
-import { clearSalaryCache } from "./salary.utils";
+import httpStatus from 'http-status';
+import { AppError } from '../../error/AppError';
+import Redis from 'ioredis';
+import { Salary } from './salary.model';
+import { ISalary } from './salary.interface';
+import QueryBuilder from '../../builder/QueryBuilder';
+import { clearSalaryCache } from './salary.utils';
 
 const redis = new Redis({
-  host: process.env.REDIS_HOST || "localhost",
+  host: process.env.REDIS_HOST || 'localhost',
   port: process.env.REDIS_PORT ? Number(process.env.REDIS_PORT) : 6379,
   password: process.env.REDIS_PASSWORD || undefined,
   maxRetriesPerRequest: 3,
 });
 
 const createSalary = async (payload: ISalary) => {
-  // Auto calculate gross and net salary
+  console.log(payload);
+  // Calculate allowances total
   const allowances =
     (payload.houseRent || 0) +
     (payload.medicalAllowance || 0) +
@@ -24,15 +25,25 @@ const createSalary = async (payload: ISalary) => {
     (payload.foodAllowance || 0) +
     (payload.otherAllowances || 0);
 
+  // Calculate deductions total
   const deductions =
     (payload.incomeTax || 0) +
     (payload.providentFund || 0) +
     (payload.otherDeductions || 0);
 
+  // Calculate gross and net salary
   payload.grossSalary = (payload.basicSalary || 0) + allowances;
   payload.netSalary = payload.grossSalary - deductions;
 
+  // Optional: prevent negative net salary here
+  if (payload.netSalary < 0) {
+    throw new Error("Net salary cannot be negative");
+  }
+
+  // Save to DB
   const result = await Salary.create(payload);
+
+  console.log(result)
   await clearSalaryCache();
   return result;
 };
@@ -43,15 +54,15 @@ const getAllSalaries = async (query: Record<string, unknown>) => {
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
-      console.log("✅ Returning cached salaries data");
+      console.log('✅ Returning cached salaries data');
       return JSON.parse(cached);
     }
   } catch (err) {
-    console.error("Redis read error:", err);
+    console.error('Redis read error:', err);
   }
 
   const queryBuilder = new QueryBuilder(Salary.find(), query)
-    .search(["notes"])
+    .search(['notes'])
     .filter()
     .sort()
     .paginate()
@@ -59,14 +70,14 @@ const getAllSalaries = async (query: Record<string, unknown>) => {
 
   const meta = await queryBuilder.countTotal();
 
-  const salaries = await queryBuilder.modelQuery
+  const salaries = await queryBuilder.modelQuery;
   // const salaries = await queryBuilder.modelQuery.populate("employeeId");
 
   try {
     await redis.setex(cacheKey, 300, JSON.stringify({ meta, salaries }));
-    console.log("✅ Cached salaries data");
+    console.log('✅ Cached salaries data');
   } catch (err) {
-    console.error("Redis write error:", err);
+    console.error('Redis write error:', err);
   }
 
   return {
@@ -80,22 +91,22 @@ const getSingleSalary = async (id: string) => {
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
-      console.log("✅ Returning cached single salary");
+      console.log('✅ Returning cached single salary');
       return JSON.parse(cached);
     }
   } catch (err) {
-    console.error("Redis read error:", err);
+    console.error('Redis read error:', err);
   }
 
-  const salary = await Salary.findById(id)
+  const salary = await Salary.findById(id);
   if (!salary) {
-    throw new AppError(httpStatus.NOT_FOUND, "Salary record not found");
+    throw new AppError(httpStatus.NOT_FOUND, 'Salary record not found');
   }
 
   try {
     await redis.setex(cacheKey, 300, JSON.stringify(salary));
   } catch (err) {
-    console.error("Redis write error:", err);
+    console.error('Redis write error:', err);
   }
 
   return salary;
@@ -135,7 +146,7 @@ const updateSalary = async (id: string, payload: Partial<ISalary>) => {
   });
 
   if (!salary) {
-    throw new AppError(httpStatus.NOT_FOUND, "Failed to update salary record");
+    throw new AppError(httpStatus.NOT_FOUND, 'Failed to update salary record');
   }
 
   await redis.del(`salary:${id}`);
@@ -149,7 +160,7 @@ const deleteSalary = async (id: string) => {
   if (!salary) {
     throw new AppError(
       httpStatus.NOT_FOUND,
-      "Salary record not found or already deleted"
+      'Salary record not found or already deleted',
     );
   }
   await redis.del(`salary:${id}`);
