@@ -15,4 +15,6 @@ export interface ISalary {
   notes?: string;
   grossSalary: number;
   netSalary: number;
+  allowances: number;
+  deductions: number;
 }

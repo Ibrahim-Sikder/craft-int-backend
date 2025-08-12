@@ -39,6 +39,12 @@ const SalarySchema = new Schema<ISalary>(
       required: [true, "Food allowance is required"], 
       min: [0, "Food allowance cannot be negative"] 
     },
+    deductions: { 
+      type: Number,
+    },
+    allowances: { 
+      type: Number,
+    },
     otherAllowances: { 
       type: Number, 
       required: [true, "Other allowances are required"], 
