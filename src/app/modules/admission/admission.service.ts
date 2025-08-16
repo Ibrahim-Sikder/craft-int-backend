@@ -5,6 +5,7 @@ import { IAdmission } from './admission.interface';
 import { Admission } from './admission.model';
 
 const createAdmission = async (payload: IAdmission) => {
+  console.log('from service', payload)
   const result = await Admission.create(payload);
   return result;
 };
@@ -27,7 +28,7 @@ const getAllAdmissions = async (query: Record<string, unknown>) => {
 };
 
 const getSingleAdmission = async (id: string) => {
-  const result = await Admission.findById(id);
+  const result = await Admission.findById(id).populate('class');
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'Admission not found');
   }
@@ -38,6 +39,8 @@ const updateAdmission = async (
   id: string,
   payload: Partial<IAdmission>
 ) => {
+
+  console.log('from update', payload)
   const result = await Admission.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,

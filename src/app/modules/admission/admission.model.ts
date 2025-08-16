@@ -1,6 +1,7 @@
 import { model, Schema } from 'mongoose';
 import { IAdmission } from './admission.interface';
 
+// admission.model.ts
 const AdmissionSchema: Schema = new Schema<IAdmission>({
   // Student Information
   studentNameBangla: { type: String, required: true },
@@ -8,12 +9,11 @@ const AdmissionSchema: Schema = new Schema<IAdmission>({
   motherNameBangla: { type: String, required: true },
   studentName: { type: String, required: true },
   mobileNo: { type: String, required: true },
-  class: { type: String, required: true },
+class: [{ type: Schema.Types.ObjectId, ref: 'Class' }],
+
   session: { type: String, required: true },
   category: { 
-    type: String, 
-    required: true,
-    enum: ['resident', 'non-resident'] 
+    type: String 
   },
   dateOfBirth: { type: Date, required: true },
   nidBirth: { type: String },
@@ -26,8 +26,6 @@ const AdmissionSchema: Schema = new Schema<IAdmission>({
   fatherNid: { type: String },
   fatherProfession: { type: String },
   fatherIncome: { type: Number },
-  fatherEmail: { type: String },
-  fatherFb: { type: String },
 
   // Mother's Information
   motherName: { type: String, required: true },
@@ -35,57 +33,35 @@ const AdmissionSchema: Schema = new Schema<IAdmission>({
   motherNid: { type: String },
   motherProfession: { type: String },
   motherIncome: { type: Number },
-  motherEmail: { type: String },
-  motherFb: { type: String },
 
   // Addresses
   presentAddress: {
-    village: { type: String },
-    postOffice: { type: String },
-    postCode: { type: String },
-    policeStation: { type: String },
-    district: { type: String },
+    village: { type: String, required: true },
+    postOffice: { type: String, required: true },
+    postCode: { type: String, required: true },
+    policeStation: { type: String, required: true },
+    district: { type: String, required: true },
   },
   permanentAddress: {
-    village: { type: String },
-    postOffice: { type: String },
-    postCode: { type: String },
-    policeStation: { type: String },
-    district: { type: String },
+    village: { type: String, required: true },
+    postOffice: { type: String, required: true },
+    postCode: { type: String, required: true },
+    policeStation: { type: String, required: true },
+    district: { type: String, required: true },
   },
 
   // Guardian Information
   guardianInfo: {
-    name: { type: String },
-    address: {
-      village: { type: String },
-      postOffice: { type: String },
-      postCode: { type: String },
-      policeStation: { type: String },
-      district: { type: String },
-    },
-    profession: { type: String },
-    relation: { type: String },
-    mobile: { type: String },
-  },
-
-  // Local Guardian
-  localGuardian: {
-    name: { type: String },
-    mobile: { type: String },
-    categoryDesignation: { type: String },
+    name: { type: String, required: true },
+    relation: { type: String, required: true },
+    mobile: { type: String, required: true },
+    address: { type: String, required: true },
   },
 
   // Previous School
   previousSchool: {
-    institution: { type: String },
-    address: {
-      village: { type: String },
-      postOffice: { type: String },
-      postCode: { type: String },
-      policeStation: { type: String },
-      district: { type: String },
-    },
+    institution: { type: String, required: true },
+    address: { type: String, required: true },
   },
 
   // Documents
