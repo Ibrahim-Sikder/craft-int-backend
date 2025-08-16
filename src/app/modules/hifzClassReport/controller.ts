@@ -1,7 +1,7 @@
 import httpStatus from 'http-status';
-import { hifzClassReportServices } from './hifzClassReport.service';
 import sendResponse from '../../../utils/sendResponse';
 import { catchAsync } from '../../../utils/catchAsync';
+import { hifzClassReportServices } from './service';
 
 const createHifzClassReport = catchAsync(async (req, res) => {
   const result = await hifzClassReportServices.createHifzClassReport(req.body);
