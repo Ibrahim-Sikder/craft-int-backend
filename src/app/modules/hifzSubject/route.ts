@@ -1,8 +1,8 @@
 import express from 'express';
-import { hifzSubjectControllers } from './hifzSubject.controller';
 import { validateRequest } from '../../middlewares/validateRequest';
 import { auth } from '../../middlewares/auth';
-import { HifzSubjectValidations } from './hifzSubject.validation';
+import { HifzSubjectValidations } from './validation';
+import { hifzSubjectControllers } from './controller';
 
 const router = express.Router();
 

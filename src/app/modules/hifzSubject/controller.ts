@@ -1,7 +1,7 @@
 import httpStatus from 'http-status';
-import { hifzSubjectServices } from './hifzSubject.service';
 import sendResponse from '../../../utils/sendResponse';
 import { catchAsync } from '../../../utils/catchAsync';
+import { hifzSubjectServices } from './service';
 
 const createHifzSubject = catchAsync(async (req, res) => {
   const result = await hifzSubjectServices.createHifzSubject(req.body);

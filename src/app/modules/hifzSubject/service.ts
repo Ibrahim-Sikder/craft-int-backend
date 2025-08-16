@@ -1,9 +1,8 @@
 import httpStatus from 'http-status';
 import { AppError } from '../../error/AppError';
-import { IHifzSubject } from './hifzSubject.interface';
 import QueryBuilder from '../../builder/QueryBuilder';
-import { hifzSubjectSearchableFields } from './hifzSubject.constant';
-import { HifzSubject } from './hifzSubject.model';
+import { HifzSubject } from './model';
+import { IHifzSubject } from './interface';
 
 const createHifzSubject = async (payload: IHifzSubject) => {
   const result = await HifzSubject.create(payload);
@@ -12,7 +11,7 @@ const createHifzSubject = async (payload: IHifzSubject) => {
 
 const getAllHifzSubjects = async (query: Record<string, unknown>) => {
   const queryBuilder = new QueryBuilder(HifzSubject.find(), query)
-    .search(hifzSubjectSearchableFields)
+    .search(['name'])
     .filter()
     .sort()
     .paginate()
