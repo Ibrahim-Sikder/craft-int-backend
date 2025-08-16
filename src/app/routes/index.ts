@@ -28,6 +28,7 @@ import { incomeRoutes } from '../modules/income/income.route';
 import { incomeCategoryRoutes } from '../modules/incomeCategory/route';
 import { expenseCategoryRoutes } from '../modules/expenseCategory/route';
 import { salaryRoutes } from '../modules/salary/salary.route';
+import { hifzClassRoutes } from '../modules/hifzClass/route';
 const router = Router();
 
 const moduleRoutes = [
@@ -135,6 +136,10 @@ const moduleRoutes = [
   {
     path: '/salary',
     route: salaryRoutes,
+  },
+  {
+    path: '/hifz-class',
+    route: hifzClassRoutes,
   },
   {
     path: '/meta',
