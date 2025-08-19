@@ -20,7 +20,7 @@ const updateFeedbackValidation = z.object({
     title: z.string().optional(),
     description: z.string().optional(),
     department: z.string().optional(),
- attachments: z.array(z.string()).optional(),
+ attachments:z.string().optional(),
   }),
 });
 
