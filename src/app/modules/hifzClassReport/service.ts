@@ -1,16 +1,16 @@
 import httpStatus from 'http-status';
 import { AppError } from '../../error/AppError';
 import QueryBuilder from '../../builder/QueryBuilder';
-import { HifzClassReport } from './model';
+import { HifzReport } from './model';
 import { IHifzClassReport } from './interface';
 
 const createHifzClassReport = async (payload: IHifzClassReport) => {
-  const result = await HifzClassReport.create(payload);
+  const result = await HifzReport.create(payload);
   return result;
 };
 
 const getAllHifzClassReports = async (query: Record<string, unknown>) => {
-  const queryBuilder = new QueryBuilder(HifzClassReport.find(), query)
+  const queryBuilder = new QueryBuilder(HifzReport.find(), query)
     .search(['name'])
     .filter()
     .sort()
@@ -24,7 +24,7 @@ const getAllHifzClassReports = async (query: Record<string, unknown>) => {
 };
 
 const getSingleHifzClassReport = async (id: string) => {
-  const result = await HifzClassReport.findById(id);
+  const result = await HifzReport.findById(id);
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'HifzClassReport not found');
   }
@@ -32,7 +32,7 @@ const getSingleHifzClassReport = async (id: string) => {
 };
 
 const updateHifzClassReport = async (id: string, payload: Partial<IHifzClassReport>) => {
-  const result = await HifzClassReport.findByIdAndUpdate(id, payload, {
+  const result = await HifzReport.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,
   });
@@ -43,7 +43,7 @@ const updateHifzClassReport = async (id: string, payload: Partial<IHifzClassRepo
 };
 
 const deleteHifzClassReport = async (id: string) => {
-  const result = await HifzClassReport.findByIdAndDelete(id);
+  const result = await HifzReport.findByIdAndDelete(id);
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'HifzClassReport not found or already deleted');
   }
