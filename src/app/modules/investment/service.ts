@@ -18,9 +18,9 @@ const getAllInvestments = async (query: Record<string, unknown>) => {
     .fields();
 
   const meta = await queryBuilder.countTotal();
-  const data = await queryBuilder.modelQuery;
+  const investments = await queryBuilder.modelQuery;
 
-  return { meta, data };
+  return { meta, investments };
 };
 
 const getSingleInvestment = async (id: string) => {
