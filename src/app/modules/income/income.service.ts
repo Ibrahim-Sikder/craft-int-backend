@@ -126,10 +126,49 @@ const deleteIncome = async (id: string) => {
   return income;
 };
 
+const getIncomeTotalsByCategory = async () => {
+  const result = await Income.aggregate([
+    {
+      $lookup: {
+        from: "incomecategories",
+        localField: "category",
+        foreignField: "_id",
+        as: "categoryInfo",
+      },
+    },
+    {
+      $unwind: {
+        path: "$categoryInfo",
+        preserveNullAndEmptyArrays: true, // include incomes without category
+      },
+    },
+    {
+      $group: {
+        _id: "$categoryInfo.name", // group by category name
+        totalAmount: { $sum: "$totalAmount" },
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $project: {
+        categoryName: "$_id",
+        totalAmount: 1,
+        count: 1,
+        _id: 0,
+      },
+    },
+  ]);
+
+  return result;
+};
+
 export const incomeServices = {
   createIncome,
   getAllIncomes,
   getSingleIncome,
   updateIncome,
   deleteIncome,
+  getIncomeTotalsByCategory,
 };
+
+

@@ -13,6 +13,7 @@ router.post(
 );
 
 router.get('/', incomeControllers.getAllIncomes);
+router.get("/totals-by-category", incomeControllers.getIncomeTotalsByCategory);
 
 router.get('/:id', incomeControllers.getSingleIncome);
 
@@ -26,5 +27,6 @@ router.delete(
   auth('admin', 'super_admin'),
   incomeControllers.deleteIncome
 );
+
 
 export const incomeRoutes = router;
