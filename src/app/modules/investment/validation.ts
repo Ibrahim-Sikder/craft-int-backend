@@ -1,53 +1,104 @@
-import { z } from "zod";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { z } from 'zod';
 
-// Common enums from model
-const investmentTypeEnum = z.enum(["short_term", "long_term"]);
-const statusEnum = z.enum(["active", "closed"]);
+const categoryEnum = z.enum(['outgoing', 'incoming']);
 
+const statusEnum = z.enum(['active', 'closed', 'withdrawn']);
+
+const returnHistorySchema = z.object({
+  date: z
+    .preprocess(
+      (val) => (val ? new Date(val as string) : null),
+      z.date().nullable(),
+    )
+    .optional(),
+  amount: z
+    .number()
+    .min(0, { message: 'Return amount must be >= 0' })
+    .nullable()
+    .optional(),
+});
+
+// ================== CREATE ==================
 const createInvestmentValidation = z.object({
   body: z.object({
-    investment_type: investmentTypeEnum, 
-    investment_name: z.string({
-      required_error: "Investment name is required",
-    }), 
-    amount: z
-      .number({
-        required_error: "Amount is required",
-        invalid_type_error: "Amount must be a number",
-      })
-      .min(1, { message: "Amount must be > 0" }),
-    date: z
-      .preprocess((val) => (val ? new Date(val as string) : undefined), z.date())
+    investmentCategory: categoryEnum.nullable().optional(),
+
+    // Outgoing
+    investmentTo: z.string().nullable().optional(),
+    investmentType: z.string().nullable().optional(),
+
+    // Incoming
+    investorName: z.string().nullable().optional(),
+    investorContact: z.string().nullable().optional(),
+    incomingType: z.string().nullable().optional(),
+    returnPolicy: z.string().nullable().optional(),
+
+    // Common
+    investmentAmount: z
+      .number()
+      .min(1, { message: 'Amount must be > 0' })
+      .nullable()
       .optional(),
-    expected_return: z
-      .number({
-        invalid_type_error: "Expected return must be a number",
-      })
-      .min(0, { message: "Expected return must be positive" })
+    investmentDate: z
+      .preprocess(
+        (val) => (val ? new Date(val as string) : null),
+        z.date().nullable(),
+      )
       .optional(),
-    maturity_date: z
-      .preprocess((val) => (val ? new Date(val as string) : undefined), z.date())
+    maturityDate: z
+      .preprocess(
+        (val) => (val ? new Date(val as string) : null),
+        z.date().nullable(),
+      )
       .optional(),
-    status: statusEnum.optional(),
+    returnRate: z
+      .number()
+      .min(0, { message: 'Return rate must be >= 0' })
+      .nullable()
+      .optional(),
+    status: statusEnum.nullable().optional(),
+    returnHistory: z.array(returnHistorySchema).nullable().optional(),
   }),
 });
 
+// ================== UPDATE ==================
 const updateInvestmentValidation = z.object({
   body: z.object({
-    investment_type: investmentTypeEnum.optional(),
-    investment_name: z.string().optional(),
-    amount: z.number().min(1, { message: "Amount must be > 0" }).optional(),
-    date: z
-      .preprocess((val) => (val ? new Date(val as string) : undefined), z.date())
-      .optional(),
-    expected_return: z
+    investmentCategory: categoryEnum.nullable().optional(),
+
+    investmentTo: z.string().nullable().optional(),
+    investmentType: z.string().nullable().optional(),
+
+    investorName: z.string().nullable().optional(),
+    investorContact: z.string().nullable().optional(),
+    incomingType: z.string().nullable().optional(),
+    returnPolicy: z.string().nullable().optional(),
+
+    investmentAmount: z
       .number()
-      .min(0, { message: "Expected return must be positive" })
+      .min(1, { message: 'Amount must be > 0' })
+      .nullable()
       .optional(),
-    maturity_date: z
-      .preprocess((val) => (val ? new Date(val as string) : undefined), z.date())
+    investmentDate: z
+      .preprocess(
+        (val) => (val ? new Date(val as string) : null),
+        z.date().nullable(),
+      )
       .optional(),
-    status: statusEnum.optional(),
+    maturityDate: z
+      .preprocess(
+        (val) => (val ? new Date(val as string) : null),
+        z.date().nullable(),
+      )
+      .optional(),
+    returnRate: z
+      .number()
+      .min(0, { message: 'Return rate must be >= 0' })
+      .nullable()
+      .optional(),
+    status: statusEnum.nullable().optional(),
+    returnHistory: z.array(returnHistorySchema).nullable().optional(),
   }),
 });
 
