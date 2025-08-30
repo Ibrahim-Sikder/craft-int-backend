@@ -1,9 +1,11 @@
 
-import { Document, Types } from "mongoose";
+import { Document } from "mongoose";
 
 export interface TLoan extends Document {
+  lenderName:string;
+  borrowerName:string;
+  contactNumber:number;
   loan_type: "taken" | "given";
-  party: Types.ObjectId;
   loan_amount: number;
   interest_rate?: number;
   loan_date: Date;
