@@ -1,108 +1,50 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+// investment/validation.ts
 import { z } from 'zod';
 
-const categoryEnum = z.enum(['outgoing', 'incoming']);
-
-const statusEnum = z.enum(['active', 'closed', 'withdrawn']);
-
-const returnHistorySchema = z.object({
-  date: z
-    .preprocess(
-      (val) => (val ? new Date(val as string) : null),
-      z.date().nullable(),
-    )
-    .optional(),
-  amount: z
-    .number()
-    .min(0, { message: 'Return amount must be >= 0' })
-    .nullable()
-    .optional(),
-});
-
-// ================== CREATE ==================
 const createInvestmentValidation = z.object({
   body: z.object({
-    investmentCategory: categoryEnum.nullable().optional(),
-
-    // Outgoing
-    investmentTo: z.string().nullable().optional(),
-    investmentType: z.string().nullable().optional(),
-
-    // Incoming
-    investorName: z.string().nullable().optional(),
-    investorContact: z.string().nullable().optional(),
-    incomingType: z.string().nullable().optional(),
-    returnPolicy: z.string().nullable().optional(),
-
-    // Common
-    investmentAmount: z
-      .number()
-      .min(1, { message: 'Amount must be > 0' })
-      .nullable()
-      .optional(),
-    investmentDate: z
-      .preprocess(
-        (val) => (val ? new Date(val as string) : null),
-        z.date().nullable(),
-      )
-      .optional(),
-    maturityDate: z
-      .preprocess(
-        (val) => (val ? new Date(val as string) : null),
-        z.date().nullable(),
-      )
-      .optional(),
-    returnRate: z
-      .number()
-      .min(0, { message: 'Return rate must be >= 0' })
-      .nullable()
-      .optional(),
-    status: statusEnum.nullable().optional(),
-    returnHistory: z.array(returnHistorySchema).nullable().optional(),
-  }),
+    investmentCategory: z.enum(['outgoing', 'incoming']),
+    investmentTo: z.string().optional(),
+    investmentType: z.string().optional(),
+    investorName: z.string().optional(),
+    investorContact: z.string().optional(),
+    incomingType: z.string().optional(),
+    returnPolicy: z.string().optional(),
+    investmentAmount: z.number().min(1),
+    investmentDate: z.date().optional(),
+    maturityDate: z.date().optional(),
+    returnRate: z.number().min(0).optional(),
+  })
 });
 
-// ================== UPDATE ==================
 const updateInvestmentValidation = z.object({
   body: z.object({
-    investmentCategory: categoryEnum.nullable().optional(),
+    investmentCategory: z.enum(['outgoing', 'incoming']).optional(),
+    investmentTo: z.string().optional(),
+    investmentType: z.string().optional(),
+    investorName: z.string().optional(),
+    investorContact: z.string().optional(),
+    incomingType: z.string().optional(),
+    returnPolicy: z.string().optional(),
+    investmentAmount: z.number().min(1).optional(),
+    investmentDate: z.date().optional(),
+    maturityDate: z.date().optional(),
+    returnRate: z.number().min(0).optional(),
+    status: z.enum(['active', 'closed', 'withdrawn', 'matured']).optional(),
+  })
+});
 
-    investmentTo: z.string().nullable().optional(),
-    investmentType: z.string().nullable().optional(),
-
-    investorName: z.string().nullable().optional(),
-    investorContact: z.string().nullable().optional(),
-    incomingType: z.string().nullable().optional(),
-    returnPolicy: z.string().nullable().optional(),
-
-    investmentAmount: z
-      .number()
-      .min(1, { message: 'Amount must be > 0' })
-      .nullable()
-      .optional(),
-    investmentDate: z
-      .preprocess(
-        (val) => (val ? new Date(val as string) : null),
-        z.date().nullable(),
-      )
-      .optional(),
-    maturityDate: z
-      .preprocess(
-        (val) => (val ? new Date(val as string) : null),
-        z.date().nullable(),
-      )
-      .optional(),
-    returnRate: z
-      .number()
-      .min(0, { message: 'Return rate must be >= 0' })
-      .nullable()
-      .optional(),
-    status: statusEnum.nullable().optional(),
-    returnHistory: z.array(returnHistorySchema).nullable().optional(),
-  }),
+const addReturnValidation = z.object({
+  body: z.object({
+    date: z.date(),
+    amount: z.number().min(0),
+    type: z.enum(['interest', 'principal', 'dividend', 'capital_gain']),
+    note: z.string().optional(),
+  })
 });
 
 export const InvestmentValidations = {
   createInvestmentValidation,
   updateInvestmentValidation,
+  addReturnValidation
 };
