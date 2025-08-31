@@ -1,0 +1,11 @@
+[
+  {
+    "status": "successful",
+    "error": null,
+    "code": null,
+    "signal": null,
+    "backupStartTime": "2025-08-12T18:00:00.749Z",
+    "backupEndTime": "2025-08-12T18:00:01.149Z",
+    "archivePath": "D:\\projects\\craft-institute-management\\craft-institute-server\\public\\sarabelanews.gzip"
+  }
+]

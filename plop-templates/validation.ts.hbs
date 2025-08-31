@@ -1,0 +1,22 @@
+import { z } from 'zod';
+
+const create{{properCase name}}Validation = z.object({
+  body: z.object({
+    name: z.string({ required_error: '{{properCase name}} name is required' }),
+    description: z.string().optional(),
+    isActive: z.boolean().optional(),
+  }),
+});
+
+const update{{properCase name}}Validation = z.object({
+  body: z.object({
+    name: z.string().optional(),
+    description: z.string().optional(),
+    isActive: z.boolean().optional(),
+  }),
+});
+
+export const {{properCase name}}Validations = {
+  create{{properCase name}}Validation,
+  update{{properCase name}}Validation,
+};

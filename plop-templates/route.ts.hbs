@@ -1,0 +1,28 @@
+import express from 'express';
+import { {{camelCase name}}Controllers } from './{{camelCase name}}.controller';
+import { validateRequest } from '../../middlewares/validateRequest';
+import { auth } from '../../middlewares/auth';
+import { {{properCase name}}Validations } from './{{camelCase name}}.validation';
+
+const router = express.Router();
+
+router.post(
+  '/',
+  auth('admin', 'super_admin'),
+  validateRequest({{properCase name}}Validations.create{{properCase name}}Validation),
+  {{camelCase name}}Controllers.create{{properCase name}}
+);
+
+router.get('/', {{camelCase name}}Controllers.getAll{{properCase name}}s);
+router.get('/:id', {{camelCase name}}Controllers.getSingle{{properCase name}});
+
+router.patch(
+  '/:id',
+  auth('admin', 'super_admin'),
+  validateRequest({{properCase name}}Validations.update{{properCase name}}Validation),
+  {{camelCase name}}Controllers.update{{properCase name}}
+);
+
+router.delete('/:id', auth('admin', 'super_admin'), {{camelCase name}}Controllers.delete{{properCase name}});
+
+export const {{camelCase name}}Routes = router;

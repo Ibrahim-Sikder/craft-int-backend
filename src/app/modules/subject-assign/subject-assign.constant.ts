@@ -1,1 +1,1 @@
-export const subjectSearchableFields = ['subjectName', 'subjectCode', 'description'];
+export const subjectSearchableFields = ['name', 'paper', 'description'];

@@ -18,6 +18,21 @@ import { todayTaskRoutes } from '../modules/todaytask/todaytask.route';
 import { dailyClassReportRoutes } from '../modules/dailyclassreport/dailyClassReport.route';
 import { staffRoutes } from '../modules/staff/staff.route';
 import { metaroute } from '../modules/meta/meta.route';
+import { admissionRoutes } from '../modules/admission/admission.route';
+import { announcementRoutes } from '../modules/announcement/announcement.route';
+import { notificationRoutes } from '../modules/notification/notification.route';
+import { complaintRoutes } from '../modules/complaint/complaint.route';
+import { feedbackRoutes } from '../modules/feedback/feedback.route';
+import { expenseRoutes } from '../modules/expense/expense.route';
+import { incomeRoutes } from '../modules/income/income.route';
+import { incomeCategoryRoutes } from '../modules/incomeCategory/route';
+import { expenseCategoryRoutes } from '../modules/expenseCategory/route';
+import { salaryRoutes } from '../modules/salary/salary.route';
+import { hifzClassRoutes } from '../modules/hifzClass/route';
+import { hifzSubjectRoutes } from '../modules/hifzSubject/route';
+import { hifzClassReportRoutes } from '../modules/hifzClassReport/route';
+import { investmentRoutes } from '../modules/investment/route';
+import { loanRoutes } from '../modules/loan/route';
 const router = Router();
 
 const moduleRoutes = [
@@ -83,8 +98,68 @@ const moduleRoutes = [
     route: dailyClassReportRoutes,
   },
   {
+    path: '/announcement',
+    route: announcementRoutes,
+  },
+  {
     path: '/staff',
     route: staffRoutes,
+  },
+  {
+    path: '/notification',
+    route: notificationRoutes,
+  },
+  {
+    path: '/admission',
+    route: admissionRoutes,
+  },
+  {
+    path: '/complaint',
+    route: complaintRoutes,
+  },
+  {
+    path: '/feedback',
+    route: feedbackRoutes,
+  },
+  {
+    path: '/expense',
+    route: expenseRoutes,
+  },
+  {
+    path: '/income',
+    route: incomeRoutes,
+  },
+  {
+    path: '/income-category',
+    route: incomeCategoryRoutes,
+  },
+  {
+    path: '/expense-category',
+    route: expenseCategoryRoutes,
+  },
+  {
+    path: '/salary',
+    route: salaryRoutes,
+  },
+  {
+    path: '/hifz-class',
+    route: hifzClassRoutes,
+  },
+  {
+    path: '/hifz-subject',
+    route: hifzSubjectRoutes,
+  },
+  {
+    path: '/hifz-class-report',
+    route: hifzClassReportRoutes,
+  },
+  {
+    path: '/investment',
+    route: investmentRoutes,
+  },
+  {
+    path: '/loan',
+    route: loanRoutes,
   },
   {
     path: '/meta',
