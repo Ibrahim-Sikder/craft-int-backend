@@ -57,10 +57,21 @@ const deleteIncome = catchAsync(async (req, res, next) => {
   })
 })
 
+const getIncomeTotalsByCategory = catchAsync(async (req, res, next) => {
+  const result = await incomeServices.getIncomeTotalsByCategory();
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Income totals by category retrieved successfully",
+    data: result,
+  });
+});
+
 export const incomeControllers = {
   createIncome,
   getAllIncomes,
   getSingleIncome,
   updateIncome,
   deleteIncome,
+  getIncomeTotalsByCategory
 }

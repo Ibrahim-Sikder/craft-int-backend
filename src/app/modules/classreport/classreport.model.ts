@@ -27,6 +27,10 @@ const studentEvaluationSchema = new Schema<IStudentEvaluation>(
       // Add index for better performance when filtering by comments
       index: true,
     },
+    hasComments: {
+      type: Boolean,
+      default: false, // default false
+    },
   },
   { _id: false },
 )
@@ -74,6 +78,10 @@ const classReportSchema = new Schema<IClassReport>(
     handwrittenTask: {
       type: Boolean,
     },
+    hasComments: {
+    type: Schema.Types.Mixed, 
+    default: false,          
+  },
   },
   {
     timestamps: true,

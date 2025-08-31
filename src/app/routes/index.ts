@@ -25,6 +25,14 @@ import { complaintRoutes } from '../modules/complaint/complaint.route';
 import { feedbackRoutes } from '../modules/feedback/feedback.route';
 import { expenseRoutes } from '../modules/expense/expense.route';
 import { incomeRoutes } from '../modules/income/income.route';
+import { incomeCategoryRoutes } from '../modules/incomeCategory/route';
+import { expenseCategoryRoutes } from '../modules/expenseCategory/route';
+import { salaryRoutes } from '../modules/salary/salary.route';
+import { hifzClassRoutes } from '../modules/hifzClass/route';
+import { hifzSubjectRoutes } from '../modules/hifzSubject/route';
+import { hifzClassReportRoutes } from '../modules/hifzClassReport/route';
+import { investmentRoutes } from '../modules/investment/route';
+import { loanRoutes } from '../modules/loan/route';
 const router = Router();
 
 const moduleRoutes = [
@@ -120,6 +128,38 @@ const moduleRoutes = [
   {
     path: '/income',
     route: incomeRoutes,
+  },
+  {
+    path: '/income-category',
+    route: incomeCategoryRoutes,
+  },
+  {
+    path: '/expense-category',
+    route: expenseCategoryRoutes,
+  },
+  {
+    path: '/salary',
+    route: salaryRoutes,
+  },
+  {
+    path: '/hifz-class',
+    route: hifzClassRoutes,
+  },
+  {
+    path: '/hifz-subject',
+    route: hifzSubjectRoutes,
+  },
+  {
+    path: '/hifz-class-report',
+    route: hifzClassReportRoutes,
+  },
+  {
+    path: '/investment',
+    route: investmentRoutes,
+  },
+  {
+    path: '/loan',
+    route: loanRoutes,
   },
   {
     path: '/meta',

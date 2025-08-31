@@ -1,12 +1,17 @@
-export type TExpenseCategory = "utilities" | "salary" | "supplies" | "transport" | "maintenance"
-export type TPaymentMethod = "cash" | "bank" | "check" | "mobile"
-export type TExpenseStatus = "Paid" | "Pending" | "Overdue"
+import { ObjectId } from "mongoose";
+
+export interface ExpenseItem {
+  source: string;
+  description?: string;
+  amount: string;
+}
 
 export interface IExpense {
-  category: TExpenseCategory
-  description: string
-  amount: number
-  date?: Date
-  paymentMethod: TPaymentMethod
-  status?: TExpenseStatus
+  category: ObjectId;
+  note: string;
+  expenseDate: Date;
+  paymentMethod: string;
+  status: string;
+  expenseItems: ExpenseItem[];
+  totalAmount: number;
 }

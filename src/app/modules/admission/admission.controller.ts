@@ -4,6 +4,7 @@ import sendResponse from '../../../utils/sendResponse';
 import { catchAsync } from '../../../utils/catchAsync';
 
 const createAdmission = catchAsync(async (req, res, next) => {
+  console.log(req.body)
   try {
     const result = await admissionService.createAdmission(req.body);
 

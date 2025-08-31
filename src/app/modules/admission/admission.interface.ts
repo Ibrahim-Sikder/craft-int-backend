@@ -1,3 +1,33 @@
+import { ObjectId } from 'mongoose';
+
+export interface IAddress {
+  village: string;
+  postOffice: string;
+  postCode: string;
+  policeStation: string;
+  district: string;
+}
+
+export interface IGuardianInfo {
+  name: string;
+  relation: string;
+  mobile: string;
+  address: string;
+}
+
+export interface IPreviousSchool {
+  institution: string;
+  address: string;
+}
+
+export interface IDocuments {
+  birthCertificate: boolean;
+  transferCertificate: boolean;
+  characterCertificate: boolean;
+  markSheet: boolean;
+  photographs: boolean;
+}
+
 export interface IAdmission {
   // Student Information
   studentNameBangla: string;
@@ -5,92 +35,39 @@ export interface IAdmission {
   motherNameBangla: string;
   studentName: string;
   mobileNo: string;
-  class: string;
+  class: ObjectId;
   session: string;
-  category: "resident" | "non-resident";
+  category: 'resident' | 'non-resident';
   dateOfBirth: Date;
   nidBirth?: string;
   bloodGroup?: string;
   nationality: string;
 
-  // Father's Information
+  // Parent Information
   fatherName: string;
   fatherMobile: string;
   fatherNid?: string;
   fatherProfession?: string;
   fatherIncome?: number;
-  fatherEmail?: string;
-  fatherFb?: string;
 
-  // Mother's Information
   motherName: string;
   motherMobile?: string;
   motherNid?: string;
   motherProfession?: string;
   motherIncome?: number;
-  motherEmail?: string;
-  motherFb?: string;
 
-  // Present Address
-  presentAddress: {
-    village?: string;
-    postOffice?: string;
-    postCode?: string;
-    policeStation?: string;
-    district?: string;
-  };
-
-  // Permanent Address
-  permanentAddress: {
-    village?: string;
-    postOffice?: string;
-    postCode?: string;
-    policeStation?: string;
-    district?: string;
-  };
+  // Addresses
+  presentAddress: IAddress;
+  permanentAddress: IAddress;
 
   // Guardian Information
-  guardianInfo: {
-    name?: string;
-    address?: {
-      village?: string;
-      postOffice?: string;
-      postCode?: string;
-      policeStation?: string;
-      district?: string;
-    };
-    profession?: string;
-    relation?: string;
-    mobile?: string;
-  };
-
-  // Local Guardian
-  localGuardian: {
-    name?: string;
-    mobile?: string;
-    categoryDesignation?: string;
-  };
+  guardianInfo: IGuardianInfo;
 
   // Previous School
-  previousSchool: {
-    institution?: string;
-    address?: {
-      village?: string;
-      postOffice?: string;
-      postCode?: string;
-      policeStation?: string;
-      district?: string;
-    };
-  };
+  previousSchool: IPreviousSchool;
 
   // Documents
-  documents: {
-    birthCertificate?: boolean;
-    transferCertificate?: boolean;
-    characterCertificate?: boolean;
-    markSheet?: boolean;
-    photographs?: boolean;
-  };
+  documents: IDocuments;
 
   // Terms
   termsAccepted: boolean;

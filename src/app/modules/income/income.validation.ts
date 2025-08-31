@@ -1,14 +1,18 @@
-import { z } from "zod"
+import { z } from 'zod';
 
-export const createIncomeValidation = z.object({
-  body:z.object({
-    source: z.enum(["tuition", "grant", "donation", "admission", "event"]),
-  description: z.string().min(3, "Description is required"),
-  amount: z.number().min(0, "Amount must be positive"),
-  date: z.string().refine(
-    (val) => !isNaN(Date.parse(val)),
-    { message: "Invalid date format" }
-  ),
-  })
-})
+export const incomeItemSchema = z.object({
+  source: z.string().min(1, 'Income source is required'),
+  amount: z.number(),
+});
 
+export const incomeSchema = z.object({
+  body: z.object({
+  
+    note: z.string().optional(),
+    incomeDate: z.string().min(1, 'Date is required'),
+    paymentMethod: z.string().min(1, 'Payment method is required'),
+    incomeItems: z
+      .array(incomeItemSchema)
+      .min(1, 'At least one income item is required'),
+  }),
+});

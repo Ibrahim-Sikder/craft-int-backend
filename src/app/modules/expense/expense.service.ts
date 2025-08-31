@@ -1,119 +1,128 @@
-import httpStatus from 'http-status'
-import { AppError } from '../../error/AppError'
-import QueryBuilder from '../../builder/QueryBuilder'
-import { Expense } from './expense.model'
-import { IExpense } from './expense.interface'
-import Redis from 'ioredis'
-import { clearExpenseCache } from './expense.utils'
+import httpStatus from 'http-status';
+import { AppError } from '../../error/AppError';
+import Redis from 'ioredis';
+import { clearExpenseCache } from './expense.utils';
+import { Expense } from './expense.model';
+import { IExpense } from './expense.interface';
+import QueryBuilder from '../../builder/QueryBuilder';
 
-// Initialize Redis client
 const redis = new Redis({
   host: process.env.REDIS_HOST || 'localhost',
   port: process.env.REDIS_PORT ? Number(process.env.REDIS_PORT) : 6379,
   password: process.env.REDIS_PASSWORD || undefined,
   maxRetriesPerRequest: 3,
-})
+});
 
 const createExpense = async (payload: IExpense) => {
-  const result = await Expense.create(payload)
+  const totalAmount = payload.expenseItems.reduce(
+    (sum, item) => sum + Number(item.amount || 0),
+    0,
+  );
 
-  // Clear expense cache after create
-  await clearExpenseCache()
+  const expenseData = {
+    ...payload,
+    totalAmount,
+  };
 
-  return result
-}
+  const result = await Expense.create(expenseData);
+  await clearExpenseCache();
+  return result;
+};
 
 const getAllExpenses = async (query: Record<string, unknown>) => {
-  const cacheKey = `expenses:${JSON.stringify(query)}`
+  const cacheKey = `expenses:${JSON.stringify(query)}`;
   try {
-    const cached = await redis.get(cacheKey)
+    const cached = await redis.get(cacheKey);
     if (cached) {
-      console.log('✅ Returning cached expenses data')
-      return JSON.parse(cached)
+      console.log('✅ Returning cached expenses data');
+      return JSON.parse(cached);
     }
   } catch (err) {
-    console.error('Redis read error:', err)
+    console.error('Redis read error:', err);
   }
 
-  const expenseQuery = new QueryBuilder(Expense.find(), query)
-    .search(['name', 'description', 'category'])
+  const queryBuilder = new QueryBuilder(Expense.find(), query)
+    .search(['description', 'someOtherField'])
     .filter()
     .sort()
     .paginate()
-    .fields()
+    .fields();
 
-  const meta = await expenseQuery.countTotal()
-  const data = await expenseQuery.modelQuery
-
-  const result = { meta, data }
+  const meta = await queryBuilder.countTotal();
+  const expenses = await queryBuilder.modelQuery.populate('category');
 
   try {
-    await redis.setex(cacheKey, 300, JSON.stringify(result)) // Cache for 5 minutes
-    console.log('✅ Cached expenses data')
+    await redis.setex(cacheKey, 300, JSON.stringify({ meta, expenses }));
+    console.log('✅ Cached expenses data');
   } catch (err) {
-    console.error('Redis write error:', err)
+    console.error('Redis write error:', err);
   }
 
-  return result
-}
+  return { meta, expenses };
+};
 
 const getSingleExpense = async (id: string) => {
-  const cacheKey = `expense:${id}`
+  const cacheKey = `expense:${id}`;
   try {
-    const cached = await redis.get(cacheKey)
+    const cached = await redis.get(cacheKey);
     if (cached) {
-      console.log('✅ Returning cached single expense')
-      return JSON.parse(cached)
+      console.log('✅ Returning cached single expense');
+      return JSON.parse(cached);
     }
   } catch (err) {
-    console.error('Redis read error:', err)
+    console.error('Redis read error:', err);
   }
 
-  const result = await Expense.findById(id)
-
-  if (!result) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Expense not found')
+  const expense = await Expense.findById(id).populate('category');
+  await clearExpenseCache();
+  if (!expense) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Expense not found');
   }
 
   try {
-    await redis.setex(cacheKey, 300, JSON.stringify(result))
+    await redis.setex(cacheKey, 300, JSON.stringify(expense));
   } catch (err) {
-    console.error('Redis write error:', err)
+    console.error('Redis write error:', err);
   }
 
-  return result
-}
+  return expense;
+};
 
 const updateExpense = async (id: string, payload: Partial<IExpense>) => {
-  const result = await Expense.findByIdAndUpdate(id, payload, {
+  if (payload.expenseItems && payload.expenseItems.length > 0) {
+    payload.totalAmount = payload.expenseItems.reduce(
+      (sum, item) => sum + Number(item.amount || 0),
+      0,
+    );
+  }
+
+  const expense = await Expense.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,
-  })
+  });
 
-  if (!result) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Failed to update expense')
+  if (!expense) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Failed to update expense');
   }
 
-  // Clear relevant caches after update
-  await redis.del(`expense:${id}`)
-  await clearExpenseCache()
+  await redis.del(`expense:${id}`);
+  await clearExpenseCache();
 
-  return result
-}
+  return expense;
+};
 
 const deleteExpense = async (id: string) => {
-  const result = await Expense.findByIdAndDelete(id)
-
-  if (!result) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Expense not found or already deleted')
+  const expense = await Expense.findByIdAndDelete(id);
+  if (!expense) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      'Expense not found or already deleted',
+    );
   }
-
-  // Clear relevant caches after delete
-  await redis.del(`expense:${id}`)
-  await clearExpenseCache()
-
-  return result
-}
+  await redis.del(`expense:${id}`);
+  await clearExpenseCache();
+  return expense;
+};
 
 export const expenseServices = {
   createExpense,
@@ -121,4 +130,4 @@ export const expenseServices = {
   getSingleExpense,
   updateExpense,
   deleteExpense,
-}
+};

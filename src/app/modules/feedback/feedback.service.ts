@@ -6,7 +6,10 @@ import { Feedback, IFeedback } from './feedback.model';
 
 const createFeedback = async (payload: IFeedback) => {
   if (!payload.type || !payload.title || !payload.description) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Type, Title, and Description are required');
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Type, Title, and Description are required',
+    );
   }
 
   const result = await Feedback.create(payload);
@@ -15,7 +18,7 @@ const createFeedback = async (payload: IFeedback) => {
 
 const getAllFeedbacks = async (query: Record<string, unknown>) => {
   const feedbackQuery = new QueryBuilder(Feedback.find(), query)
-    .search(['type'])
+    .search(['type', 'category', 'title', 'priority', 'department'])
     .filter()
     .sort()
     .paginate()
@@ -54,7 +57,10 @@ const updateFeedback = async (id: string, payload: Partial<IFeedback>) => {
 const deleteFeedback = async (id: string) => {
   const result = await Feedback.findByIdAndDelete(id);
   if (!result) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Feedback not found or already deleted');
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      'Feedback not found or already deleted',
+    );
   }
   return result;
 };
