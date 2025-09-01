@@ -11,8 +11,8 @@ const createInvestmentValidation = z.object({
     incomingType: z.string().optional(),
     returnPolicy: z.string().optional(),
     investmentAmount: z.number().min(1),
-    investmentDate: z.date().optional(),
-    maturityDate: z.date().optional(),
+    investmentDate: z.string().optional(),
+    maturityDate: z.string().optional(),
     returnRate: z.number().min(0).optional(),
   })
 });
@@ -27,8 +27,8 @@ const updateInvestmentValidation = z.object({
     incomingType: z.string().optional(),
     returnPolicy: z.string().optional(),
     investmentAmount: z.number().min(1).optional(),
-    investmentDate: z.date().optional(),
-    maturityDate: z.date().optional(),
+   investmentDate: z.string().optional(),
+    maturityDate: z.string().optional(),
     returnRate: z.number().min(0).optional(),
     status: z.enum(['active', 'closed', 'withdrawn', 'matured']).optional(),
   })
