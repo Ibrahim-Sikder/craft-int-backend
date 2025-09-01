@@ -52,7 +52,6 @@ const investmentSchema = new Schema<TInvestment>(
     },
     returnHistory: [returnHistorySchema],
     
-    // Calculation fields
     currentValue: {
       type: Number,
       default: function(this: TInvestment) {
