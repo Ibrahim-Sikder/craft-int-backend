@@ -36,7 +36,7 @@ const updateInvestmentValidation = z.object({
 
 const addReturnValidation = z.object({
   body: z.object({
-    date: z.date(),
+    date: z.string().optional(),
     amount: z.number().min(0),
     type: z.enum(['interest', 'principal', 'dividend', 'capital_gain']),
     note: z.string().optional(),

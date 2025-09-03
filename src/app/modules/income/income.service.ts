@@ -139,12 +139,12 @@ const getIncomeTotalsByCategory = async () => {
     {
       $unwind: {
         path: "$categoryInfo",
-        preserveNullAndEmptyArrays: true, // include incomes without category
+        preserveNullAndEmptyArrays: true,
       },
     },
     {
       $group: {
-        _id: "$categoryInfo.name", // group by category name
+        _id: "$categoryInfo.name", 
         totalAmount: { $sum: "$totalAmount" },
         count: { $sum: 1 },
       },
