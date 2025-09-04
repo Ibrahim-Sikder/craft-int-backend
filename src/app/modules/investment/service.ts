@@ -179,7 +179,6 @@ const closeInvestment = async (id: string, finalReturn?: TReturnHistory) => {
   }
   
   if (finalReturn) {
-    // Validate final return amount
     if (finalReturn.amount <= 0) {
       throw new AppError(
         httpStatus.BAD_REQUEST, 

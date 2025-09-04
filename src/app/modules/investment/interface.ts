@@ -24,6 +24,7 @@ export interface TInvestment extends Document {
   investmentAmount: number;
   investmentDate: Date;
   maturityDate?: Date;
+  closedDate?: Date;
   returnRate?: number;
   status: "active" | "closed" | "withdrawn" | "matured";
   returnHistory?: TReturnHistory[];
