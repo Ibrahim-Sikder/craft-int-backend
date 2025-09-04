@@ -1,3 +1,4 @@
+// loan/controller.ts
 import httpStatus from 'http-status';
 import sendResponse from '../../../utils/sendResponse';
 import { catchAsync } from '../../../utils/catchAsync';
@@ -53,10 +54,43 @@ const deleteLoan = catchAsync(async (req, res) => {
   });
 });
 
+const addRepayment = catchAsync(async (req, res) => {
+  const result = await loanServices.addRepayment(req.params.id, req.body);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Repayment added successfully',
+    data: result,
+  });
+});
+
+const transferLoan = catchAsync(async (req, res) => {
+  const result = await loanServices.transferLoan(req.params.id, req.body);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Loan transferred successfully',
+    data: result,
+  });
+});
+
+const getAmortization = catchAsync(async (req, res) => {
+  const result = await loanServices.calculateLoanAmortization(req.params.id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Loan amortization calculated successfully',
+    data: result,
+  });
+});
+
 export const loanControllers = {
   createLoan,
   getAllLoans,
   getSingleLoan,
   updateLoan,
   deleteLoan,
+  addRepayment,
+  transferLoan,
+  getAmortization
 };

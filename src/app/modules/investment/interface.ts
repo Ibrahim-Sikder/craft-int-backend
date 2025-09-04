@@ -3,19 +3,17 @@ import { Document } from "mongoose";
 export interface TReturnHistory {
   date: Date;
   amount: number;
+  type: 'interest' | 'principal' | 'dividend' | 'capital_gain';
+  note?: string;
 }
 
 export interface TInvestment extends Document {
-  investmentCategory: "outgoing" | "incoming"; // <-- New field
-
+  investmentCategory: "outgoing" | "incoming";
+  
   // Outgoing Investment
-  investmentTo?: string; // Company/person
+  investmentTo?: string;
   investmentType?: "fixed_deposit" | "share" | "bond" | "others";
-  investmentAmount: number;
-  investmentDate: Date;
-  maturityDate?: Date;
-  returnRate?: number; // profit/interest rate
-
+  
   // Incoming Investment
   investorName?: string;
   investorContact?: string;
@@ -23,6 +21,19 @@ export interface TInvestment extends Document {
   returnPolicy?: string;
 
   // Common
-  status: "active" | "closed" | "withdrawn";
+  investmentAmount: number;
+  investmentDate: Date;
+  maturityDate?: Date;
+  closedDate?: Date;
+  returnRate?: number;
+  status: "active" | "closed" | "withdrawn" | "matured";
   returnHistory?: TReturnHistory[];
+  
+  // Calculation fields
+  currentValue: number;
+  totalReturns: number;
+  expectedReturn: number;
+  roi: number; // Return on Investment
+  annualizedReturn: number;
+  daysHeld: number;
 }
