@@ -124,10 +124,47 @@ const deleteExpense = async (id: string) => {
   return expense;
 };
 
+const getExpenseTotalsByCategory = async () => {
+  const result = await Expense.aggregate([
+    {
+      $lookup: {
+        from: "expensecategories",
+        localField: "category",
+        foreignField: "_id",
+        as: "categoryInfo",
+      },
+    },
+    {
+      $unwind: {
+        path: "$categoryInfo",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $group: {
+        _id: "$categoryInfo.name",
+        totalAmount: { $sum: "$totalAmount" },
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $project: {
+        categoryName: "$_id",
+        totalAmount: 1,
+        count: 1,
+        _id: 0,
+      },
+    },
+  ])
+
+  return result
+}
+
 export const expenseServices = {
   createExpense,
   getAllExpenses,
   getSingleExpense,
   updateExpense,
   deleteExpense,
+  getExpenseTotalsByCategory
 };

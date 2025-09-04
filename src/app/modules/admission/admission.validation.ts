@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 // Address Schema (all optional, allow null)
 const AddressSchema = z.object({
@@ -24,6 +24,9 @@ export const CreateAdmissionSchema = z.object({
     nidBirth: z.string().nullable().optional(),
     bloodGroup: z.string().nullable().optional(),
     nationality: z.string().nullable().optional(),
+    paymentStatus: z.string().optional(),
+    admissionFee: z.number().optional(),
+    monthlyFee: z.number().optional(),
 
     // Parent Information
     fatherName: z.string().nullable().optional(),
@@ -43,29 +46,38 @@ export const CreateAdmissionSchema = z.object({
     permanentAddress: AddressSchema.nullable().optional(),
 
     // Guardian Information
-    guardianInfo: z.object({
-      name: z.string().nullable().optional(),
-      relation: z.string().nullable().optional(),
-      mobile: z.string().nullable().optional(),
-      address: z.string().nullable().optional(),
-    }).nullable().optional(),
+    guardianInfo: z
+      .object({
+        name: z.string().nullable().optional(),
+        relation: z.string().nullable().optional(),
+        mobile: z.string().nullable().optional(),
+        address: z.string().nullable().optional(),
+      })
+      .nullable()
+      .optional(),
 
     // Previous School
-    previousSchool: z.object({
-      institution: z.string().nullable().optional(),
-      address: z.string().nullable().optional(),
-    }).nullable().optional(),
+    previousSchool: z
+      .object({
+        institution: z.string().nullable().optional(),
+        address: z.string().nullable().optional(),
+      })
+      .nullable()
+      .optional(),
 
     // Documents
-    documents: z.object({
-      birthCertificate: z.boolean().nullable().optional(),
-      transferCertificate: z.boolean().nullable().optional(),
-      characterCertificate: z.boolean().nullable().optional(),
-      markSheet: z.boolean().nullable().optional(),
-      photographs: z.boolean().nullable().optional(),
-    }).nullable().optional(),
+    documents: z
+      .object({
+        birthCertificate: z.boolean().nullable().optional(),
+        transferCertificate: z.boolean().nullable().optional(),
+        characterCertificate: z.boolean().nullable().optional(),
+        markSheet: z.boolean().nullable().optional(),
+        photographs: z.boolean().nullable().optional(),
+      })
+      .nullable()
+      .optional(),
 
     // Terms
     termsAccepted: z.boolean().nullable().optional(),
-  })
+  }),
 });

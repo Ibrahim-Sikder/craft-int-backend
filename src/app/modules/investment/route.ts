@@ -1,6 +1,6 @@
+// investment/routes.ts
 import express from 'express';
 import { validateRequest } from '../../middlewares/validateRequest';
-// import { auth } from '../../middlewares/auth';
 import { InvestmentValidations } from './validation';
 import { investmentControllers } from './controller';
 
@@ -8,7 +8,6 @@ const router = express.Router();
 
 router.post(
   '/',
-  // auth('admin', 'super_admin'),
   validateRequest(InvestmentValidations.createInvestmentValidation),
   investmentControllers.createInvestment
 );
@@ -18,11 +17,27 @@ router.get('/:id', investmentControllers.getSingleInvestment);
 
 router.patch(
   '/:id',
-  // auth('admin', 'super_admin'),
   validateRequest(InvestmentValidations.updateInvestmentValidation),
   investmentControllers.updateInvestment
 );
 
-router.delete('/:id',  investmentControllers.deleteInvestment);
+router.delete('/:id', investmentControllers.deleteInvestment);
+
+// New routes for investment management
+router.post(
+  '/:id/returns',
+  validateRequest(InvestmentValidations.addReturnValidation),
+  investmentControllers.addReturn
+);
+
+router.post(
+  '/:id/close',
+  investmentControllers.closeInvestment
+);
+
+router.get(
+  '/:id/performance',
+  investmentControllers.getPerformance
+);
 
 export const investmentRoutes = router;

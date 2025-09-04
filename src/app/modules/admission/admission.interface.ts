@@ -55,6 +55,9 @@ export interface IAdmission {
   motherNid?: string;
   motherProfession?: string;
   motherIncome?: number;
+  paymentStatus: string;
+  admissionFee: number;
+  monthlyFee: number;
 
   // Addresses
   presentAddress: IAddress;
