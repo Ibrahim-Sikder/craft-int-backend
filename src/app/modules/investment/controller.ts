@@ -1,5 +1,5 @@
+// investment/controller.ts
 import httpStatus from 'http-status';
-
 import sendResponse from '../../../utils/sendResponse';
 import { catchAsync } from '../../../utils/catchAsync';
 import { investmentServices } from './service';
@@ -54,10 +54,43 @@ const deleteInvestment = catchAsync(async (req, res) => {
   });
 });
 
+const addReturn = catchAsync(async (req, res) => {
+  const result = await investmentServices.addInvestmentReturn(req.params.id, req.body);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Investment return added successfully',
+    data: result,
+  });
+});
+
+const closeInvestment = catchAsync(async (req, res) => {
+  const result = await investmentServices.closeInvestment(req.params.id, req.body);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Investment closed successfully',
+    data: result,
+  });
+});
+
+const getPerformance = catchAsync(async (req, res) => {
+  const result = await investmentServices.calculateInvestmentPerformance(req.params.id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Investment performance calculated successfully',
+    data: result,
+  });
+});
+
 export const investmentControllers = {
   createInvestment,
   getAllInvestments,
   getSingleInvestment,
   updateInvestment,
   deleteInvestment,
+  addReturn,
+  closeInvestment,
+  getPerformance
 };

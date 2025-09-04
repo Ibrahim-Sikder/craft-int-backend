@@ -57,10 +57,21 @@ const deleteExpense = catchAsync(async (req, res, next) => {
   });
 });
 
+const getExpenseTotalsByCategory = catchAsync(async (req, res) => {
+  const result = await expenseServices.getExpenseTotalsByCategory()
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Expense totals by category retrieved successfully",
+    data: result,
+  })
+})
+
 export const expenseControllers = {
   createExpense,
   getAllExpenses,
   getSingleExpense,
   updateExpense,
   deleteExpense,
+  getExpenseTotalsByCategory
 };

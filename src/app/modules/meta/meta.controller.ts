@@ -20,8 +20,19 @@ const getAllMeta = catchAsync(async (req, res,  next) => {
     next(err);
   }
 });
+const getAccountingReport = catchAsync(async (req, res) => {
+  const result = await metaServices.getAccountingReport();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Accounting report fetched successfully.",
+    data: result,
+  });
+});
 
 
 export const metaController = {
   getAllMeta,
+  getAccountingReport
 };

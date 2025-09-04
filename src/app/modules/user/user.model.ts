@@ -28,7 +28,7 @@ const userSchema = new Schema<TUser, UserModel>(
     },
     role: {
       type: String,
-      enum: ['super_admin', 'user', 'admin', 'student', 'teacher', 'super_visor', 'class_teacher'],
+      enum: ['super_admin', 'user', 'admin', 'student', 'teacher', 'super_visor', 'class_teacher', 'accountant'],
       default: 'user',
     },
     status: {
@@ -47,9 +47,7 @@ const userSchema = new Schema<TUser, UserModel>(
 );
 
 userSchema.pre('save', async function (next) {
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
-  const user = this; // doc
-  // hashing password and save into DB
+  const user = this; 
   user.password = await bcrypt.hash(user.password, Number(config.default_pass));
   next();
 });

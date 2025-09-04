@@ -13,7 +13,7 @@ router.post(
 );
 
 router.get('/', incomeControllers.getAllIncomes);
-router.get("/totals-by-category", incomeControllers.getIncomeTotalsByCategory);
+router.get("/total-income-category", incomeControllers.getIncomeTotalsByCategory);
 
 router.get('/:id', incomeControllers.getSingleIncome);
 
