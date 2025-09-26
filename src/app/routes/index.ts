@@ -34,6 +34,7 @@ import { hifzClassReportRoutes } from '../modules/hifzClassReport/route';
 import { investmentRoutes } from '../modules/investment/route';
 import { loanRoutes } from '../modules/loan/route';
 import { nazeraDailyReportRoutes } from '../modules/nazeraDailyReport/route';
+import { QaidaDailyReportRoutes } from '../modules/qaidaDailyReport/route';
 const router = Router();
 
 const moduleRoutes = [
@@ -165,6 +166,10 @@ const moduleRoutes = [
   {
     path: '/nazera-daily-report',
     route: nazeraDailyReportRoutes,
+  },
+  {
+    path: '/qaida-daily-report',
+    route: QaidaDailyReportRoutes,
   },
   {
     path: '/meta',

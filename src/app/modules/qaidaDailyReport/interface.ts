@@ -14,6 +14,7 @@ export interface IDayEntry {
 
 export interface IQaidaDailyReport {
   studentName: string;
+  teacherName:string;
   reportDate: Date;
   month: string;
   weeklyTarget: string;

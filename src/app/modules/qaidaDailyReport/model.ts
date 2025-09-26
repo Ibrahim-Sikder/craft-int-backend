@@ -28,6 +28,7 @@ const dailyEntriesSchema = new Schema({
 const qaidaDailyReportSchema = new Schema<IQaidaDailyReport>(
   {
     studentName: { type: String, required: true },
+    teacherName: { type: String, required: true },
     reportDate: { type: Date, required: true },
     month: { type: String, required: true },
     weeklyTarget: { type: String, default: "" },
