@@ -62,6 +62,9 @@ const teacherSchema = new Schema<ITeacher>(
     smartIdCard: {
       type: String,
     },
+    teacherDepartment: {
+      type: String,
+    },
     name: {
       type: String,
       required: true,

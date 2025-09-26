@@ -33,6 +33,7 @@ import { hifzSubjectRoutes } from '../modules/hifzSubject/route';
 import { hifzClassReportRoutes } from '../modules/hifzClassReport/route';
 import { investmentRoutes } from '../modules/investment/route';
 import { loanRoutes } from '../modules/loan/route';
+import { nazeraDailyReportRoutes } from '../modules/nazeraDailyReport/route';
 const router = Router();
 
 const moduleRoutes = [
@@ -160,6 +161,10 @@ const moduleRoutes = [
   {
     path: '/loan',
     route: loanRoutes,
+  },
+  {
+    path: '/nazera-daily-report',
+    route: nazeraDailyReportRoutes,
   },
   {
     path: '/meta',
