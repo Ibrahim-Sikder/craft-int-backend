@@ -8,7 +8,7 @@ const createNazeraDailyReport = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
-    message: 'NazeraDailyReport created successfully',
+    message: 'Nazera Daily Report created successfully',
     data: result,
   });
 });
@@ -18,7 +18,7 @@ const getAllNazeraDailyReports = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'NazeraDailyReports retrieved successfully',
+    message: 'Nazera Daily Reports retrieved successfully',
     data: result,
   });
 });
@@ -28,7 +28,7 @@ const getSingleNazeraDailyReport = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'NazeraDailyReport retrieved successfully',
+    message: 'Nazera Daily Report retrieved successfully',
     data: result,
   });
 });
@@ -38,7 +38,7 @@ const updateNazeraDailyReport = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'NazeraDailyReport updated successfully',
+    message: 'Nazera Daily Report updated successfully',
     data: result,
   });
 });
@@ -48,7 +48,7 @@ const deleteNazeraDailyReport = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'NazeraDailyReport deleted successfully',
+    message: 'Nazera Daily Report deleted successfully',
     data: result,
   });
 });

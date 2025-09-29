@@ -1,53 +1,60 @@
-// nazeraReport.model.ts
-import { Schema, model } from "mongoose"
-import { INazeraReport } from "./interface"
+import { Schema, model } from 'mongoose';
+import { INazeraDailyReportModel } from './interface';
 
-const DailySessionSchema = new Schema(
-  {
-    para: { type: String, default: "" },
-    page: { type: String, default: "" },
-    amount: { type: String, default: "" },
-    mistakes: { type: String, default: "" },
+const DailyEntrySchema = new Schema({
+  sobok: {
+    para: { type: String, default: '' },
+    page: { type: String, default: '' }
   },
-  { _id: false }
-)
-
-const DayEntrySchema = new Schema(
-  {
-    morning: { type: DailySessionSchema, required: true },
-    afternoon: { type: DailySessionSchema, required: true },
-    night: { type: DailySessionSchema, required: true },
-    totalRead: { type: String, default: "" },
-    duaHadithMasala: { type: String, default: "" },
-    mashq: { type: String, enum: ["হ্যাঁ", "না"], default: "না" },
-    tajweed: { type: String, default: "" },
+  sabakSeven: {
+    para: { type: String, default: '' },
+    page: { type: String, default: '' }
   },
-  { _id: false }
-)
+  sabakAmukta: {
+    para: { type: String, default: '' },
+    page: { type: String, default: '' }
+  },
+  satSobok: {
+    para: { type: String, default: '' },
+    page: { type: String, default: '' },
+    amount: { type: String, default: '' },
+    wrong: { type: String, default: '' }
+  },
+  tilawaAmount: { type: String, default: '' },
+  mashq: { type: String, default: '' },
+  tajweed: { type: String, default: '' },
+  teacherSignature: { type: String, default: '' },
+  thursdayWeeklyRevision: { type: String, default: '' }
+});
 
-const NazeraReportSchema = new Schema<INazeraReport>(
+const NazeraDailyReportSchema = new Schema(
   {
     teacherName: { type: String, required: true },
     studentName: { type: String, required: true },
     reportDate: { type: String, required: true },
     month: { type: String, required: true },
- 
+    weeklyTarget: { type: String, default: '' },
     dailyEntries: {
-      saturday: { type: DayEntrySchema, required: true },
-      sunday: { type: DayEntrySchema, required: true },
-      monday: { type: DayEntrySchema, required: true },
-      tuesday: { type: DayEntrySchema, required: true },
-      wednesday: { type: DayEntrySchema, required: true },
-      thursday: { type: DayEntrySchema, required: true },
-      friday: { type: DayEntrySchema, required: true },
+      saturday: { type: DailyEntrySchema, default: () => ({}) },
+      sunday: { type: DailyEntrySchema, default: () => ({}) },
+      monday: { type: DailyEntrySchema, default: () => ({}) },
+      tuesday: { type: DailyEntrySchema, default: () => ({}) },
+      wednesday: { type: DailyEntrySchema, default: () => ({}) },
+      thursday: { type: DailyEntrySchema, default: () => ({}) },
+      friday: { type: DailyEntrySchema, default: () => ({}) }
     },
-    // Weekly totals
-    totalPages: { type: Number, default: 0 },
-    totalMistakes: { type: Number, default: 0 },
-    totalDuas: { type: Number, default: 0 },
-    totalHadiths: { type: Number, default: 0 },
+    weeklySummary: {
+      totalSobok: { type: Number, default: 0 },
+      totalSatSobok: { type: Number, default: 0 },
+      totalSabakAmukta: { type: Number, default: 0 },
+      totalTilawat: { type: Number, default: 0 },
+      totalRevision: { type: Number, default: 0 }
+    },
+    createdBy: { type: Schema.Types.ObjectId, ref: 'User' }
   },
-  { timestamps: true }
-)
+  {
+    timestamps: true,
+  }
+);
 
-export const NazeraReportModel = model<INazeraReport>("NazeraReport", NazeraReportSchema)
+export const NazeraDailyReportModel = model<INazeraDailyReportModel>('NazeraDailyReport', NazeraDailyReportSchema);

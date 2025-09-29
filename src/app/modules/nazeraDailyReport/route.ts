@@ -1,13 +1,13 @@
 import express from 'express';
 import { nazeraDailyReportControllers } from './controller';
-import { NazeraReportValidation } from './validation';
+import { NazeraDailyReportValidation } from './validation';
 import { validateRequest } from '../../middlewares/validateRequest';
 
 const router = express.Router();
 
 router.post(
   '/',
-  validateRequest(NazeraReportValidation), 
+  validateRequest(NazeraDailyReportValidation),
   nazeraDailyReportControllers.createNazeraDailyReport
 );
 
@@ -17,7 +17,7 @@ router.get('/:id', nazeraDailyReportControllers.getSingleNazeraDailyReport);
 
 router.patch(
   '/:id',
-  validateRequest(NazeraReportValidation.partial()),
+  validateRequest(NazeraDailyReportValidation.partial()),
   nazeraDailyReportControllers.updateNazeraDailyReport
 );
 

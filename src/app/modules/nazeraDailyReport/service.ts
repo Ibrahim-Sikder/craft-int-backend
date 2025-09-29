@@ -1,35 +1,55 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import httpStatus from 'http-status';
 import { AppError } from '../../error/AppError';
-import { INazeraReport } from './interface';
-import { NazeraReportModel } from './model';
+import { INazeraDailyReport } from './interface';
+import { NazeraDailyReportModel } from './model';
 import QueryBuilder from '../../builder/QueryBuilder';
 
-// Utility function: Weekly summary calculation
-const calculateWeeklySummary = (dailyEntries: INazeraReport['dailyEntries']) => {
-  let totalPages = 0;
-  let totalMistakes = 0;
+// Calculate weekly summary from daily entries
+const calculateWeeklySummary = (dailyEntries: INazeraDailyReport['dailyEntries']) => {
+  let totalSobok = 0;
+  let totalSatSobok = 0;
+  let totalSabakAmukta = 0;
+  let totalTilawat = 0;
+  let totalRevision = 0;
 
   Object.values(dailyEntries).forEach((day) => {
-    ['morning', 'afternoon', 'night'].forEach((session) => {
-      const sessionData = day[session as keyof typeof day];
-      if (sessionData && typeof sessionData === 'object' && 'page' in sessionData) {
-        totalPages += Number((sessionData as any).page) || 0;
-      }
-      if (sessionData && typeof sessionData === 'object' && 'mistakes' in sessionData) {
-        totalMistakes += Number((sessionData as any).mistakes) || 0;
-      }
-    });
+    // Calculate Sobok total
+    if (day.sobok?.page) {
+      totalSobok += parseInt(day.sobok.page) || 0;
+    }
+    
+    // Calculate Sat Sobok total
+    if (day.satSobok?.amount) {
+      totalSatSobok += parseInt(day.satSobok.amount) || 0;
+    }
+    
+    // Calculate Sabak Amukta total
+    if (day.sabakAmukta?.page) {
+      totalSabakAmukta += parseInt(day.sabakAmukta.page) || 0;
+    }
+    
+    // Calculate Tilawat total
+    if (day.tilawaAmount) {
+      totalTilawat += parseInt(day.tilawaAmount) || 0;
+    }
+    
+    // Calculate Revision total (only from Thursday)
+    if (day.thursdayWeeklyRevision) {
+      totalRevision += parseInt(day.thursdayWeeklyRevision) || 0;
+    }
   });
 
   return {
-    totalPages,
-    totalMistakes,
+    totalSobok,
+    totalSatSobok,
+    totalSabakAmukta,
+    totalTilawat,
+    totalRevision
   };
 };
 
-const createNazeraDailyReport = async (payload: INazeraReport, userId?: string) => {
+const createNazeraDailyReport = async (payload: INazeraDailyReport, userId?: string) => {
   const weeklySummary = calculateWeeklySummary(payload.dailyEntries);
 
   const reportData = {
@@ -38,13 +58,13 @@ const createNazeraDailyReport = async (payload: INazeraReport, userId?: string) 
     ...(userId && { createdBy: userId }),
   };
 
-  const result = await NazeraReportModel.create(reportData);
+  const result = await NazeraDailyReportModel.create(reportData);
   return result;
 };
 
 const getAllNazeraDailyReports = async (query: Record<string, unknown>) => {
-  const nazeraReportQuery = new QueryBuilder(
-    NazeraReportModel.find(),
+  const nazeraDailyReportQuery = new QueryBuilder(
+    NazeraDailyReportModel.find(),
     query,
   )
     .search(['teacherName', 'studentName', 'month'])
@@ -53,14 +73,14 @@ const getAllNazeraDailyReports = async (query: Record<string, unknown>) => {
     .paginate()
     .fields();
 
-  const meta = await nazeraReportQuery.countTotal();
-  const data = await nazeraReportQuery.modelQuery;
+  const meta = await nazeraDailyReportQuery.countTotal();
+  const data = await nazeraDailyReportQuery.modelQuery;
 
   return { meta, data };
 };
 
 const getSingleNazeraDailyReport = async (id: string) => {
-  const result = await NazeraReportModel.findById(id)
+  const result = await NazeraDailyReportModel.findById(id);
 
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'Nazera Daily Report not found');
@@ -70,10 +90,10 @@ const getSingleNazeraDailyReport = async (id: string) => {
 
 const updateNazeraDailyReport = async (
   id: string,
-  payload: Partial<INazeraReport> & { weeklySummary?: { totalPages: number; totalMistakes: number } },
+  payload: Partial<INazeraDailyReport>,
   userId?: string
 ) => {
-  const existingReport = await NazeraReportModel.findById(id);
+  const existingReport = await NazeraDailyReportModel.findById(id);
   if (!existingReport) {
     throw new AppError(httpStatus.NOT_FOUND, 'Nazera Daily Report not found');
   }
@@ -84,7 +104,7 @@ const updateNazeraDailyReport = async (
     updateData = { ...updateData, weeklySummary };
   }
 
-  const result = await NazeraReportModel.findByIdAndUpdate(id, updateData, {
+  const result = await NazeraDailyReportModel.findByIdAndUpdate(id, updateData, {
     new: true,
     runValidators: true,
   });
@@ -97,7 +117,7 @@ const updateNazeraDailyReport = async (
 };
 
 const deleteNazeraDailyReport = async (id: string) => {
-  const result = await NazeraReportModel.findByIdAndDelete(id);
+  const result = await NazeraDailyReportModel.findByIdAndDelete(id);
 
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'Nazera Daily Report not found or already deleted');
@@ -107,16 +127,16 @@ const deleteNazeraDailyReport = async (id: string) => {
 };
 
 const getReportsByStudent = async (studentName: string, query: Record<string, unknown>) => {
-  const nazeraReportQuery = new QueryBuilder(
-    NazeraReportModel.find({ studentName }).populate('createdBy', 'name email'),
+  const nazeraDailyReportQuery = new QueryBuilder(
+    NazeraDailyReportModel.find({ studentName }).populate('createdBy', 'name email'),
     query,
   )
     .filter()
     .sort()
     .paginate();
 
-  const meta = await nazeraReportQuery.countTotal();
-  const data = await nazeraReportQuery.modelQuery;
+  const meta = await nazeraDailyReportQuery.countTotal();
+  const data = await nazeraDailyReportQuery.modelQuery;
 
   return { meta, data };
 };

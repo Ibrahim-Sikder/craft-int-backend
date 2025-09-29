@@ -1,39 +1,98 @@
-// nazeraReport.interface.ts
-export interface IDailySession {
-  para: string
-  page: string
-  amount: string
-  mistakes: string
-}
+import { Document } from 'mongoose';
 
-
-export interface IDayEntry {
-  morning: IDailySession
-  afternoon: IDailySession
-  night: IDailySession
-  totalRead: string
-  duaHadithMasala: string
-  mashq?: string
-  tajweed?: string
-}
-
-export interface INazeraReport {
-  teacherName: string
-  studentName: string
-  reportDate: string
-  month: string
+export interface INazeraDailyReport {
+  teacherName: string;
+  studentName: string;
+  reportDate: string;
+  month: string;
+  weeklyTarget: string;
   dailyEntries: {
-    saturday: IDayEntry
-    sunday: IDayEntry
-    monday: IDayEntry
-    tuesday: IDayEntry
-    wednesday: IDayEntry
-    thursday: IDayEntry
-    friday: IDayEntry
-  }
-  // Weekly totals
-  totalPages?: number
-  totalMistakes?: number
-  totalDuas?: number
-  totalHadiths?: number
+    saturday: {
+      sobok: { para: string; page: string };
+      sabakSeven: { para: string; page: string };
+      sabakAmukta: { para: string; page: string };
+      satSobok: { para: string; page: string; amount: string; wrong: string };
+      tilawaAmount: string;
+      mashq: string;
+      tajweed: string;
+      teacherSignature: string;
+      thursdayWeeklyRevision: string;
+    };
+    sunday: {
+      sobok: { para: string; page: string };
+      sabakSeven: { para: string; page: string };
+      sabakAmukta: { para: string; page: string };
+      satSobok: { para: string; page: string; amount: string; wrong: string };
+      tilawaAmount: string;
+      mashq: string;
+      tajweed: string;
+      teacherSignature: string;
+      thursdayWeeklyRevision: string;
+    };
+    monday: {
+      sobok: { para: string; page: string };
+      sabakSeven: { para: string; page: string };
+      sabakAmukta: { para: string; page: string };
+      satSobok: { para: string; page: string; amount: string; wrong: string };
+      tilawaAmount: string;
+      mashq: string;
+      tajweed: string;
+      teacherSignature: string;
+      thursdayWeeklyRevision: string;
+    };
+    tuesday: {
+      sobok: { para: string; page: string };
+      sabakSeven: { para: string; page: string };
+      sabakAmukta: { para: string; page: string };
+      satSobok: { para: string; page: string; amount: string; wrong: string };
+      tilawaAmount: string;
+      mashq: string;
+      tajweed: string;
+      teacherSignature: string;
+      thursdayWeeklyRevision: string;
+    };
+    wednesday: {
+      sobok: { para: string; page: string };
+      sabakSeven: { para: string; page: string };
+      sabakAmukta: { para: string; page: string };
+      satSobok: { para: string; page: string; amount: string; wrong: string };
+      tilawaAmount: string;
+      mashq: string;
+      tajweed: string;
+      teacherSignature: string;
+      thursdayWeeklyRevision: string;
+    };
+    thursday: {
+      sobok: { para: string; page: string };
+      sabakSeven: { para: string; page: string };
+      sabakAmukta: { para: string; page: string };
+      satSobok: { para: string; page: string; amount: string; wrong: string };
+      tilawaAmount: string;
+      mashq: string;
+      tajweed: string;
+      teacherSignature: string;
+      thursdayWeeklyRevision: string;
+    };
+    friday: {
+      sobok: { para: string; page: string };
+      sabakSeven: { para: string; page: string };
+      sabakAmukta: { para: string; page: string };
+      satSobok: { para: string; page: string; amount: string; wrong: string };
+      tilawaAmount: string;
+      mashq: string;
+      tajweed: string;
+      teacherSignature: string;
+      thursdayWeeklyRevision: string;
+    };
+  };
+  weeklySummary?: {
+    totalSobok: number;
+    totalSatSobok: number;
+    totalSabakAmukta: number;
+    totalTilawat: number;
+    totalRevision: number;
+  };
+  createdBy?: string;
 }
+
+export interface INazeraDailyReportModel extends INazeraDailyReport, Document {}
