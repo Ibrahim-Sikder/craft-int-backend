@@ -59,6 +59,7 @@ export interface ITeacher {
   // Professional Information
   designation: string;
   department: string;
+  teacherDepartment: string;
   joiningDate: Date;
   monthlySalary: number;
   staffType: 'Teacher' | 'Staff' | 'Other';

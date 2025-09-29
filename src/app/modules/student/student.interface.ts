@@ -18,6 +18,7 @@ export interface IStudent extends Document {
   mobile: string;
   bloodGroup: string;
   studentPhoto: string;
+  studentDepartment: string;
 
   // Family Information
   fatherName: string;

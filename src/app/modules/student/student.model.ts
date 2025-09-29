@@ -19,6 +19,10 @@ const studentSchema = new Schema<IStudent>(
       type: String,
   
     },
+    studentDepartment: {
+      type: String,
+  
+    },
     birthDate: {
       type: String,
     },

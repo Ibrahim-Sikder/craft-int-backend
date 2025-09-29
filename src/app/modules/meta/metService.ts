@@ -128,7 +128,7 @@ const getAccountingReport = async () => {
       Admission.find(),
     ]);
 
-  // Income & Expense
+  // ✅ Income & Expense
   const totalIncome = incomes.reduce(
     (sum, inc) => sum + (inc.totalAmount || 0),
     0,
@@ -146,9 +146,9 @@ const getAccountingReport = async () => {
     0,
   );
 
-  // Loans
-  const takenLoans = loans.filter((l) => l.loan_type === 'taken');
-  const givenLoans = loans.filter((l) => l.loan_type === 'given');
+  // ✅ Loans
+  const takenLoans = loans.filter((l) => l.loan_type === "taken");
+  const givenLoans = loans.filter((l) => l.loan_type === "given");
 
   const totalTakenLoan = takenLoans.reduce(
     (sum, l) => sum + (l.loan_amount || 0),
@@ -159,21 +159,22 @@ const getAccountingReport = async () => {
     0,
   );
 
-  // Outstanding loans calculation
+  // ✅ Outstanding loans calculation
   const outstandingTakenLoans = takenLoans.reduce(
-    (sum, l) => sum + (l.remainingBalance || l.loan_amount),
+    (sum, l) => sum + (l.remainingBalance ?? l.loan_amount),
     0,
   );
   const outstandingGivenLoans = givenLoans.reduce(
-    (sum, l) => sum + (l.remainingBalance || l.loan_amount),
+    (sum, l) => sum + (l.remainingBalance ?? l.loan_amount),
     0,
   );
 
+  // ✅ Investments
   const outgoingInvestments = investments.filter(
-    (inv) => inv.investmentCategory === 'outgoing',
+    (inv) => inv.investmentCategory === "outgoing",
   );
   const incomingInvestments = investments.filter(
-    (inv) => inv.investmentCategory === 'incoming',
+    (inv) => inv.investmentCategory === "incoming",
   );
 
   const totalOutgoingInvestment = outgoingInvestments.reduce(
@@ -185,9 +186,11 @@ const getAccountingReport = async () => {
     0,
   );
 
+  // ✅ Net Profit
   const netProfit =
     totalIncome + totalAdmissionFee - (totalExpense + totalSalary);
 
+  // ✅ Cash Balance
   const cashBalance =
     totalIncome +
     totalAdmissionFee +
@@ -195,14 +198,15 @@ const getAccountingReport = async () => {
     totalIncomingInvestment -
     (totalExpense + totalSalary + totalOutgoingInvestment + totalGivenLoan);
 
+  // ✅ Assets
   const assets = {
     cash: Math.max(0, cashBalance),
-    accountsReceivable: outstandingGivenLoans,
+    accountsReceivable: outstandingGivenLoans, // given loan (asset)
     investments: outgoingInvestments.reduce(
       (sum, inv) => sum + (inv.currentValue || inv.investmentAmount),
       0,
     ),
-    fixedAssets: 0,
+    fixedAssets: 0, // future: building, furniture etc
     total: function () {
       return (
         this.cash +
@@ -213,62 +217,70 @@ const getAccountingReport = async () => {
     },
   };
 
+  // ✅ Liabilities (⚠️ fixed: no double counting)
   const liabilities = {
-    accountsPayable: outstandingTakenLoans,
-    loans: outstandingTakenLoans,
+    loans: outstandingTakenLoans, // শুধু নেওয়া loan রাখলাম
+    accountsPayable: 0, // vendor payable থাকলে এখানে যোগ করবেন
     otherLiabilities: 0,
     total: function () {
-      return this.accountsPayable + this.loans + this.otherLiabilities;
+      return this.loans + this.accountsPayable + this.otherLiabilities;
     },
   };
 
-
+  // ✅ Equity
   const equity = {
-    capital: totalIncomingInvestment,
-    retainedEarnings: netProfit, 
+    capital: totalIncomingInvestment, // যদি মালিক/শেয়ারহোল্ডারের টাকা হয়
+    retainedEarnings: netProfit,
     total: function () {
       return this.capital + this.retainedEarnings;
     },
   };
 
+  // ✅ Equation Check
   const isBalanced = assets.total() === liabilities.total() + equity.total();
 
   return {
-    summary: {
-      assets: assets.total(),
-      liabilities: liabilities.total(), 
-      equity: equity.total(),
-      income: totalIncome + totalAdmissionFee,
-      expense: totalExpense + totalSalary,
-      netProfit,
-    },
-    breakdown: {
-      totalIncome,
-      totalAdmissionFee,
-      totalExpense,
-      totalSalary,
-      totalOutgoingInvestment,
-      totalIncomingInvestment,
-      totalTakenLoan,
-      totalGivenLoan,
-      outstandingTakenLoans,
-      outstandingGivenLoans,
-    },
-    details: {
-      assets,
-      liabilities,
-      equity,
-    },
-    formulaCheck: {
-      'Assets (সম্পদ)': assets.total(),
-      'Liabilities (দেনা)': liabilities.total(),
-      'Equity (মূলধন)': equity.total(),
-      Equation: `Assets (${assets.total()}) = Liabilities (${liabilities.total()}) + Equity (${equity.total()})`,
-      'Valid?': isBalanced,
-      Difference: assets.total() - (liabilities.total() + equity.total()),
+    success: true,
+    message: "Accounting report fetched successfully.",
+    data: {
+      summary: {
+        assets: assets.total(),
+        liabilities: liabilities.total(),
+        equity: equity.total(),
+        income: totalIncome + totalAdmissionFee,
+        expense: totalExpense + totalSalary,
+        netProfit,
+      },
+      breakdown: {
+        totalIncome,
+        totalAdmissionFee,
+        totalExpense,
+        totalSalary,
+        totalOutgoingInvestment,
+        totalIncomingInvestment,
+        totalTakenLoan,
+        totalGivenLoan,
+        outstandingTakenLoans,
+        outstandingGivenLoans,
+      },
+      details: {
+        assets,
+        liabilities,
+        equity,
+      },
+      formulaCheck: {
+        "Assets (সম্পদ)": assets.total(),
+        "Liabilities (দেনা)": liabilities.total(),
+        "Equity (মূলধন)": equity.total(),
+        Equation: `Assets (${assets.total()}) = Liabilities (${liabilities.total()}) + Equity (${equity.total()})`,
+        "Valid?": isBalanced,
+        Difference:
+          assets.total() - (liabilities.total() + equity.total()),
+      },
     },
   };
 };
+
 export const metaServices = {
   getAllMetaFromDB,
   getAccountingReport,
