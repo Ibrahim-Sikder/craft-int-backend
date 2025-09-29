@@ -35,6 +35,9 @@ import { investmentRoutes } from '../modules/investment/route';
 import { loanRoutes } from '../modules/loan/route';
 import { nazeraDailyReportRoutes } from '../modules/nazeraDailyReport/route';
 import { QaidaDailyReportRoutes } from '../modules/qaidaDailyReport/route';
+import { sunaniReportRoutes } from '../modules/sunaniReport/route';
+import { sobokiDailyReportRoutes } from '../modules/sobokiDailyReport/route';
+import { amparaDailyReportRoutes } from '../modules/amparaDailyReport/route';
 const router = Router();
 
 const moduleRoutes = [
@@ -170,6 +173,18 @@ const moduleRoutes = [
   {
     path: '/qaida-daily-report',
     route: QaidaDailyReportRoutes,
+  },
+  {
+    path: '/sunani-daily-report',
+    route: sunaniReportRoutes,
+  },
+  {
+    path: '/soboki-daily-report',
+    route: sobokiDailyReportRoutes,
+  },
+  {
+    path: '/ampara-daily-report',
+    route: amparaDailyReportRoutes,
   },
   {
     path: '/meta',
