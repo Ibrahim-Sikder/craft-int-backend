@@ -6,6 +6,7 @@ export interface IDailySession {
   mistakes: string
 }
 
+
 export interface IDayEntry {
   morning: IDailySession
   afternoon: IDailySession
