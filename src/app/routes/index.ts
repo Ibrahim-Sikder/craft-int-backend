@@ -38,6 +38,7 @@ import { QaidaDailyReportRoutes } from '../modules/qaidaDailyReport/route';
 import { sunaniReportRoutes } from '../modules/sunaniReport/route';
 import { sobokiDailyReportRoutes } from '../modules/sobokiDailyReport/route';
 import { amparaDailyReportRoutes } from '../modules/amparaDailyReport/route';
+import { weeklyReportRoutes } from '../modules/weeklyReport/route';
 const router = Router();
 
 const moduleRoutes = [
@@ -185,6 +186,10 @@ const moduleRoutes = [
   {
     path: '/ampara-daily-report',
     route: amparaDailyReportRoutes,
+  },
+  {
+    path: '/weekly-report',
+    route: weeklyReportRoutes,
   },
   {
     path: '/meta',

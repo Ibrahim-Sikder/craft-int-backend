@@ -4,15 +4,21 @@ import { ISunaniReportModel } from './interface';
 const DailyEntrySchema = new Schema({
   sobok: {
     para: { type: String, default: '' },
-    page: { type: String, default: '' }
+    page: { type: String, default: '' },
+        amount: { type: String, default: '' },
+    wrong: { type: String, default: '' } 
   },
   sabakSeven: {
     para: { type: String, default: '' },
-    page: { type: String, default: '' }
+    page: { type: String, default: '' },
+        amount: { type: String, default: '' },
+    wrong: { type: String, default: '' } 
   },
   sabakAmukta: {
     para: { type: String, default: '' },
-    page: { type: String, default: '' }
+    page: { type: String, default: '' },
+        amount: { type: String, default: '' },
+    wrong: { type: String, default: '' } 
   },
   satSobok: {
     para: { type: String, default: '' },
