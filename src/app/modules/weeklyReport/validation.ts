@@ -16,12 +16,6 @@ const createWeeklyReportValidation = z.object({
     studentName: z.string({
       required_error: "Student name is required",
     }),
-    date: z.preprocess(
-      (val) => (val ? new Date(val as string) : undefined),
-      z.date({
-        required_error: "Valid date is required",
-      })
-    ),
     month: z.string({
       required_error: "Month is required",
     }),
@@ -35,12 +29,7 @@ const createWeeklyReportValidation = z.object({
 const updateWeeklyReportValidation = z.object({
   body: z.object({
     studentName: z.string().optional(),
-    date: z
-      .preprocess(
-        (val) => (val ? new Date(val as string) : undefined),
-        z.date().optional()
-      )
-      .optional(),
+
     month: z.string().optional(),
     reportType: reportTypeEnum.optional(),
     rows: z.array(reportRowSchema).optional(),
