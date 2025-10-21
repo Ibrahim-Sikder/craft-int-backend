@@ -1,9 +1,9 @@
-export interface ITimeEntry {
+interface ITimeEntry {
   amount: string
   mistakes: string;
 }
 
-export interface IDayEntry {
+interface IDayEntry {
   morning: ITimeEntry;
   afternoon: ITimeEntry;
   night: ITimeEntry;
